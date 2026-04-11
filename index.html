@@ -1222,67 +1222,289 @@ function exportExcel() {
         files[schema.file]=fflate.strToU8(xml);
       });
 
-      // DASHBOARD sheet auto-calculates via formulas — no patching needed
+      // ── PATCH DASHBOARD SHEET with INT OEMs ──────────────
+      var dashXml=fflate.strFromU8(files["xl/worksheets/sheet8.xml"]);
 
-      // ── BUILD INTEGRATED OEM SHEETS ─────────────────────
-      // These are plain sheets added to the zip
+      // Style pairs for INT rows — reuse ADV alternating styles cycling through rows 5-11
+      // [B-label, C-spacer, D-spacer, E-qty, F-spacer, G-spacer, H-value, K-pct]
+      var INT_ROW_STYLES=[
+        [214,272,273,215,272,273,216,217], // row 12 (TOYOTA) - reuse EXCEED style
+        [218,274,275,219,274,275,220,221], // row 13 (BAMC)   - reuse Kasrawy style
+        [222,276,277,223,276,277,224,225], // row 14 (AAV)    - reuse NISSAN style
+        [226,278,279,227,278,279,228,229], // row 15 (Citroen)- reuse Suzuki style
+        [230,280,281,231,280,281,232,233]  // row 16 (Ghabour)- reuse GM style
+      ];
+      var INT_NAMES=["TOYOTA","BAMC","AAV","Citroen","Ghabour"];
+      var INT_QTY_RANGES={"TOYOTA":"B34:E34","BAMC":"B34:G34","AAV":"B34:C34","Citroen":"B34:C34","Ghabour":"B34:D34"};
+      var INT_VAL_RANGES={"TOYOTA":"B36:E36","BAMC":"B36:G36","AAV":"B36:C36","Citroen":"B36:C36","Ghabour":"B36:D36"};
+
+      // Build 5 new INT rows (rows 12-16)
+      var intRows="";
+      INT_NAMES.forEach(function(oem,idx){
+        var r=12+idx;
+        var st=INT_ROW_STYLES[idx];
+        intRows+=
+          '<row r="'+r+'" ht="26" customHeight="1">'+
+          '<c r="A'+r+'" s="211" t="n"></c>'+
+          '<c r="B'+r+'" s="'+st[0]+'" t="inlineStr"><is><t>'+oem+'</t></is></c>'+
+          '<c r="C'+r+'" s="'+st[1]+'" t="n"></c>'+
+          '<c r="D'+r+'" s="'+st[2]+'" t="n"></c>'+
+          '<c r="E'+r+'" s="'+st[3]+'"><f>SUM(\''+oem+'\'!'+INT_QTY_RANGES[oem]+')</f><v></v></c>'+
+          '<c r="F'+r+'" s="'+st[4]+'" t="n"></c>'+
+          '<c r="G'+r+'" s="'+st[5]+'" t="n"></c>'+
+          '<c r="H'+r+'" s="'+st[6]+'"><f>SUM(\''+oem+'\'!'+INT_VAL_RANGES[oem]+')</f><v></v></c>'+
+          '<c r="I'+r+'" s="'+st[4]+'" t="n"></c>'+
+          '<c r="J'+r+'" s="'+st[5]+'" t="n"></c>'+
+          '<c r="K'+r+'" s="'+st[7]+'"><f>E'+r+'/E17</f><v></v></c>'+
+          '<c r="L'+r+'" s="'+st[4]+'" t="n"></c>'+
+          '<c r="M'+r+'" s="'+st[5]+'" t="n"></c>'+
+          '<c r="N'+r+'" s="211" t="n"></c>'+
+          '</row>';
+      });
+
+      // Extract sheetData content: everything between <sheetData> and </sheetData>
+      var sdStart=dashXml.indexOf('<sheetData>')+11;
+      var sdEnd=dashXml.indexOf('</sheetData>');
+      var sdContent=dashXml.substring(sdStart,sdEnd);
+
+      // Split into individual rows using a safe split approach
+      var rowParts=sdContent.split(/<(?=row r=)/);
+      // rowParts[0] is empty or junk before first row, rest are "row r=...>...</row>"
+      var rowMap={};
+      rowParts.forEach(function(part){
+        if(!part) return;
+        var m=part.match(/^row r="(\d+)"/);
+        if(m) rowMap[parseInt(m[1])]='<'+part;
+      });
+
+      // Build new sheetData: rows 1-11 (unchanged), 12-16 (INT), 17-38 (old 12-33 renumbered)
+      var newSD='';
+      // Rows 1-11: keep as-is, but fix ADV % formulas E_n/E12 → E_n/E17
+      for(var i=1;i<=11;i++){
+        if(!rowMap[i]) continue;
+        var rowXml=rowMap[i];
+        rowXml=rowXml.replace(/E(\d+)\/E12/g,'E$1/E17');
+        newSD+=rowXml;
+      }
+      // Rows 12-16: new INT rows
+      newSD+=intRows;
+      // Rows 17-38: old rows 12-33, renumbered +5
+      // Update SUM formulas and % formulas, update cell refs, update row number
+      for(var i=12;i<=33;i++){
+        if(!rowMap[i]) continue;
+        var rowXml=rowMap[i];
+        var newR=i+5;
+        // Update row r attribute
+        rowXml=rowXml.replace('row r="'+i+'"','row r="'+newR+'"');
+        // Update all cell column+row refs in this row (e.g. A12 -> A17)
+        rowXml=rowXml.replace(new RegExp('r="([A-N])'+i+'"','g'),'r="$1'+newR+'"');
+        // Update GRAND TOTAL formulas
+        rowXml=rowXml.replace('SUM(E5:E11)','SUM(E5:E16)');
+        rowXml=rowXml.replace('SUM(H5:H11)','SUM(H5:H16)');
+        // Update % formulas: Ex/E12 -> Ex/E17
+        rowXml=rowXml.replace(/E(\d+)\/E12/g,'E$1/E17');
+        newSD+=rowXml;
+      }
+
+      // Update dimension and mergeCells, then rebuild full dashXml
+      var beforeSD=dashXml.substring(0,sdStart-11);
+      var afterSD=dashXml.substring(sdEnd+12);
+
+      // Fix dimension
+      beforeSD=beforeSD.replace('ref="A1:N33"','ref="A1:N38"');
+
+      // Fix mergeCells: add 5 INT rows + shift old row 12 merges to 17
+      // Add new merge cells for INT rows 12-16
+      var newMerges='';
+      for(var mr=12;mr<=16;mr++){
+        newMerges+='<mergeCell ref="B'+mr+':D'+mr+'"/>'+
+                   '<mergeCell ref="E'+mr+':G'+mr+'"/>'+
+                   '<mergeCell ref="H'+mr+':J'+mr+'"/>'+
+                   '<mergeCell ref="K'+mr+':M'+mr+'"/>';
+      }
+      // Shift old row 12 merge refs to 17, and row 14 chart title merge to 19
+      afterSD=afterSD.replace(/B12:D12/g,'B17:D17');
+      afterSD=afterSD.replace(/E12:G12/g,'E17:G17');
+      afterSD=afterSD.replace(/H12:J12/g,'H17:J17');
+      afterSD=afterSD.replace(/K12:M12/g,'K17:M17');
+      afterSD=afterSD.replace('B14:N14','B19:N19');
+      // Update mergeCell count: 39 + 20 (4 per INT row x5) = 59
+      afterSD=afterSD.replace('count="39"','count="59"');
+      // Insert new merges after opening mergeCells tag
+      afterSD=afterSD.replace('<mergeCells count="59">','<mergeCells count="59">'+newMerges);
+
+      dashXml=beforeSD+'<sheetData>'+newSD+'</sheetData>'+afterSD;
+      files["xl/worksheets/sheet8.xml"]=fflate.strToU8(dashXml);
+
+      // ── PATCH CHART to include INT OEMs ──────────────────
+      var chartXml=fflate.strFromU8(files["xl/charts/chart1.xml"]);
+
+      // Extend category and value ranges from B5:B11/E5:E11 → B5:B16/E5:E16
+      chartXml=chartXml.replace("'DASHBOARD'!$B$5:$B$11","'DASHBOARD'!$B$5:$B$16");
+      chartXml=chartXml.replace("'DASHBOARD'!$E$5:$E$11","'DASHBOARD'!$E$5:$E$16");
+
+      // Add 5 new dPt entries for INT OEMs (idx 7-11) before </ser>
+      // Colors match INT_TAB_COLORS: TOYOTA=F97316, BAMC=A78BFA, AAV=34D399, Citroen=FB7185, Ghabour=FBBF24
+      var intColors=["F97316","A78BFA","34D399","FB7185","FBBF24"];
+      var newDPts="";
+      intColors.forEach(function(col,i){
+        newDPts+=
+          '<dPt><idx val="'+(7+i)+'"/><spPr>'+
+          '<a:solidFill xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'+
+          '<a:srgbClr val="'+col+'"/></a:solidFill>'+
+          '<a:ln xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'+
+          '<a:prstDash val="solid"/></a:ln></spPr></dPt>';
+      });
+      // Insert before <cat> tag
+      chartXml=chartXml.replace('<cat>',newDPts+'<cat>');
+
+      files["xl/charts/chart1.xml"]=fflate.strToU8(chartXml);
+
+      // ── PATCH DRAWING anchor — chart was at row 14, shift to row 19 ──
+      var drawXml=fflate.strFromU8(files["xl/drawings/drawing1.xml"]);
+      drawXml=drawXml.replace('<row>14</row>','<row>19</row>');
+      files["xl/drawings/drawing1.xml"]=fflate.strToU8(drawXml);
+
+      // ── BUILD INTEGRATED OEM SHEETS (styled to match Advanced) ──
       var INT_SHEET_NUMS = {"TOYOTA":9,"BAMC":10,"AAV":11,"Citroen":12,"Ghabour":13};
-      // Track which sheet numbers we're using (existing sheets: 1-8)
+      // Style indices from Advanced template (Suzuki sheet pattern)
+      // Row 1 (title): 263 | Row 2 (header): 247
+      // Date col styles: 248=weekday-A, 251=fri/sat/sun, 13=holiday
+      // Data col styles: 249=weekdayA-empty, 250=weekdayB-val, 252=fri/sat/sun, 253=holiday-empty, 254=holiday-val
+      // Row 33 (padding): date=48, data=16
+      // Row 34 (TOTAL): 264 with SUM formula
+      // Row 35 (Price): label=256, values=257
+      // Row 36 (Total Price): 258 with B34*B35 formula
+      // April 2026 row->style lookup (row 3=Apr1 ... row 32=Apr30)
+      var DATE_STYLES = {
+        3:[248,249], 4:[248,250], 5:[251,252], 6:[251,252], 7:[251,252],
+        8:[248,250], 9:[13,253],  10:[248,250], 11:[248,249], 12:[251,252],
+        13:[251,252], 14:[251,252], 15:[248,249], 16:[248,250], 17:[248,249],
+        18:[248,250], 19:[251,252], 20:[251,252], 21:[251,252], 22:[248,250],
+        23:[248,249], 24:[248,250], 25:[248,249], 26:[251,252], 27:[251,252],
+        28:[251,252], 29:[248,249], 30:[248,250], 31:[248,249], 32:[248,250]
+      };
+      // April date serials: Apr1=46113 ... Apr30=46142
+      var APR_SERIAL_START = 46113;
+
+      // Tab colors per OEM (matching ADV color scheme)
+      var INT_TAB_COLORS = {
+        "TOYOTA":"00F97316", "BAMC":"00A78BFA", "AAV":"0034D399",
+        "Citroen":"00FB7185", "Ghabour":"00FBBF24"
+      };
+
       Object.entries(INT_MODELS).forEach(function(kv){
         var oem=kv[0], models=kv[1];
         var sheetNum=INT_SHEET_NUMS[oem];
         var sheetFile="xl/worksheets/sheet"+sheetNum+".xml";
         var oemData=intLookup[oem]||{};
-        var dateRow=3; // same structure as Advanced
-        var totalRow=dateRow+APRIL_DATES.length; // row after last date = net value row
         var prices=(OEM_PRICES[oem])||{};
-
-        // Build rows: row 1=header (OEM name), row 2=model names, rows 3..33=dates, row 34=net value
         var numCols=models.length;
+        var numDataCols=numCols+5; // extra empty styled cols to fill sheet
+        var totalCols=numCols+1; // A + data cols
+        var tabColor=INT_TAB_COLORS[oem]||"004FC3F7";
+
+        // Helper: Excel column letter(s) from 0-based index
+        function colLetter(i){
+          var n=i+1;
+          if(n<=26) return String.fromCharCode(64+n);
+          return String.fromCharCode(64+Math.floor((n-1)/26))+String.fromCharCode(64+((n-1)%26)+1);
+        }
+
         var rows=[];
 
-        // Row 1: OEM title in A1
-        rows.push('<row r="1"><c r="A1" t="inlineStr"><is><t>'+oem+'</t></is></c></row>');
-
-        // Row 2: model headers
-        var hdrCells=models.map(function(m,ci){
-          var col=String.fromCharCode(66+ci); // B,C,D...
-          return '<c r="'+col+'2" t="inlineStr"><is><t>'+m+'</t></is></c>';
+        // Row 1: OEM title
+        var r1cells='<c r="A1" s="263" t="inlineStr"><is><t>'+oem+'</t></is></c>';
+        models.forEach(function(m,ci){
+          r1cells+='<c r="'+colLetter(ci+1)+'1" s="263" t="inlineStr"><is><t>'+m+'</t></is></c>';
         });
-        rows.push('<row r="2"><c r="A2" t="inlineStr"><is><t>Date</t></is></c>'+hdrCells.join('')+'</row>');
+        rows.push('<row r="1" ht="22" customHeight="1">'+r1cells+'</row>');
 
-        // Date rows
+        // Row 2: headers
+        var r2cells='<c r="A2" s="247" t="inlineStr"><is><t>DATE</t></is></c>';
+        models.forEach(function(m,ci){
+          r2cells+='<c r="'+colLetter(ci+1)+'2" s="247" t="inlineStr"><is><t>'+m+'</t></is></c>';
+        });
+        rows.push('<row r="2" ht="30" customHeight="1">'+r2cells+'</row>');
+
+        // Date rows (rows 3-32 = Apr1-Apr30)
         var colTotals=new Array(numCols).fill(0);
-        APRIL_DATES.forEach(function(iso,di){
-          var r=dateRow+di;
+        for(var di=0;di<30;di++){
+          var rowNum=3+di;
+          var serial=APR_SERIAL_START+di;
+          var iso=APRIL_DATES[di];
           var dayData=oemData[iso]||{};
-          var cells='<c r="A'+r+'" t="inlineStr"><is><t>'+iso+'</t></is></c>';
+          var ds=DATE_STYLES[rowNum];
+          var dateS=ds[0], dataS=ds[1];
+
+          var rcells='<c r="A'+rowNum+'" s="'+dateS+'" t="n"><v>'+serial+'</v></c>';
           models.forEach(function(_,ci){
             var val=dayData[ci]||0;
             if(val>0){
               colTotals[ci]+=val;
-              var col=String.fromCharCode(66+ci);
-              cells+='<c r="'+col+r+'"><v>'+val+'</v></c>';
+              rcells+='<c r="'+colLetter(ci+1)+rowNum+'" s="'+dataS+'" t="n"><v>'+val+'</v></c>';
+            } else {
+              rcells+='<c r="'+colLetter(ci+1)+rowNum+'" s="'+dataS+'" t="n"></c>';
             }
           });
-          rows.push('<row r="'+r+'">'+cells+'</row>');
-        });
+          rows.push('<row r="'+rowNum+'" ht="23.5" customHeight="1">'+rcells+'</row>');
+        }
 
-        // Net value row (qty * price per model)
-        var netCells='<c r="A'+totalRow+'" t="inlineStr"><is><t>Net Value</t></is></c>';
+        // Row 33: padding/empty row
+        var r33='<c r="A33" s="48" t="n"></c>';
+        models.forEach(function(_,ci){ r33+='<c r="'+colLetter(ci+1)+'33" s="16" t="n"></c>'; });
+        rows.push('<row r="33" ht="15.5" customHeight="1">'+r33+'</row>');
+
+        // Row 34: TOTAL with SUM formulas
+        var r34='<c r="A34" s="264" t="inlineStr"><is><t>TOTAL</t></is></c>';
+        models.forEach(function(_,ci){
+          var col=colLetter(ci+1);
+          r34+='<c r="'+col+'34" s="264"><f>SUM('+col+'3:'+col+'33)</f><v></v></c>';
+        });
+        rows.push('<row r="34" ht="15.5" customHeight="1">'+r34+'</row>');
+
+        // Row 35: Price
+        var r35='<c r="A35" s="256" t="inlineStr"><is><t>Price</t></is></c>';
         models.forEach(function(_,ci){
           var price=prices[ci]||0;
-          var net=colTotals[ci]*price;
-          if(net>0){
-            var col=String.fromCharCode(66+ci);
-            netCells+='<c r="'+col+totalRow+'"><v>'+Math.round(net*100)/100+'</v></c>';
-          }
+          r35+='<c r="'+colLetter(ci+1)+'35" s="257" t="n"><v>'+price+'</v></c>';
         });
-        rows.push('<row r="'+totalRow+'">'+netCells+'</row>');
+        rows.push('<row r="35" ht="15.5" customHeight="1">'+r35+'</row>');
 
-        var sheetXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
-          '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
-          '<sheetData>'+rows.join('')+'</sheetData></worksheet>';
+        // Row 36: Total Price = B34*B35
+        var r36='<c r="A36" s="258" t="inlineStr"><is><t>Total Price</t></is></c>';
+        models.forEach(function(_,ci){
+          var col=colLetter(ci+1);
+          r36+='<c r="'+col+'36" s="258"><f>'+col+'34*'+col+'35</f><v></v></c>';
+        });
+        rows.push('<row r="36" ht="15.5" customHeight="1">'+r36+'</row>');
+
+        // Build cols definition
+        var lastCol=colLetter(numCols);
+        var colsDef='<cols><col width="13" customWidth="1" style="1" min="1" max="1"/>';
+        for(var ci=0;ci<numCols;ci++){
+          colsDef+='<col width="13" customWidth="1" min="'+(ci+2)+'" max="'+(ci+2)+'"/>';
+        }
+        colsDef+='</cols>';
+
+        var dimEnd=lastCol+'36';
+        var freezeCell=colLetter(1)+'3'; // B3
+
+        var sheetXml='<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'+
+          '<sheetPr><tabColor rgb="'+tabColor+'"/><outlinePr summaryBelow="1" summaryRight="1"/><pageSetUpPr/></sheetPr>'+
+          '<dimension ref="A1:'+dimEnd+'"/>'+
+          '<sheetViews><sheetView showGridLines="0" zoomScale="88" zoomScaleNormal="88" workbookViewId="0">'+
+          '<pane xSplit="1" ySplit="2" topLeftCell="'+freezeCell+'" activePane="bottomRight" state="frozen"/>'+
+          '<selection pane="topRight" activeCell="A1" sqref="A1"/>'+
+          '<selection pane="bottomLeft" activeCell="A1" sqref="A1"/>'+
+          '<selection pane="bottomRight" activeCell="A36" sqref="A36"/>'+
+          '</sheetView></sheetViews>'+
+          '<sheetFormatPr baseColWidth="8" defaultRowHeight="14.5"/>'+
+          colsDef+
+          '<sheetData>'+rows.join('')+'</sheetData>'+
+          '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>'+
+          '<pageSetup orientation="portrait"/>'+
+          '</worksheet>';
         files[sheetFile]=fflate.strToU8(sheetXml);
       });
 
@@ -1290,22 +1512,26 @@ function exportExcel() {
       var wbXml=fflate.strFromU8(files["xl/workbook.xml"]);
       var ctXml=fflate.strFromU8(files["[Content_Types].xml"]);
       var relsXml=fflate.strFromU8(files["xl/_rels/workbook.xml.rels"]);
-      var existingSheetCount=Object.keys(SCHEMA).length; // 7 advanced sheets + 1 dashboard = 8 sheets already
+      // Use rId13-17 — safely above existing rIds (rId1-8=sheets, rId9=styles, rId10=theme)
+      var rIdBase=13;
       Object.entries(INT_MODELS).forEach(function(kv,idx){
         var oem=kv[0];
         var sheetNum=INT_SHEET_NUMS[oem];
-        var sheetId=existingSheetCount+idx+1; // 9,10,11,12,13 (rId)
-        // Add to workbook sheets list
+        var rId="rId"+(rIdBase+idx);
+        // Add to workbook sheets list (with proper namespace)
         if(wbXml.indexOf('name="'+oem+'"')===-1){
-          wbXml=wbXml.replace('</sheets>','<sheet name="'+oem+'" sheetId="'+sheetNum+'" r:id="rId'+sheetId+'"/></sheets>');
+          wbXml=wbXml.replace('</sheets>',
+            '<sheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" name="'+oem+'" sheetId="'+sheetNum+'" r:id="'+rId+'"/></sheets>');
         }
         // Add to content types
         if(ctXml.indexOf('sheet'+sheetNum+'.xml')===-1){
-          ctXml=ctXml.replace('</Types>','<Override PartName="/xl/worksheets/sheet'+sheetNum+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>');
+          ctXml=ctXml.replace('</Types>',
+            '<Override PartName="/xl/worksheets/sheet'+sheetNum+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>');
         }
-        // Add to rels
-        if(relsXml.indexOf('sheet'+sheetNum+'.xml')===-1){
-          relsXml=relsXml.replace('</Relationships>','<Relationship Id="rId'+sheetId+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+sheetNum+'.xml"/></Relationships>');
+        // Add to rels (use relative Target path, matching existing entries)
+        if(relsXml.indexOf('"'+rId+'"')===-1){
+          relsXml=relsXml.replace('</Relationships>',
+            '<Relationship Id="'+rId+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+sheetNum+'.xml"/></Relationships>');
         }
       });
       files["xl/workbook.xml"]=fflate.strToU8(wbXml);

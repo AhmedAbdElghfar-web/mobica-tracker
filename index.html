@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="MOBICA Tracker"/>
-<meta name="theme-color" content="#060E1C"/>
+<meta name="theme-color" content="#0D1B2E"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="application-name" content="MOBICA Tracker"/>
 <title>MOBICA Delivery Tracker</title>
@@ -21,13 +21,13 @@ var fflate=(function(){
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#060E1C;--bg2:#0A1628;--bg3:#0F2744;--border:#1E3A5F;
+  --bg:#0D1B2E;--bg2:#132338;--bg3:#1A3050;--border:#2A4A72;
   --accent:#4FC3F7;--green:#4ADE80;--yellow:#FCD34D;
   --text:#E2E8F0;--muted:#64748B;--dim:#475569;--sub:#94A3B8;
   --font:'Barlow Condensed',sans-serif;
 }
 body.loc-integrated{
-  --bg:#061C0E;--bg2:#0A2814;--bg3:#0F3B1A;--border:#1E5F35;
+  --bg:#0D1F11;--bg2:#133319;--bg3:#1A4522;--border:#2A6B3A;
   --accent:#4ADE80;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;}
@@ -61,6 +61,9 @@ select,input{font-family:var(--font);}
   padding:6px 12px;font-size:13px;font-weight:600;color:var(--sub);font-family:var(--font);
 }
 #entry-count span{color:var(--dim);}
+#entry-count .adv-count{color:#4FC3F7;}
+#entry-count .int-count{color:#4ADE80;}
+#entry-count .divider{color:var(--border);margin:0 4px;}
 .hbtn{
   font-family:var(--font);font-weight:700;font-size:12px;letter-spacing:1px;
   padding:8px 12px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;
@@ -75,7 +78,7 @@ select,input{font-family:var(--font);}
   flex:1;padding:14px 0;font-size:13px;font-weight:700;letter-spacing:2px;
   border:none;background:transparent;color:var(--dim);transition:all .2s;font-family:var(--font);
 }
-.tab-btn.active{background:var(--accent);color:#060E1C;}
+.tab-btn.active{background:var(--accent);color:var(--bg);}
 
 /* CONTENT */
 #content{max-width:480px;margin:0 auto;padding:20px 16px 60px;}
@@ -103,7 +106,7 @@ select{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234FC3F7' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 14px center;cursor:pointer;
 }
-select:disabled{background-color:#060E1C;color:var(--dim);cursor:not-allowed;}
+select:disabled{background-color:var(--bg);color:var(--dim);cursor:not-allowed;}
 select:focus{border-color:var(--accent);}
 
 /* QTY DISPLAY */
@@ -167,7 +170,7 @@ select:focus{border-color:var(--accent);}
 .modal-val.qty{color:var(--accent);}
 #modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px;}
 #btn-edit{padding:16px 0;border-radius:10px;border:2px solid var(--border);background:transparent;color:var(--sub);font-size:16px;font-weight:700;letter-spacing:1px;}
-#btn-save{padding:16px 0;border-radius:10px;border:none;background:var(--accent);color:#060E1C;font-size:16px;font-weight:800;letter-spacing:1px;}
+#btn-save{padding:16px 0;border-radius:10px;border:none;background:var(--accent);color:var(--bg);font-size:16px;font-weight:800;letter-spacing:1px;}
 
 /* EOD MODAL */
 #eod-modal{
@@ -217,6 +220,9 @@ select:focus{border-color:var(--accent);}
 #log-table th{padding:10px;text-align:left;font-size:11px;letter-spacing:2px;color:var(--dim);border-bottom:2px solid var(--border);}
 #log-table td{padding:10px;color:var(--sub);border-bottom:1px solid var(--bg3);}
 #log-table td.qty-cell{color:var(--accent);font-weight:700;}
+.loc-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1.5px;padding:2px 6px;border-radius:4px;}
+.loc-badge.adv{background:#1E3A8A22;color:#4FC3F7;border:1px solid #1E3A8A;}
+.loc-badge.int{background:#1A3A1A44;color:#4ADE80;border:1px solid #1E5F35;}
 .del-btn{background:transparent;border:none;color:var(--dim);font-size:16px;padding:4px;cursor:pointer;}
 #no-log{text-align:center;color:var(--dim);padding:40px 0;font-family:var(--font);font-size:16px;letter-spacing:2px;}
 
@@ -234,7 +240,7 @@ select:focus{border-color:var(--accent);}
     background:var(--bg3);color:var(--sub);font-size:15px;font-weight:600;
     cursor:pointer;font-family:var(--font);transition:all .15s;user-select:none;letter-spacing:.5px;
   }
-  .variant-chip.selected{background:var(--accent);color:#060E1C;border-color:var(--accent);}
+  .variant-chip.selected{background:var(--accent);color:var(--bg);border-color:var(--accent);}
   .vqty-row{
     display:flex;align-items:center;justify-content:space-between;
     background:var(--bg2);border:2px solid var(--border);border-radius:10px;
@@ -268,6 +274,7 @@ select:focus{border-color:var(--accent);}
   <div>
     <div class="brand-sub">MOBICA</div>
     <div class="brand">DELIVERY TRACKER</div>
+    <div style="font-size:9px;letter-spacing:2px;color:var(--dim);font-family:var(--font);margin-top:2px;">APR 2026 · v1.0</div>
   </div>
   <div id="header-right">
     <div id="entry-count">0 <span>entries</span></div>
@@ -358,7 +365,7 @@ select:focus{border-color:var(--accent);}
     <div id="log-table-wrap">
       <table id="log-table">
         <thead>
-          <tr><th>DN No.</th><th>Date</th><th>OEM</th><th>Model</th><th>Variant</th><th>Qty</th><th></th></tr>
+          <tr><th>DN No.</th><th>Date</th><th>LOC</th><th>OEM</th><th>Model</th><th>Variant</th><th>Qty</th><th></th></tr>
         </thead>
         <tbody id="log-body"></tbody>
       </table>
@@ -394,7 +401,7 @@ select:focus{border-color:var(--accent);}
       style="width:100%;padding:14px;border-radius:10px;border:2px solid var(--border);background:var(--bg3);color:var(--text);font-size:20px;font-family:var(--font);margin:8px 0 6px;box-sizing:border-box;text-align:center;letter-spacing:6px;"
       onkeydown="if(event.key==='Enter') confirmPassword()"/>
     <div id="pw-error" style="color:#F87171;font-size:12px;min-height:18px;text-align:center;margin-bottom:10px;"></div>
-    <button onclick="confirmPassword()" style="width:100%;padding:15px;border-radius:10px;border:none;background:var(--yellow);color:#060E1C;font-size:16px;font-weight:800;cursor:pointer;font-family:var(--font);letter-spacing:1px;margin-bottom:10px;">CONFIRM</button>
+    <button onclick="confirmPassword()" style="width:100%;padding:15px;border-radius:10px;border:none;background:var(--yellow);color:var(--bg);font-size:16px;font-weight:800;cursor:pointer;font-family:var(--font);letter-spacing:1px;margin-bottom:10px;">CONFIRM</button>
     <button onclick="cancelPassword()" style="width:100%;padding:13px;border-radius:10px;border:2px solid var(--border);background:transparent;color:var(--dim);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);">CANCEL</button>
   </div>
 </div>
@@ -1000,7 +1007,20 @@ function clearAll() {
 
 // ── COUNT ─────────────────────────────────────────────
 function updateEntryCount() {
-  document.getElementById("entry-count").innerHTML = entries.length + ' <span>entries</span>';
+  var intOems=["TOYOTA","BAMC","AAV","Citroen","Ghabour"];
+  var intCount=entries.filter(function(e){
+    return (e.location==='integrated')||(e.location===undefined&&intOems.indexOf(e.oem)>=0);
+  }).length;
+  var advCount=entries.length-intCount;
+  var el=document.getElementById("entry-count");
+  if(!entries.length){
+    el.innerHTML='0 <span>entries</span>';
+  } else {
+    el.innerHTML=
+      '<span class="adv-count">'+advCount+'</span><span> ADV</span>'+
+      '<span class="divider">·</span>'+
+      '<span class="int-count">'+intCount+'</span><span> INT</span>';
+  }
 }
 
 // ── TOAST ─────────────────────────────────────────────
@@ -1051,15 +1071,20 @@ function renderLog() {
   if (!entries.length) { noLog.style.display="block"; wrap.style.display="none"; actions.style.display="none"; return; }
   noLog.style.display="none"; wrap.style.display="block"; actions.style.display="flex";
   const sorted = [...entries].sort((a,b) => b.ts - a.ts);
-  tbody.innerHTML = sorted.map(e =>
-    `<tr>
+  tbody.innerHTML = sorted.map(e => {
+    var intOems=["TOYOTA","BAMC","AAV","Citroen","Ghabour"];
+    var isInt=(e.location==='integrated')||(e.location===undefined&&intOems.indexOf(e.oem)>=0);
+    var badge='<span class="loc-badge '+(isInt?'int':'adv')+'">'+(isInt?'INT':'ADV')+'</span>';
+    return `<tr>
       <td style="color:var(--yellow);font-weight:700">${e.dn||"—"}</td>
-      <td>${e.date}</td><td>${e.oem}</td><td>${e.model}</td>
+      <td>${e.date}</td>
+      <td>${badge}</td>
+      <td>${e.oem}</td><td>${e.model}</td>
       <td>${e.variant||"—"}</td>
       <td class="qty-cell">${Number(e.qty).toLocaleString()}</td>
       <td><button class="del-btn" onclick="deleteEntry('${e.id}')">✕</button></td>
-    </tr>`
-  ).join("");
+    </tr>`;
+  }).join("");
 }
 
 // ── CSV ───────────────────────────────────────────────
@@ -1222,126 +1247,225 @@ function exportExcel() {
         files[schema.file]=fflate.strToU8(xml);
       });
 
-      // ── PATCH DASHBOARD SHEET with INT OEMs ──────────────
+      // ── PATCH DASHBOARD SHEET ────────────────────────────
+      // Strategy: declarative rebuild — no layered regex.
+      // All constants are sourced from the known template structure.
+      // Template (styled_v5.xlsx) DASHBOARD facts:
+      //   Rows 5-11  : ADV OEMs, % formula = E_n/E12
+      //   Row 12     : GRAND TOTAL, SUM(E5:E11), SUM(H5:H11)
+      //   Row 13     : spacer
+      //   Row 14     : "DELIVERY BY OEM" chart title, merge B14:N14
+      //   Rows 15-33 : chart area spacers
+      //   dimension  : A1:N33
+      //   mergeCells : 39
+      // After patch:
+      //   Rows 5-11  : ADV OEMs unchanged, % formula updated to E_n/E17
+      //   Rows 12-16 : 5 new INT OEM rows
+      //   Row 17     : GRAND TOTAL (was 12), SUM(E5:E16), SUM(H5:H16)
+      //   Row 18     : spacer (was 13)
+      //   Row 19     : chart title (was 14), merge B19:N19
+      //   Rows 20-38 : chart area (was 15-33)
+      //   dimension  : A1:N38
+      //   mergeCells : 59
+
       var dashXml=fflate.strFromU8(files["xl/worksheets/sheet8.xml"]);
 
-      // Style pairs for INT rows — reuse ADV alternating styles cycling through rows 5-11
-      // [B-label, C-spacer, D-spacer, E-qty, F-spacer, G-spacer, H-value, K-pct]
-      var INT_ROW_STYLES=[
-        [214,272,273,215,272,273,216,217], // row 12 (TOYOTA) - reuse EXCEED style
-        [218,274,275,219,274,275,220,221], // row 13 (BAMC)   - reuse Kasrawy style
-        [222,276,277,223,276,277,224,225], // row 14 (AAV)    - reuse NISSAN style
-        [226,278,279,227,278,279,228,229], // row 15 (Citroen)- reuse Suzuki style
-        [230,280,281,231,280,281,232,233]  // row 16 (Ghabour)- reuse GM style
+      // ── 1. CONSTANTS ─────────────────────────────────────
+      // INT OEM definitions: name, qty range, value range, style set
+      // Styles reuse existing ADV row style pairs from template (rows 5-11)
+      // Each entry: [B-name, C-pad, D-pad, E-qty, F-pad, G-pad, H-val, K-pct]
+      var DB_INT=[
+        {oem:"TOYOTA", qty:"B34:E34", val:"B36:E36", s:[214,272,273,215,272,273,216,217]},
+        {oem:"BAMC",   qty:"B34:G34", val:"B36:G36", s:[218,274,275,219,274,275,220,221]},
+        {oem:"AAV",    qty:"B34:C34", val:"B36:C36", s:[222,276,277,223,276,277,224,225]},
+        {oem:"Citroen",qty:"B34:C34", val:"B36:C36", s:[226,278,279,227,278,279,228,229]},
+        {oem:"Ghabour",qty:"B34:D34", val:"B36:D36", s:[230,280,281,231,280,281,232,233]}
       ];
-      var INT_NAMES=["TOYOTA","BAMC","AAV","Citroen","Ghabour"];
-      var INT_QTY_RANGES={"TOYOTA":"B34:E34","BAMC":"B34:G34","AAV":"B34:C34","Citroen":"B34:C34","Ghabour":"B34:D34"};
-      var INT_VAL_RANGES={"TOYOTA":"B36:E36","BAMC":"B36:G36","AAV":"B36:C36","Citroen":"B36:C36","Ghabour":"B36:D36"};
+      var DB_INT_FIRST_ROW=12;   // INT rows: 12-16
+      var DB_GRAND_TOTAL_ROW=17; // GRAND TOTAL row after patch
+      var DB_PCT_DENOM="E17";    // all % formulas divide by this
+      var DB_ADV_ROWS=[5,6,7,8,9,10,11]; // ADV OEM rows (unchanged position)
+      var DB_SHIFT_FROM=12;      // original rows 12-33 shift to 17-38
+      var DB_SHIFT_TO=17;
+      var DB_SHIFT_LAST=33;
+      // Merge cells that must shift: original row → new row
+      var DB_MERGE_SHIFTS={
+        "B12:D12":"B17:D17","E12:G12":"E17:G17",
+        "H12:J12":"H17:J17","K12:M12":"K17:M17",
+        "B14:N14":"B19:N19"
+      };
 
-      // Build 5 new INT rows (rows 12-16)
-      var intRows="";
-      INT_NAMES.forEach(function(oem,idx){
-        var r=12+idx;
-        var st=INT_ROW_STYLES[idx];
-        intRows+=
+      // ── 2. PARSE rows from template sheetData ─────────────
+      var sdOpen=dashXml.indexOf('<sheetData>');
+      var sdClose=dashXml.indexOf('</sheetData>');
+      var sdContent=dashXml.substring(sdOpen+11,sdClose);
+      var rowMap={};
+      sdContent.split('<row r=').forEach(function(part){
+        if(!part) return;
+        var m=part.match(/^"(\d+)"/);
+        if(m) rowMap[parseInt(m[1])]='<row r='+part;
+      });
+
+      // ── 3. HELPER: build one cell ─────────────────────────
+      function dc(col,row,s,type,content){
+        // col=letter, row=number, s=styleIdx, type=t attr or null, content=inner XML or null
+        var t=type?' t="'+type+'"':'';
+        var inner=content||'';
+        return '<c r="'+col+row+'" s="'+s+'"'+t+'>'+inner+'</c>';
+      }
+      function dci(col,row,s,text){ // inlineStr cell
+        return dc(col,row,s,'inlineStr','<is><t>'+text+'</t></is>');
+      }
+      function dcf(col,row,s,formula){ // formula cell
+        return dc(col,row,s,null,'<f>'+formula+'</f><v></v>');
+      }
+      function dcn(col,row,s){ // empty numeric cell
+        return dc(col,row,s,'n','');
+      }
+
+      // ── 4. BUILD new sheetData ────────────────────────────
+      var newSD='';
+
+      // 4a. Rows 1-4: header rows — row 2 gets dynamic "Generated:" date
+      // Use the latest entry date from logged deliveries, or today if no entries
+      var genDate=(function(){
+        var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var d;
+        if(entries && entries.length){
+          // Find the latest date string among all entries (format: YYYY-MM-DD)
+          var latest=entries.reduce(function(max,e){ return e.date>max?e.date:max; },'');
+          if(latest){
+            var parts=latest.split('-');
+            d=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+          }
+        }
+        if(!d) d=new Date();
+        return d.getDate()+'-'+months[d.getMonth()]+'-'+d.getFullYear();
+      })();
+
+      for(var i=1;i<=4;i++){
+        if(!rowMap[i]){ continue; }
+        var hRow=rowMap[i];
+        if(i===2){
+          // Patch the Generated date in cell A2
+          hRow=hRow.replace(/Generated:.*?(?=<\/t>)/,'Generated: '+genDate);
+        }
+        newSD+=hRow;
+      }
+
+      // 4b. Rows 5-11: ADV OEM rows — keep as-is, update % formula denominator
+      for(var i=5;i<=11;i++){
+        if(!rowMap[i]) continue;
+        // Replace E_n/E12 with E_n/E17 (GRAND TOTAL moved from row 12 to 17)
+        newSD+=rowMap[i].replace(/E(\d+)\/E12/g,'E$1/'+DB_PCT_DENOM);
+      }
+
+      // 4c. Rows 12-16: new INT OEM rows (generated, not from template)
+      DB_INT.forEach(function(d,idx){
+        var r=DB_INT_FIRST_ROW+idx;
+        var s=d.s;
+        newSD+=
           '<row r="'+r+'" ht="26" customHeight="1">'+
-          '<c r="A'+r+'" s="211" t="n"></c>'+
-          '<c r="B'+r+'" s="'+st[0]+'" t="inlineStr"><is><t>'+oem+'</t></is></c>'+
-          '<c r="C'+r+'" s="'+st[1]+'" t="n"></c>'+
-          '<c r="D'+r+'" s="'+st[2]+'" t="n"></c>'+
-          '<c r="E'+r+'" s="'+st[3]+'"><f>SUM(\''+oem+'\'!'+INT_QTY_RANGES[oem]+')</f><v></v></c>'+
-          '<c r="F'+r+'" s="'+st[4]+'" t="n"></c>'+
-          '<c r="G'+r+'" s="'+st[5]+'" t="n"></c>'+
-          '<c r="H'+r+'" s="'+st[6]+'"><f>SUM(\''+oem+'\'!'+INT_VAL_RANGES[oem]+')</f><v></v></c>'+
-          '<c r="I'+r+'" s="'+st[4]+'" t="n"></c>'+
-          '<c r="J'+r+'" s="'+st[5]+'" t="n"></c>'+
-          '<c r="K'+r+'" s="'+st[7]+'"><f>E'+r+'/E17</f><v></v></c>'+
-          '<c r="L'+r+'" s="'+st[4]+'" t="n"></c>'+
-          '<c r="M'+r+'" s="'+st[5]+'" t="n"></c>'+
-          '<c r="N'+r+'" s="211" t="n"></c>'+
+          dcn('A',r,211)+
+          dci('B',r,s[0],d.oem)+
+          dcn('C',r,s[1])+
+          dcn('D',r,s[2])+
+          dcf('E',r,s[3],"SUM('"+d.oem+"'!"+d.qty+")")+
+          dcn('F',r,s[4])+
+          dcn('G',r,s[5])+
+          dcf('H',r,s[6],"SUM('"+d.oem+"'!"+d.val+")")+
+          dcn('I',r,s[4])+
+          dcn('J',r,s[5])+
+          dcf('K',r,s[7],'E'+r+'/'+DB_PCT_DENOM)+
+          dcn('L',r,s[4])+
+          dcn('M',r,s[5])+
+          dcn('N',r,211)+
           '</row>';
       });
 
-      // Extract sheetData content: everything between <sheetData> and </sheetData>
-      var sdStart=dashXml.indexOf('<sheetData>')+11;
-      var sdEnd=dashXml.indexOf('</sheetData>');
-      var sdContent=dashXml.substring(sdStart,sdEnd);
-
-      // Split into individual rows using a safe split approach
-      var rowParts=sdContent.split(/<(?=row r=)/);
-      // rowParts[0] is empty or junk before first row, rest are "row r=...>...</row>"
-      var rowMap={};
-      rowParts.forEach(function(part){
-        if(!part) return;
-        var m=part.match(/^row r="(\d+)"/);
-        if(m) rowMap[parseInt(m[1])]='<'+part;
-      });
-
-      // Build new sheetData: rows 1-11 (unchanged), 12-16 (INT), 17-38 (old 12-33 renumbered)
-      var newSD='';
-      // Rows 1-11: keep as-is, but fix ADV % formulas E_n/E12 → E_n/E17
-      for(var i=1;i<=11;i++){
+      // 4d. Rows 17-38: old template rows 12-33, shifted +5
+      // For each, update: row number, cell refs, GRAND TOTAL formulas, % formulas
+      for(var i=DB_SHIFT_FROM;i<=DB_SHIFT_LAST;i++){
         if(!rowMap[i]) continue;
-        var rowXml=rowMap[i];
-        rowXml=rowXml.replace(/E(\d+)\/E12/g,'E$1/E17');
-        newSD+=rowXml;
-      }
-      // Rows 12-16: new INT rows
-      newSD+=intRows;
-      // Rows 17-38: old rows 12-33, renumbered +5
-      // Update SUM formulas and % formulas, update cell refs, update row number
-      for(var i=12;i<=33;i++){
-        if(!rowMap[i]) continue;
-        var rowXml=rowMap[i];
-        var newR=i+5;
-        // Update row r attribute
-        rowXml=rowXml.replace('row r="'+i+'"','row r="'+newR+'"');
-        // Update all cell column+row refs in this row (e.g. A12 -> A17)
-        rowXml=rowXml.replace(new RegExp('r="([A-N])'+i+'"','g'),'r="$1'+newR+'"');
-        // Update GRAND TOTAL formulas
-        rowXml=rowXml.replace('SUM(E5:E11)','SUM(E5:E16)');
-        rowXml=rowXml.replace('SUM(H5:H11)','SUM(H5:H16)');
-        // Update % formulas: Ex/E12 -> Ex/E17
-        rowXml=rowXml.replace(/E(\d+)\/E12/g,'E$1/E17');
-        newSD+=rowXml;
+        var newR=i+(DB_SHIFT_TO-DB_SHIFT_FROM);
+        var rx=rowMap[i];
+        // Shift row number attribute
+        rx=rx.replace('row r="'+i+'"','row r="'+newR+'"');
+        // Shift all cell column references in this row (A12→A17 etc.)
+        rx=rx.replace(new RegExp('r="([A-N])'+i+'"','g'),'r="$1'+newR+'"');
+        // Update GRAND TOTAL SUM ranges to include INT rows
+        rx=rx.replace('SUM(E5:E11)','SUM(E5:E16)');
+        rx=rx.replace('SUM(H5:H11)','SUM(H5:H16)');
+        // Update any % formula denominators (defensive — should only appear in ADV rows)
+        rx=rx.replace(/E(\d+)\/E12/g,'E$1/'+DB_PCT_DENOM);
+        newSD+=rx;
       }
 
-      // Update dimension and mergeCells, then rebuild full dashXml
-      var beforeSD=dashXml.substring(0,sdStart-11);
-      var afterSD=dashXml.substring(sdEnd+12);
+      // ── 5. REBUILD mergeCells ─────────────────────────────
+      // Original template: 39 merge cells
+      // Add: 4 merges per INT row × 5 rows = 20 new merges
+      // Shift: 5 existing merges (B12:D12, E12:G12, H12:J12, K12:M12, B14:N14)
+      // Total: 59
+      var newMerges='';
+      // New INT row merges (rows 12-16)
+      for(var mr=DB_INT_FIRST_ROW;mr<DB_INT_FIRST_ROW+5;mr++){
+        newMerges+=
+          '<mergeCell ref="B'+mr+':D'+mr+'"/>'+
+          '<mergeCell ref="E'+mr+':G'+mr+'"/>'+
+          '<mergeCell ref="H'+mr+':J'+mr+'"/>'+
+          '<mergeCell ref="K'+mr+':M'+mr+'"/>';
+      }
+
+      // ── 6. ASSEMBLE final XML ─────────────────────────────
+      var beforeSD=dashXml.substring(0,sdOpen);
+      var afterSD=dashXml.substring(sdClose+12);
 
       // Fix dimension
       beforeSD=beforeSD.replace('ref="A1:N33"','ref="A1:N38"');
 
-      // Fix mergeCells: add 5 INT rows + shift old row 12 merges to 17
-      // Add new merge cells for INT rows 12-16
-      var newMerges='';
-      for(var mr=12;mr<=16;mr++){
-        newMerges+='<mergeCell ref="B'+mr+':D'+mr+'"/>'+
-                   '<mergeCell ref="E'+mr+':G'+mr+'"/>'+
-                   '<mergeCell ref="H'+mr+':J'+mr+'"/>'+
-                   '<mergeCell ref="K'+mr+':M'+mr+'"/>';
-      }
-      // Shift old row 12 merge refs to 17, and row 14 chart title merge to 19
-      afterSD=afterSD.replace(/B12:D12/g,'B17:D17');
-      afterSD=afterSD.replace(/E12:G12/g,'E17:G17');
-      afterSD=afterSD.replace(/H12:J12/g,'H17:J17');
-      afterSD=afterSD.replace(/K12:M12/g,'K17:M17');
-      afterSD=afterSD.replace('B14:N14','B19:N19');
-      // Update mergeCell count: 39 + 20 (4 per INT row x5) = 59
+      // Shift merge cell refs using explicit map (no wildcards)
+      Object.keys(DB_MERGE_SHIFTS).forEach(function(from){
+        afterSD=afterSD.replace(from,DB_MERGE_SHIFTS[from]);
+      });
+      // Update merge count and insert new merges
       afterSD=afterSD.replace('count="39"','count="59"');
-      // Insert new merges after opening mergeCells tag
       afterSD=afterSD.replace('<mergeCells count="59">','<mergeCells count="59">'+newMerges);
 
       dashXml=beforeSD+'<sheetData>'+newSD+'</sheetData>'+afterSD;
       files["xl/worksheets/sheet8.xml"]=fflate.strToU8(dashXml);
 
-      // ── PATCH CHART to include INT OEMs ──────────────────
+      // ── PATCH CHART — Total Value (col H) instead of Qty (col E) ──
       var chartXml=fflate.strFromU8(files["xl/charts/chart1.xml"]);
 
-      // Extend category and value ranges from B5:B11/E5:E11 → B5:B16/E5:E16
+      // Series title: H4 = "TOTAL VALUE (EGP)"
+      chartXml=chartXml.replace("'DASHBOARD'!E4","'DASHBOARD'!H4");
+      // Category labels: OEM names, extended to include INT rows 12-16
       chartXml=chartXml.replace("'DASHBOARD'!$B$5:$B$11","'DASHBOARD'!$B$5:$B$16");
-      chartXml=chartXml.replace("'DASHBOARD'!$E$5:$E$11","'DASHBOARD'!$E$5:$E$16");
+      // Values: Total Value column H, extended to include INT rows
+      chartXml=chartXml.replace("'DASHBOARD'!$E$5:$E$11","'DASHBOARD'!$H$5:$H$16");
+
+      // Data labels: show values on top of each bar
+      var dataLabels=
+        '<dLbls>'+
+          '<numFmt formatCode="#,##0.00,,&quot;M&quot;" sourceLinked="0"/>'+
+          '<spPr><a:noFill xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"/></spPr>'+
+          '<txPr xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'+
+            '<a:bodyPr/><a:lstStyle/>'+
+            '<a:p><a:pPr><a:defRPr b="0" sz="800"/></a:pPr></a:p>'+
+          '</txPr>'+
+          '<dLblPos val="outEnd"/>'+
+          '<showLegendKey val="0"/>'+
+          '<showVal val="1"/>'+
+          '<showCatName val="0"/>'+
+          '<showSerName val="0"/>'+
+          '<showPercent val="0"/>'+
+          '<showBubbleSize val="0"/>'+
+        '</dLbls>';
+      // Insert data labels before </ser>
+      chartXml=chartXml.replace('</ser>',dataLabels+'</ser>');
+
+      // Legend: move to bottom
+      chartXml=chartXml.replace('<legendPos val="r"/>','<legendPos val="b"/>');
 
       // Add 5 new dPt entries for INT OEMs (idx 7-11) before </ser>
       // Colors match INT_TAB_COLORS: TOYOTA=F97316, BAMC=A78BFA, AAV=34D399, Citroen=FB7185, Ghabour=FBBF24
@@ -1369,22 +1493,15 @@ function exportExcel() {
       var INT_SHEET_NUMS = {"TOYOTA":9,"BAMC":10,"AAV":11,"Citroen":12,"Ghabour":13};
       // Style indices from Advanced template (Suzuki sheet pattern)
       // Row 1 (title): 263 | Row 2 (header): 247
-      // Date col styles: 248=weekday-A, 251=fri/sat/sun, 13=holiday
-      // Data col styles: 249=weekdayA-empty, 250=weekdayB-val, 252=fri/sat/sun, 253=holiday-empty, 254=holiday-val
+      // Date col styles: 248=weekday-A, 251=fri/sat/sun, 253=holiday-date
+      // Data col styles: 249=weekdayA-empty, 250=weekdayB-val, 252=fri/sat/sun, 254=holiday-val
       // Row 33 (padding): date=48, data=16
       // Row 34 (TOTAL): 264 with SUM formula
       // Row 35 (Price): label=256, values=257
       // Row 36 (Total Price): 258 with B34*B35 formula
       // April 2026 row->style lookup (row 3=Apr1 ... row 32=Apr30)
-      var DATE_STYLES = {
-        3:[248,249], 4:[248,250], 5:[251,252], 6:[251,252], 7:[251,252],
-        8:[248,250], 9:[13,253],  10:[248,250], 11:[248,249], 12:[251,252],
-        13:[251,252], 14:[251,252], 15:[248,249], 16:[248,250], 17:[248,249],
-        18:[248,250], 19:[251,252], 20:[251,252], 21:[251,252], 22:[248,250],
-        23:[248,249], 24:[248,250], 25:[248,249], 26:[251,252], 27:[251,252],
-        28:[251,252], 29:[248,249], 30:[248,250], 31:[248,249], 32:[248,250]
-      };
-      // April date serials: Apr1=46113 ... Apr30=46142
+      // Simple alternating row styles — no weekend/holiday distinction
+      // Every row uses standard weekday styles: date=248, data alternates 249/250
       var APR_SERIAL_START = 46113;
 
       // Tab colors per OEM (matching ADV color scheme)
@@ -1434,8 +1551,9 @@ function exportExcel() {
           var serial=APR_SERIAL_START+di;
           var iso=APRIL_DATES[di];
           var dayData=oemData[iso]||{};
-          var ds=DATE_STYLES[rowNum];
-          var dateS=ds[0], dataS=ds[1];
+          // Alternate data style per row: odd index=249, even index=250
+          var dateS=248;
+          var dataS=(di%2===0)?249:250;
 
           var rcells='<c r="A'+rowNum+'" s="'+dateS+'" t="n"><v>'+serial+'</v></c>';
           models.forEach(function(_,ci){
@@ -1537,6 +1655,61 @@ function exportExcel() {
       files["xl/workbook.xml"]=fflate.strToU8(wbXml);
       files["[Content_Types].xml"]=fflate.strToU8(ctXml);
       files["xl/_rels/workbook.xml.rels"]=fflate.strToU8(relsXml);
+
+      // ── EXPORT VALIDATION ────────────────────────────────
+      var validationErrors=[];
+
+      // 1. All 13 sheets must be present in the zip
+      var expectedSheets=[
+        "xl/worksheets/sheet1.xml",  // Mercedes
+        "xl/worksheets/sheet2.xml",  // Kasrawy
+        "xl/worksheets/sheet3.xml",  // Nissan
+        "xl/worksheets/sheet4.xml",  // SuZuKi
+        "xl/worksheets/sheet5.xml",  // GM
+        "xl/worksheets/sheet6.xml",  // Geely
+        "xl/worksheets/sheet7.xml",  // Proton
+        "xl/worksheets/sheet8.xml",  // DASHBOARD
+        "xl/worksheets/sheet9.xml",  // TOYOTA
+        "xl/worksheets/sheet10.xml", // BAMC
+        "xl/worksheets/sheet11.xml", // AAV
+        "xl/worksheets/sheet12.xml", // Citroen
+        "xl/worksheets/sheet13.xml"  // Ghabour
+      ];
+      expectedSheets.forEach(function(path){
+        if(!files[path]) validationErrors.push("Missing: "+path.split("/").pop());
+      });
+
+      // 2. INT sheets must have 36 rows (1 title + 1 header + 30 dates + 1 pad + 1 total + 1 price + 1 totalPrice)
+      var intSheets={9:"TOYOTA",10:"BAMC",11:"AAV",12:"Citroen",13:"Ghabour"};
+      Object.keys(intSheets).forEach(function(num){
+        var path="xl/worksheets/sheet"+num+".xml";
+        if(files[path]){
+          var xml=fflate.strFromU8(files[path]);
+          var rowCount=(xml.match(/<row r="/g)||[]).length;
+          if(rowCount!==36) validationErrors.push(intSheets[num]+" sheet: expected 36 rows, got "+rowCount);
+        }
+      });
+
+      // 3. DASHBOARD must have 38 rows (rows 1-38)
+      var dashCheck=fflate.strFromU8(files["xl/worksheets/sheet8.xml"]);
+      var dashRows=(dashCheck.match(/<row r="/g)||[]).length;
+      if(dashRows!==38) validationErrors.push("DASHBOARD: expected 38 rows, got "+dashRows);
+
+      // 4. DASHBOARD must contain GRAND TOTAL at row 17
+      if(dashCheck.indexOf('row r="17"')<0||dashCheck.indexOf('GRAND TOTAL')<0){
+        validationErrors.push("DASHBOARD: GRAND TOTAL row missing");
+      }
+
+      // 5. Chart must reference H column (Total Value)
+      var chartCheck=fflate.strFromU8(files["xl/charts/chart1.xml"]);
+      if(chartCheck.indexOf("$H$5:$H$16")<0){
+        validationErrors.push("Chart: not referencing Total Value column");
+      }
+
+      if(validationErrors.length>0){
+        throw new Error("Validation failed:\n• "+validationErrors.join("\n• "));
+      }
+      // ── END VALIDATION ────────────────────────────────────
 
       // Download
       var outZip=fflate.zipSync(files,{level:6});

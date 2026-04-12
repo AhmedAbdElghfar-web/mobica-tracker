@@ -283,6 +283,7 @@ select:focus{border-color:var(--accent);}
       <button class="loc-btn" id="loc-int" onclick="setLocation('integrated')">INT</button>
     </div>
     <button class="hbtn" id="btn-sync" onclick="sbSync()" title="Sync with cloud">☁️</button>
+    <button class="hbtn" id="btn-yearview" onclick="openYearView()" title="Year View">📅</button>
     <button class="hbtn" id="btn-backup" onclick="backupRestore()" title="Backup / Restore">💾</button>
     <button class="hbtn" id="btn-csv" onclick="downloadCSV()">CSV ↓</button>
     <button class="hbtn" id="btn-eod" onclick="exportExcel()">EXCEL ↓</button>
@@ -447,6 +448,21 @@ select:focus{border-color:var(--accent);}
 
 <!-- TOAST -->
 <div id="toast"></div>
+
+<!-- YEAR VIEW MODAL -->
+<div id="yearview-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);align-items:flex-start;justify-content:center;z-index:1500;padding:16px;overflow-y:auto;">
+  <div style="background:var(--bg2);border:2px solid var(--accent);border-radius:16px;padding:24px;width:100%;max-width:480px;font-family:var(--font);margin:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:13px;letter-spacing:3px;color:var(--accent);font-weight:800;">📅 YEAR VIEW — 2026</div>
+      <button onclick="document.getElementById('yearview-modal').style.display='none'" style="background:transparent;border:none;color:var(--dim);font-size:22px;cursor:pointer;">✕</button>
+    </div>
+    <div id="yearview-status" style="text-align:center;color:var(--muted);font-size:13px;padding:20px 0;">Loading from cloud...</div>
+    <div id="yearview-body"></div>
+    <div id="yearview-footer" style="display:none;margin-top:16px;display:none;">
+      <button onclick="yearViewCSV()" style="width:100%;padding:14px;border-radius:10px;border:2px solid var(--accent);background:transparent;color:var(--accent);font-size:14px;font-weight:800;letter-spacing:1px;cursor:pointer;font-family:var(--font);">CSV ↓ EXPORT ALL</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ── EXCEL TEMPLATE (April 2026) ──────────────────────
@@ -617,7 +633,8 @@ async function sbInsert(entry) {
       body: JSON.stringify({
         id: entry.id, ts: entry.ts, dn: entry.dn||"",
         date: entry.date, oem: entry.oem, model: entry.model,
-        variant: entry.variant||"", qty: Number(entry.qty)
+        variant: entry.variant||"", qty: Number(entry.qty),
+        location: entry.location||"advanced"
       })
     });
     if (!res.ok) console.warn("Supabase insert failed:", res.status, await res.text());
@@ -1758,7 +1775,188 @@ function exportExcel() {
   },50);
 }
 
-// ── CLOSE MODALS ON BACKDROP ──────────────────────────
+// ── YEAR VIEW ─────────────────────────────────────────
+var yearViewData = [];
+var YV_ALL_MONTHS=["2026-01","2026-02","2026-03","2026-04","2026-05","2026-06",
+                   "2026-07","2026-08","2026-09","2026-10","2026-11","2026-12"];
+var YV_MONTH_NAMES={"01":"Jan","02":"Feb","03":"Mar","04":"Apr","05":"May","06":"Jun",
+                    "07":"Jul","08":"Aug","09":"Sep","10":"Oct","11":"Nov","12":"Dec"};
+var YV_INT_OEMS=["TOYOTA","BAMC","AAV","Citroen","Ghabour"];
+
+// OEM prices for value calculation (same as app)
+var YV_PRICES={
+  "EXCEED":{"0":365140.8,"1":365140.8,"2":365140.8,"10":158229,"11":42237,"12":153306},
+  "Kasrawy":{"0":36970,"1":50903.94,"2":26367.03,"3":9735.05},
+  "NISSAN":{"8":20360,"9":5500},
+  "Suzuki":{"0":9857,"1":8145},
+  "GM":{"0":9486.33,"1":9322.98,"2":4298.71,"3":4299.45,"4":2874.67,"5":1471.17,
+        "6":1134.61,"7":1994.64,"8":2874.67,"9":3269.06,"10":2047.01,
+        "11":108.08,"12":108.08,"13":37.18},
+  "GEELY":{"0":38151.806,"1":20047.897,"2":48104.94,"3":23369.59,"4":41759.65,
+           "5":21952.79,"6":51475.98,"7":15165.27,"8":55522.97,"9":15706.56,
+           "10":39684.034,"11":14184.43},
+  "ESAF":{"0":35788.5,"1":8403.1},
+  "TOYOTA":{"0":140131.33,"1":11535.36,"2":102937.11,"3":10955.17},
+  "BAMC":{"0":380248,"1":259054,"2":280172,"3":271023,"4":159125,"5":159125},
+  "AAV":{"0":396450.35,"1":135086.11},
+  "Citroen":{"0":78552.41,"1":53397.74},
+  "Ghabour":{"0":8141.29,"1":7687.7,"2":12883}
+};
+
+var YV_ADV_MODELS={
+  "EXCEED":[["GLE","Black"],["GLE","Brown"],["GLE","Beige"],["GLS","Black"],["GLS","Brown"],
+            ["GLS","Beige"],["AMG","Black"],["AMG","Red"],["RX","Seat Red"],["RX","DP Red"],
+            ["RX","Flagship Seat"],["RX","Flagship DP"],["VX","Luxury Black"],["VX","Flagship Brown"]],
+  "Kasrawy":[["Golden Dragon",""],["Jetour",""],["Jack","Seat"],["Jack","DP"],["Zemex",""]],
+  "NISSAN":[[null,null],[null,null],[null,null],[null,null],[null,null],[null,null],[null,null],[null,null],
+            ["MC15 Beige","Seat"],["MC15 Beige","Door"],["MC15 Beige","Luxe Door"],
+            ["MC15 Black","Seat"],["MC15 Black","Door"],["MC15 Black","Luxe Door"],
+            ["L12F","Upper Seat"],["L12F","Upper Door"],["L12F","Lower Seat"],["L12F","Lower Door"]],
+  "Suzuki":[["Van","Front"],["Van","Rear"]],
+  "GM":[["RT50","Left(L)"],["RT50","Right(L)"],["RT50","Left(F)"],["RT50","Right(F)"],
+        ["VL01","LH (DR)"],["VL01","CDSB 1"],["VL01","CDSB2"],["VL01","CDSC"],
+        ["VL20","LH (DR)"],["VL20","CDSB"],["VL20","CDSC"],
+        ["BRACKET","Left"],["BRACKET","Right"],["BRACKET","Massad"],
+        ["310vl1","Left Seat"],["310vl1","Right Seat"],["310vl1","Cushion"],["310vl1","Rear back 100%"],
+        ["310vl2","Left Seat"],["310vl2","Right Seat"],["310vl2","Cushion 40%"],
+        ["310vl2","Cushion 60%"],["310vl2","Rear back 40%"],["310vl2","Rear Back 60%"]],
+  "GEELY":[["SS GS","Seat"],["SS GS","DP"],["SS GF","Seat"],["SS GF","DP"],
+           ["SS GF Black","Seat"],["SS GF Black","DP"],["SX GF","Seat"],["SX GF","DP"],
+           ["SX GK","Seat"],["SX GK","DP"],["SX GL","Seat"],["SX GL","DP"]],
+  "ESAF":[["Proton","Seat"],["Proton","DP"]]
+};
+
+var YV_INT_MODELS={
+  "TOYOTA":["Seats Leather","Doors Leather","Seats Fabric","Doors Fabric"],
+  "BAMC":["G07 - X7","G05 EU 35","G05 EU 25","G06- X6","G45-15","G45-85"],
+  "AAV":["SEATS W4","DP W4"],
+  "Citroen":["C43 L3","C43 L2"],
+  "Ghabour":["RB Accent","T7HL (جلد)","T7BL (قماش)"]
+};
+
+function yvCalcValue(e){
+  var qty=Number(e.qty)||0;
+  var isInt=(e.location==="integrated")||(e.location===undefined&&YV_INT_OEMS.indexOf(e.oem)>=0);
+  if(isInt){
+    var models=YV_INT_MODELS[e.oem]||[];
+    var mi=models.indexOf(e.model);
+    var price=(YV_PRICES[e.oem]&&YV_PRICES[e.oem][mi])||0;
+    return qty*price;
+  } else {
+    var cols=YV_ADV_MODELS[e.oem]||[];
+    var ci=cols.findIndex(function(c){ return c&&c[0]===e.model&&c[1]===(e.variant||""); });
+    var price2=(YV_PRICES[e.oem]&&YV_PRICES[e.oem][ci])||0;
+    return qty*price2;
+  }
+}
+
+async function openYearView() {
+  document.getElementById("yearview-modal").style.display="flex";
+  document.getElementById("yearview-body").innerHTML="";
+  document.getElementById("yearview-footer").style.display="none";
+  document.getElementById("yearview-status").style.display="block";
+  document.getElementById("yearview-status").textContent="Loading from cloud...";
+
+  try {
+    var res=await fetch(
+      SB_URL+"/rest/v1/deliveries?select=*&order=date.asc&limit=10000",
+      {headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}}
+    );
+    if(!res.ok) throw new Error("Supabase error: "+res.status);
+    yearViewData=await res.json();
+
+    // Build month map — include all 12 months even if empty
+    var months={};
+    YV_ALL_MONTHS.forEach(function(ym){
+      months[ym]={adv:{qty:0,val:0},int:{qty:0,val:0}};
+    });
+
+    yearViewData.forEach(function(e){
+      var month=e.date?e.date.substring(0,7):"unknown";
+      if(!months[month]) months[month]={adv:{qty:0,val:0},int:{qty:0,val:0}};
+      var isInt=(e.location==="integrated")||(e.location===undefined&&YV_INT_OEMS.indexOf(e.oem)>=0);
+      var qty=Number(e.qty)||0;
+      var val=yvCalcValue(e);
+      if(isInt){months[month].int.qty+=qty;months[month].int.val+=val;}
+      else{months[month].adv.qty+=qty;months[month].adv.val+=val;}
+    });
+
+    // Build HTML
+    var html='<div style="margin-bottom:12px;font-size:11px;letter-spacing:2px;color:var(--muted);">'+
+             yearViewData.length+' total entries · 2026</div>';
+
+    var grandQty=0,grandVal=0;
+    YV_ALL_MONTHS.forEach(function(ym){
+      var m=months[ym];
+      var parts=ym.split("-");
+      var label=YV_MONTH_NAMES[parts[1]]+" "+parts[0];
+      var totalQty=m.adv.qty+m.int.qty;
+      var totalVal=m.adv.val+m.int.val;
+      grandQty+=totalQty;grandVal+=totalVal;
+      var isEmpty=totalQty===0;
+      html+=
+        '<div style="background:var(--bg3);border:1px solid '+(isEmpty?'var(--bg3)':'var(--border)')+
+        ';border-radius:10px;padding:12px 14px;margin-bottom:8px;opacity:'+(isEmpty?'0.4':'1')+';">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:'+(isEmpty?'0':'8px')+';">'+
+        '<span style="font-size:14px;font-weight:800;color:var(--text);">'+label+'</span>'+
+        '<div style="text-align:right;">'+
+        '<div style="font-size:18px;font-weight:800;color:var(--accent);">'+totalQty.toLocaleString()+' <span style="font-size:10px;color:var(--dim);">units</span></div>'+
+        (isEmpty?'':'<div style="font-size:11px;color:var(--yellow);">'+Math.round(totalVal).toLocaleString()+' <span style="color:var(--dim);">EGP</span></div>')+
+        '</div>'+
+        '</div>'+
+        (isEmpty?'':
+          '<div style="display:flex;gap:8px;">'+
+          '<div style="flex:1;background:var(--bg2);border-radius:6px;padding:8px;text-align:center;">'+
+          '<div style="font-size:9px;letter-spacing:2px;color:#4FC3F7;margin-bottom:2px;">ADV</div>'+
+          '<div style="font-size:15px;font-weight:700;color:#4FC3F7;">'+m.adv.qty.toLocaleString()+'</div>'+
+          '<div style="font-size:10px;color:var(--yellow);">'+Math.round(m.adv.val).toLocaleString()+' EGP</div>'+
+          '</div>'+
+          '<div style="flex:1;background:var(--bg2);border-radius:6px;padding:8px;text-align:center;">'+
+          '<div style="font-size:9px;letter-spacing:2px;color:#4ADE80;margin-bottom:2px;">INT</div>'+
+          '<div style="font-size:15px;font-weight:700;color:#4ADE80;">'+m.int.qty.toLocaleString()+'</div>'+
+          '<div style="font-size:10px;color:var(--yellow);">'+Math.round(m.int.val).toLocaleString()+' EGP</div>'+
+          '</div>'+
+          '</div>'
+        )+
+        '</div>';
+    });
+
+    // Grand total
+    html+=
+      '<div style="background:var(--bg);border:2px solid var(--accent);border-radius:10px;padding:14px;margin-top:4px;">'+
+      '<div style="font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;">GRAND TOTAL — 2026</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+      '<div style="font-size:22px;font-weight:800;color:var(--accent);">'+grandQty.toLocaleString()+' <span style="font-size:12px;color:var(--dim);">units</span></div>'+
+      '<div style="font-size:16px;font-weight:800;color:var(--yellow);">'+Math.round(grandVal).toLocaleString()+' <span style="font-size:11px;color:var(--dim);">EGP</span></div>'+
+      '</div>'+
+      '</div>';
+
+    document.getElementById("yearview-status").style.display="none";
+    document.getElementById("yearview-body").innerHTML=html;
+    document.getElementById("yearview-footer").style.display="block";
+
+  } catch(e) {
+    document.getElementById("yearview-status").textContent="Error: "+e.message;
+  }
+}
+
+function yearViewCSV() {
+  if(!yearViewData.length){ showToast("No data to export"); return; }
+  var header="Date,Month,OEM,Model,Variant,Qty,Value (EGP),Location,DN";
+  var rows=yearViewData.map(function(e){
+    var month=e.date?e.date.substring(0,7):"";
+    var val=Math.round(yvCalcValue(e));
+    return [e.date,month,e.oem,e.model,e.variant||"",e.qty,val,e.location||"advanced",e.dn||""].join(",");
+  });
+  var csv=header+"\n"+rows.join("\n");
+  var blob=new Blob([csv],{type:"text/csv"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a"); a.href=url; a.download="Mobica_2026_AllMonths.csv"; a.click();
+  URL.revokeObjectURL(url);
+  showToast("Year data exported ✓");
+}
+
+
 document.getElementById("modal").addEventListener("click", function(e){ if(e.target===this) document.getElementById("modal").style.display="none"; });
 document.getElementById("eod-modal").addEventListener("click", function(e){ if(e.target===this) this.classList.remove("show"); });
 </script>

@@ -1189,54 +1189,69 @@ function exportExcel() {
 }
 
 // ── PLAN VS ACTUAL ───────────────────────────────────
-// Schema: Supabase monthly_plan has {month, oem, model, variant, plan_qty}
-// variant="" means plan covers the WHOLE model (all variants summed).
-// Actual = SUM(qty) from entries WHERE oem+model match, regardless of variant.
-// This gives exact match because oem/model keys are identical to tracker DATA keys.
+// Source: Monthly_Apr_2026_.xlsx — variant-level plan
+// Supabase monthly_plan schema: {month, oem, model, variant, plan_qty}
+// variant="" = no-variant OEM (Kasrawy Golden Dragon, Jetour, Zemex)
+// Comparison: entry.oem + entry.model + entry.variant matched exactly against plan rows
 
-// Offline fallback — same structure as Supabase rows
+// Offline fallback — April 2026 variant-level plan
 const MONTHLY_PLAN_FALLBACK = {
   "2026-04": {
-    "GM":      { "RT50":1968, "VL01":720,  "VL20":0, "310vl1":0,   "310vl2":600, "BRACKET":0 },
-    "NISSAN":  { "MC15 Beige":1188, "MC15 Black":636, "L12F":24 },
-    "EXCEED":  { "GLE":72, "GLS":0, "RX":120, "VX":0, "AMG":0 },
-    "GEELY":   { "SS GS":240, "SS GF":240, "SS GF Black":0, "SX GF":120, "SX GK":0, "SX GL":0 },
-    "ESAF":    { "Proton":240 },
-    "Kasrawy": { "Golden Dragon":200, "Jetour":120, "Jack":240, "Zemex":80 },
-    "Suzuki":  { "Van":0 },
-    "TOYOTA":  { "Fortuner":396, "W4":60 },
-    "Citroen": { "Citroen":96 },
-    "BAMC":    { "G45":72 },
-    "AAV":     { "TIGGO 7":420 },
-    "Ghabour": { "Ghabour":0 }
-  },
-  "2026-05": {
-    "GM":      { "RT50":1650, "VL01":794, "VL20":0, "310vl1":60, "310vl2":600, "BRACKET":0 },
-    "NISSAN":  { "MC15 Beige":1044, "MC15 Black":588, "L12F":0 },
-    "EXCEED":  { "GLE":72, "GLS":0, "RX":120, "VX":0, "AMG":0 },
-    "GEELY":   { "SS GS":0, "SS GF":120, "SS GF Black":0, "SX GF":120, "SX GK":240, "SX GL":240 },
-    "ESAF":    { "Proton":240 },
-    "Kasrawy": { "Golden Dragon":165, "Jetour":150, "Jack":360, "Zemex":50 },
-    "Suzuki":  { "Van":0 },
-    "TOYOTA":  { "Fortuner":200, "W4":120 },
-    "Citroen": { "Citroen":96 },
-    "BAMC":    { "G45":48 },
-    "AAV":     { "TIGGO 7":503 },
-    "Ghabour": { "Ghabour":0 }
-  },
-  "2026-06": {
-    "GM":      { "RT50":2000, "VL01":832, "VL20":0, "310vl1":60, "310vl2":600, "BRACKET":0 },
-    "NISSAN":  { "MC15 Beige":360, "MC15 Black":384, "L12F":0 },
-    "EXCEED":  { "GLE":72, "GLS":0, "RX":120, "VX":0, "AMG":0 },
-    "GEELY":   { "SS GS":120, "SS GF":120, "SS GF Black":0, "SX GF":0, "SX GK":240, "SX GL":240 },
-    "ESAF":    { "Proton":240 },
-    "Kasrawy": { "Golden Dragon":135, "Jetour":150, "Jack":360, "Zemex":50 },
-    "Suzuki":  { "Van":0 },
-    "TOYOTA":  { "Fortuner":200, "W4":120 },
-    "Citroen": { "Citroen":96 },
-    "BAMC":    { "G45":96 },
-    "AAV":     { "TIGGO 7":0 },
-    "Ghabour": { "Ghabour":0 }
+    "EXCEED": {
+      "GLE":  {"Black":0,"Brown":72,"Beige":0},
+      "GLS":  {"Black":0,"Brown":0,"Beige":0},
+      "AMG":  {"Black":0,"Red":0},
+      "RX":   {"Seat Red":0,"DP Red":0,"Flagship Seat":25,"Flagship DP":25},
+      "VX":   {"Luxury Black":0,"Flagship Brown":0}
+    },
+    "Kasrawy": {
+      "Golden Dragon": {"":200},
+      "Jetour":        {"":120},
+      "Jack":          {"Seat":120,"DP":120},
+      "Zemex":         {"":80}
+    },
+    "NISSAN": {
+      "MC15 Beige": {"Seat":1356,"Door":1164,"Luxe Door":192},
+      "MC15 Black": {"Seat":600,"Door":360,"Luxe Door":240},
+      "L12F":       {"Upper Seat":0,"Upper Door":0,"Lower Seat":24,"Lower Door":24}
+    },
+    "Suzuki": {
+      "Van": {"Front":144,"Rear":96}
+    },
+    "GM": {
+      "RT50":    {"Left(L)":1599,"Right(L)":1599,"Left(F)":369,"Right(F)":368},
+      "VL01":    {"LH (DR)":720,"CDSB 1":720,"CDSB2":720,"CDSC":720},
+      "VL20":    {"LH (DR)":0,"CDSB":0,"CDSC":0},
+      "BRACKET": {"Left":1968,"Right":1968,"Massad":3936},
+      "310vl1":  {"Left Seat":0,"Right Seat":0,"Cushion":0,"Rear back 100%":0},
+      "310vl2":  {"Left Seat":600,"Right Seat":600,"Cushion 40%":600,"Cushion 60%":600,"Rear back 40%":600,"Rear Back 60%":600}
+    },
+    "GEELY": {
+      "SS GS":      {"Seat":120,"DP":120},
+      "SS GF":      {"Seat":120,"DP":120},
+      "SS GF Black":{"Seat":0,"DP":0},
+      "SX GF":      {"Seat":60,"DP":60},
+      "SX GK":      {"Seat":0,"DP":0},
+      "SX GL":      {"Seat":0,"DP":0}
+    },
+    "ESAF": {
+      "Proton": {"Seat":240,"DP":240}
+    },
+    "TOYOTA": {
+      "Fortuner": {"Leather Seat":120,"Leather DP":120,"Fabric Seat":0,"Fabric DP":0}
+    },
+    "BAMC": {
+      "G45": {"G45-15":48,"G45-85":24}
+    },
+    "AAV": {
+      "W4": {"Seat":0,"DP":0}
+    },
+    "Citroen": {
+      "Citroen": {"C43 L3":0,"C43 L2":96}
+    },
+    "Ghabour": {
+      "Ghabour": {"T7HL":240,"T7BL":180}
+    }
   }
 };
 
@@ -1245,8 +1260,7 @@ function currentMonthStr() {
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
 }
 
-// Fetch from Supabase — returns {oem: {model: plan_qty}}
-// Supabase has variant="" for model-level rows; we group by oem+model, sum plan_qty
+// Fetch from Supabase → {oem: {model: {variant: plan_qty}}}
 async function fetchPlanFromSupabase(monthStr) {
   try {
     var res = await fetch(
@@ -1256,66 +1270,76 @@ async function fetchPlanFromSupabase(monthStr) {
     if (!res.ok) throw new Error("status " + res.status);
     var rows = await res.json();
     if (!Array.isArray(rows) || rows.length === 0) throw new Error("empty");
-    // Build {oem: {model: plan_qty}} — sum in case multiple variant rows exist
+    // Build nested {oem: {model: {variant: qty}}}
     var plan = {};
     rows.forEach(function(r) {
       if (!plan[r.oem]) plan[r.oem] = {};
-      plan[r.oem][r.model] = (plan[r.oem][r.model] || 0) + Number(r.plan_qty);
+      if (!plan[r.oem][r.model]) plan[r.oem][r.model] = {};
+      plan[r.oem][r.model][r.variant] = (plan[r.oem][r.model][r.variant] || 0) + Number(r.plan_qty);
     });
     console.log("Plan loaded from Supabase:", monthStr, "rows:", rows.length);
     return plan;
   } catch(e) {
-    console.warn("Plan Supabase fetch failed, using fallback:", e.message);
+    console.warn("Plan Supabase failed, using fallback:", e.message);
     return MONTHLY_PLAN_FALLBACK[monthStr] || null;
   }
 }
 
-// Compute plan vs actual
-// planData: {oem: {model: plan_qty}}  — plan at MODEL level (sum all variants)
-// entries: tracker entries array
-// Returns array of {oem, model, plan, actual, delta, pct}
+// Compute plan vs actual at VARIANT level
+// planData: {oem: {model: {variant: plan_qty}}}
+// Returns: [{oem, model, variant, plan, actual, delta, pct}]
 function computePlanVsActual(planData, monthStr) {
   var prefix = monthStr + "-";
 
-  // Build actual totals at MODEL level (sum ALL variants for each model)
+  // Build actual at variant level: {oem: {model: {variant: qty}}}
   var actual = {};
   entries.forEach(function(e) {
     if (!e.date.startsWith(prefix)) return;
+    var v = e.variant || "";
     if (!actual[e.oem]) actual[e.oem] = {};
-    actual[e.oem][e.model] = (actual[e.oem][e.model] || 0) + Number(e.qty);
+    if (!actual[e.oem][e.model]) actual[e.oem][e.model] = {};
+    actual[e.oem][e.model][v] = (actual[e.oem][e.model][v] || 0) + Number(e.qty);
   });
 
-  // Build result rows — plan drives the list; append actual-only entries
   var result = [];
-  var allOems = new Set(Object.keys(planData));
-  Object.keys(actual).forEach(function(o) { allOems.add(o); });
+  // Collect all oem+model+variant combinations from plan + actual
+  var keys = {}; // key → true
+  function addKey(oem,model,variant) { keys[oem+"|||"+model+"|||"+variant] = {oem,model,variant}; }
 
-  allOems.forEach(function(oem) {
-    var planOem   = planData[oem] || {};
-    var actualOem = actual[oem]   || {};
-    var allModels = new Set(Object.keys(planOem));
-    Object.keys(actualOem).forEach(function(m) { allModels.add(m); });
-
-    allModels.forEach(function(model) {
-      var p = planOem[model]   || 0;
-      var a = actualOem[model] || 0;
-      if (p === 0 && a === 0) return; // skip fully empty rows
-      result.push({
-        oem: oem, model: model,
-        plan: p, actual: a,
-        delta: a - p,
-        pct: p > 0 ? Math.round(a / p * 100) : (a > 0 ? 999 : 0)
+  Object.keys(planData).forEach(function(oem) {
+    Object.keys(planData[oem]).forEach(function(model) {
+      Object.keys(planData[oem][model]).forEach(function(variant) {
+        addKey(oem,model,variant);
       });
+    });
+  });
+  Object.keys(actual).forEach(function(oem) {
+    Object.keys(actual[oem]).forEach(function(model) {
+      Object.keys(actual[oem][model]).forEach(function(variant) {
+        addKey(oem,model,variant);
+      });
+    });
+  });
+
+  Object.values(keys).forEach(function(k) {
+    var p = (planData[k.oem] && planData[k.oem][k.model] && planData[k.oem][k.model][k.variant]) || 0;
+    var a = (actual[k.oem] && actual[k.oem][k.model] && actual[k.oem][k.model][k.variant]) || 0;
+    if (p === 0 && a === 0) return;
+    result.push({
+      oem: k.oem, model: k.model, variant: k.variant,
+      plan: p, actual: a,
+      delta: a - p,
+      pct: p > 0 ? Math.round(a / p * 100) : (a > 0 ? 999 : 0)
     });
   });
   return result;
 }
 
 function pctColor(pct) {
-  if (pct >= 100) return "#4ade80";  // green
-  if (pct >= 80)  return "#facc15";  // yellow
-  if (pct >= 50)  return "#fb923c";  // orange
-  return "#f87171";                  // red
+  if (pct >= 100) return "#4ade80";
+  if (pct >= 80)  return "#facc15";
+  if (pct >= 50)  return "#fb923c";
+  return "#f87171";
 }
 
 function renderPlanCards(rows, monthStr) {
@@ -1326,10 +1350,14 @@ function renderPlanCards(rows, monthStr) {
   // Group by OEM
   var byOem = {};
   rows.forEach(function(r) {
-    if (!byOem[r.oem]) byOem[r.oem] = { plan:0, actual:0, models:[] };
+    if (!byOem[r.oem]) byOem[r.oem] = { plan:0, actual:0, models:{} };
     byOem[r.oem].plan   += r.plan;
     byOem[r.oem].actual += r.actual;
-    byOem[r.oem].models.push(r);
+    var mk = r.model;
+    if (!byOem[r.oem].models[mk]) byOem[r.oem].models[mk] = { plan:0, actual:0, variants:[] };
+    byOem[r.oem].models[mk].plan   += r.plan;
+    byOem[r.oem].models[mk].actual += r.actual;
+    byOem[r.oem].models[mk].variants.push(r);
   });
 
   // Grand totals
@@ -1352,72 +1380,97 @@ function renderPlanCards(rows, monthStr) {
     return;
   }
 
-  // OEM color map (includes INT OEMs)
   var ALL_COLORS = Object.assign({}, OEM_COLORS, {
     "TOYOTA":"#F97316","BAMC":"#A78BFA","AAV":"#34D399","Citroen":"#FB7185","Ghabour":"#FBBF24"
   });
 
   cardsEl.innerHTML = Object.entries(byOem).map(function(kv) {
-    var oem = kv[0], data = kv[1];
+    var oem = kv[0], oemData = kv[1];
     var color = ALL_COLORS[oem] || "#94a3b8";
-    var tp = data.plan > 0 ? Math.round(data.actual / data.plan * 100) : (data.actual > 0 ? 999 : 0);
+    var tp = oemData.plan > 0 ? Math.round(oemData.actual / oemData.plan * 100) : (oemData.actual > 0 ? 999 : 0);
     var barW = Math.min(tp, 100);
     var pc = pctColor(tp);
     var pctLabel = tp === 999 ? "—" : tp + "%";
-    var delta = data.actual - data.plan;
+    var delta = oemData.actual - oemData.plan;
     var deltaStr = (delta >= 0 ? "+" : "") + delta.toLocaleString();
     var deltaColor = delta >= 0 ? "#4ade80" : "#f87171";
 
-    // Model rows — only show models with plan > 0 OR actual > 0
-    var modelRows = data.models
-      .filter(function(r){ return r.plan > 0 || r.actual > 0; })
-      .map(function(r) {
-        var rpct = r.pct === 999 ? "—" : r.pct + "%";
-        var rdelta = r.actual - r.plan;
-        var rdeltaStr = (rdelta >= 0 ? "+" : "") + rdelta.toLocaleString();
-        return '<div style="display:grid;grid-template-columns:1fr 48px 48px 48px 44px;gap:3px;'
-          + 'align-items:center;padding:5px 0;border-bottom:1px solid #1A3050">'
-          + '<span style="font-size:12px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'
-          + r.model + '</span>'
-          + '<span style="font-size:12px;color:#64748b;text-align:right">' + r.plan.toLocaleString() + '</span>'
-          + '<span style="font-size:12px;color:' + color + ';text-align:right;font-weight:700">' + r.actual.toLocaleString() + '</span>'
-          + '<span style="font-size:11px;color:' + (rdelta>=0?"#4ade80":"#f87171") + ';text-align:right">' + rdeltaStr + '</span>'
-          + '<span style="font-size:12px;color:' + pctColor(r.pct) + ';text-align:right;font-weight:700">' + rpct + '</span>'
-          + '</div>';
-      }).join('');
+    // Model rows — each model shows total, expandable variants inline
+    var modelRowsHtml = Object.entries(oemData.models).map(function(mkv) {
+      var model = mkv[0], mData = mkv[1];
+      if (mData.plan === 0 && mData.actual === 0) return '';
+      var mp = mData.plan > 0 ? Math.round(mData.actual / mData.plan * 100) : (mData.actual > 0 ? 999 : 0);
+      var mpLabel = mp === 999 ? "—" : mp + "%";
+      var mdelta = mData.actual - mData.plan;
+      var mdStr = (mdelta >= 0 ? "+" : "") + mdelta.toLocaleString();
 
-    return '<div style="background:#132338;border:1px solid ' + color + '33;border-left:3px solid '
-      + color + ';border-radius:10px;padding:12px 14px;margin-bottom:10px">'
+      // Variant sub-rows (only if model has variants beyond "")
+      var hasRealVariants = mData.variants.some(function(v){ return v.variant !== ""; });
+      var variantHtml = "";
+      if (hasRealVariants) {
+        variantHtml = mData.variants
+          .filter(function(v){ return v.plan > 0 || v.actual > 0; })
+          .map(function(v) {
+            var vp = v.plan > 0 ? Math.round(v.actual/v.plan*100) : (v.actual>0?999:0);
+            var vpLabel = vp===999?"—":vp+"%";
+            var vd = v.actual - v.plan;
+            var vdStr = (vd>=0?"+":"")+vd.toLocaleString();
+            return '<div style="display:grid;grid-template-columns:1fr 44px 44px 44px 40px;gap:2px;'
+              +'padding:3px 0 3px 12px;border-bottom:1px solid #0F2744">'
+              +'<span style="font-size:11px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">↳ '+v.variant+'</span>'
+              +'<span style="font-size:11px;color:#475569;text-align:right">'+v.plan.toLocaleString()+'</span>'
+              +'<span style="font-size:11px;color:'+color+';text-align:right;font-weight:600">'+v.actual.toLocaleString()+'</span>'
+              +'<span style="font-size:10px;color:'+(vd>=0?"#4ade80":"#f87171")+';text-align:right">'+vdStr+'</span>'
+              +'<span style="font-size:11px;color:'+pctColor(vp)+';text-align:right;font-weight:700">'+vpLabel+'</span>'
+              +'</div>';
+          }).join('');
+      }
+
+      return '<div style="border-bottom:1px solid #1A3050">'
+        // Model header row
+        +'<div style="display:grid;grid-template-columns:1fr 44px 44px 44px 40px;gap:2px;padding:5px 0">'
+        +'<span style="font-size:12px;color:#94a3b8;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+model+'</span>'
+        +'<span style="font-size:12px;color:#64748b;text-align:right">'+mData.plan.toLocaleString()+'</span>'
+        +'<span style="font-size:12px;color:'+color+';text-align:right;font-weight:700">'+mData.actual.toLocaleString()+'</span>'
+        +'<span style="font-size:11px;color:'+(mdelta>=0?"#4ade80":"#f87171")+';text-align:right">'+mdStr+'</span>'
+        +'<span style="font-size:12px;color:'+pctColor(mp)+';text-align:right;font-weight:700">'+mpLabel+'</span>'
+        +'</div>'
+        + variantHtml
+        +'</div>';
+    }).join('');
+
+    return '<div style="background:#132338;border:1px solid '+color+'33;border-left:3px solid '
+      +color+';border-radius:10px;padding:12px 14px;margin-bottom:10px">'
       // OEM header
-      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
-      + '<span style="color:' + color + ';font-family:var(--font);font-weight:800;font-size:16px;letter-spacing:1px">' + oem + '</span>'
-      + '<div style="display:flex;align-items:baseline;gap:8px">'
-      + '<span style="font-family:var(--font);font-size:20px;font-weight:800;color:' + pc + '">' + pctLabel + '</span>'
-      + '<span style="font-size:11px;color:' + deltaColor + '">' + deltaStr + '</span>'
-      + '</div></div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+      +'<span style="color:'+color+';font-family:var(--font);font-weight:800;font-size:16px;letter-spacing:1px">'+oem+'</span>'
+      +'<div style="display:flex;align-items:baseline;gap:8px">'
+      +'<span style="font-family:var(--font);font-size:20px;font-weight:800;color:'+pc+'">'+pctLabel+'</span>'
+      +'<span style="font-size:11px;color:'+deltaColor+'">'+deltaStr+'</span>'
+      +'</div></div>'
       // Progress bar
-      + '<div style="background:#0D1B2E;border-radius:4px;height:7px;margin-bottom:10px;overflow:hidden">'
-      + '<div style="background:' + pc + ';width:' + barW + '%;height:100%;border-radius:4px;transition:width .5s ease"></div>'
-      + '</div>'
-      // Column header
-      + '<div style="display:grid;grid-template-columns:1fr 48px 48px 48px 44px;gap:3px;'
-      + 'font-size:10px;letter-spacing:1px;color:#64748b;padding:0 0 4px 0;border-bottom:1px solid #1A3050">'
-      + '<span>MODEL</span>'
-      + '<span style="text-align:right">PLAN</span>'
-      + '<span style="text-align:right">ACT</span>'
-      + '<span style="text-align:right">Δ</span>'
-      + '<span style="text-align:right">ACH%</span>'
-      + '</div>'
-      + modelRows
-      // OEM total row
-      + '<div style="display:grid;grid-template-columns:1fr 48px 48px 48px 44px;gap:3px;padding-top:6px;font-size:12px;font-weight:700">'
-      + '<span style="color:#94a3b8">TOTAL</span>'
-      + '<span style="color:#64748b;text-align:right">' + data.plan.toLocaleString() + '</span>'
-      + '<span style="color:' + color + ';text-align:right">' + data.actual.toLocaleString() + '</span>'
-      + '<span style="color:' + deltaColor + ';text-align:right">' + deltaStr + '</span>'
-      + '<span style="color:' + pc + ';text-align:right">' + pctLabel + '</span>'
-      + '</div>'
-      + '</div>';
+      +'<div style="background:#0D1B2E;border-radius:4px;height:7px;margin-bottom:10px;overflow:hidden">'
+      +'<div style="background:'+pc+';width:'+barW+'%;height:100%;border-radius:4px;transition:width .5s ease"></div>'
+      +'</div>'
+      // Column headers
+      +'<div style="display:grid;grid-template-columns:1fr 44px 44px 44px 40px;gap:2px;'
+      +'font-size:10px;letter-spacing:1px;color:#64748b;padding:0 0 4px 0;border-bottom:2px solid #1A3050">'
+      +'<span>MODEL / VARIANT</span>'
+      +'<span style="text-align:right">PLAN</span>'
+      +'<span style="text-align:right">ACT</span>'
+      +'<span style="text-align:right">Δ</span>'
+      +'<span style="text-align:right">ACH%</span>'
+      +'</div>'
+      + modelRowsHtml
+      // OEM total
+      +'<div style="display:grid;grid-template-columns:1fr 44px 44px 44px 40px;gap:2px;padding-top:6px;font-size:12px;font-weight:700">'
+      +'<span style="color:#94a3b8">TOTAL</span>'
+      +'<span style="color:#64748b;text-align:right">'+oemData.plan.toLocaleString()+'</span>'
+      +'<span style="color:'+color+';text-align:right">'+oemData.actual.toLocaleString()+'</span>'
+      +'<span style="color:'+deltaColor+';text-align:right">'+deltaStr+'</span>'
+      +'<span style="color:'+pc+';text-align:right">'+pctLabel+'</span>'
+      +'</div>'
+      +'</div>';
   }).join('');
 }
 

@@ -1189,10 +1189,15 @@ function exportExcel() {
 }
 
 // ── PLAN VS ACTUAL ───────────────────────────────────
+// Schema: Supabase monthly_plan has {month, oem, model, variant, plan_qty}
+// variant="" means plan covers the WHOLE model (all variants summed).
+// Actual = SUM(qty) from entries WHERE oem+model match, regardless of variant.
+// This gives exact match because oem/model keys are identical to tracker DATA keys.
 
-const MONTHLY_PLAN = {
+// Offline fallback — same structure as Supabase rows
+const MONTHLY_PLAN_FALLBACK = {
   "2026-04": {
-    "GM":      { "RT50":1968, "VL01":720,  "VL20":0,   "310vl1":0,   "310vl2":600, "BRACKET":0 },
+    "GM":      { "RT50":1968, "VL01":720,  "VL20":0, "310vl1":0,   "310vl2":600, "BRACKET":0 },
     "NISSAN":  { "MC15 Beige":1188, "MC15 Black":636, "L12F":24 },
     "EXCEED":  { "GLE":72, "GLS":0, "RX":120, "VX":0, "AMG":0 },
     "GEELY":   { "SS GS":240, "SS GF":240, "SS GF Black":0, "SX GF":120, "SX GK":0, "SX GL":0 },
@@ -1206,7 +1211,7 @@ const MONTHLY_PLAN = {
     "Ghabour": { "Ghabour":0 }
   },
   "2026-05": {
-    "GM":      { "RT50":1650, "VL01":794,  "VL20":0,   "310vl1":60,  "310vl2":600, "BRACKET":0 },
+    "GM":      { "RT50":1650, "VL01":794, "VL20":0, "310vl1":60, "310vl2":600, "BRACKET":0 },
     "NISSAN":  { "MC15 Beige":1044, "MC15 Black":588, "L12F":0 },
     "EXCEED":  { "GLE":72, "GLS":0, "RX":120, "VX":0, "AMG":0 },
     "GEELY":   { "SS GS":0, "SS GF":120, "SS GF Black":0, "SX GF":120, "SX GK":240, "SX GL":240 },
@@ -1220,7 +1225,7 @@ const MONTHLY_PLAN = {
     "Ghabour": { "Ghabour":0 }
   },
   "2026-06": {
-    "GM":      { "RT50":2000, "VL01":832,  "VL20":0,   "310vl1":60,  "310vl2":600, "BRACKET":0 },
+    "GM":      { "RT50":2000, "VL01":832, "VL20":0, "310vl1":60, "310vl2":600, "BRACKET":0 },
     "NISSAN":  { "MC15 Beige":360, "MC15 Black":384, "L12F":0 },
     "EXCEED":  { "GLE":72, "GLS":0, "RX":120, "VX":0, "AMG":0 },
     "GEELY":   { "SS GS":120, "SS GF":120, "SS GF Black":0, "SX GF":0, "SX GK":240, "SX GL":240 },
@@ -1240,64 +1245,81 @@ function currentMonthStr() {
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
 }
 
+// Fetch from Supabase — returns {oem: {model: plan_qty}}
+// Supabase has variant="" for model-level rows; we group by oem+model, sum plan_qty
 async function fetchPlanFromSupabase(monthStr) {
   try {
-    var res = await fetch(SB_URL + "/rest/v1/monthly_plan?month=eq." + monthStr + "&select=oem,model,plan_qty", {
-      headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY }
-    });
+    var res = await fetch(
+      SB_URL + "/rest/v1/monthly_plan?month=eq." + monthStr + "&select=oem,model,variant,plan_qty",
+      { headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY } }
+    );
     if (!res.ok) throw new Error("status " + res.status);
     var rows = await res.json();
     if (!Array.isArray(rows) || rows.length === 0) throw new Error("empty");
+    // Build {oem: {model: plan_qty}} — sum in case multiple variant rows exist
     var plan = {};
     rows.forEach(function(r) {
       if (!plan[r.oem]) plan[r.oem] = {};
-      plan[r.oem][r.model] = r.plan_qty;
+      plan[r.oem][r.model] = (plan[r.oem][r.model] || 0) + Number(r.plan_qty);
     });
+    console.log("Plan loaded from Supabase:", monthStr, "rows:", rows.length);
     return plan;
   } catch(e) {
-    console.warn("Plan fetch failed, using hardcoded:", e.message);
-    return MONTHLY_PLAN[monthStr] || null;
+    console.warn("Plan Supabase fetch failed, using fallback:", e.message);
+    return MONTHLY_PLAN_FALLBACK[monthStr] || null;
   }
 }
 
+// Compute plan vs actual
+// planData: {oem: {model: plan_qty}}  — plan at MODEL level (sum all variants)
+// entries: tracker entries array
+// Returns array of {oem, model, plan, actual, delta, pct}
 function computePlanVsActual(planData, monthStr) {
   var prefix = monthStr + "-";
+
+  // Build actual totals at MODEL level (sum ALL variants for each model)
   var actual = {};
   entries.forEach(function(e) {
     if (!e.date.startsWith(prefix)) return;
     if (!actual[e.oem]) actual[e.oem] = {};
     actual[e.oem][e.model] = (actual[e.oem][e.model] || 0) + Number(e.qty);
   });
-  // Merge: plan keys + any actual-only OEMs
+
+  // Build result rows — plan drives the list; append actual-only entries
+  var result = [];
   var allOems = new Set(Object.keys(planData));
   Object.keys(actual).forEach(function(o) { allOems.add(o); });
-  var rows = [];
+
   allOems.forEach(function(oem) {
-    var planOem = planData[oem] || {};
-    var actualOem = actual[oem] || {};
+    var planOem   = planData[oem] || {};
+    var actualOem = actual[oem]   || {};
     var allModels = new Set(Object.keys(planOem));
     Object.keys(actualOem).forEach(function(m) { allModels.add(m); });
+
     allModels.forEach(function(model) {
-      var p = planOem[model] || 0;
+      var p = planOem[model]   || 0;
       var a = actualOem[model] || 0;
-      if (p === 0 && a === 0) return; // skip zero rows
-      rows.push({ oem: oem, model: model, plan: p, actual: a,
+      if (p === 0 && a === 0) return; // skip fully empty rows
+      result.push({
+        oem: oem, model: model,
+        plan: p, actual: a,
         delta: a - p,
-        pct: p > 0 ? Math.round(a / p * 100) : (a > 0 ? 999 : 0) });
+        pct: p > 0 ? Math.round(a / p * 100) : (a > 0 ? 999 : 0)
+      });
     });
   });
-  return rows;
+  return result;
 }
 
 function pctColor(pct) {
-  if (pct >= 100) return "#4ade80";
-  if (pct >= 80)  return "#facc15";
-  if (pct >= 50)  return "#fb923c";
-  return "#f87171";
+  if (pct >= 100) return "#4ade80";  // green
+  if (pct >= 80)  return "#facc15";  // yellow
+  if (pct >= 50)  return "#fb923c";  // orange
+  return "#f87171";                  // red
 }
 
 function renderPlanCards(rows, monthStr) {
-  var cardsEl = document.getElementById("plan-cards");
+  var cardsEl  = document.getElementById("plan-cards");
   var statusEl = document.getElementById("plan-status");
   statusEl.style.display = "none";
 
@@ -1326,65 +1348,79 @@ function renderPlanCards(rows, monthStr) {
   if (!rows.length) {
     cardsEl.innerHTML = "";
     statusEl.style.display = "block";
-    statusEl.textContent = "NO DATA FOR THIS MONTH";
+    statusEl.textContent = "NO ENTRIES FOR THIS MONTH";
     return;
   }
 
+  // OEM color map (includes INT OEMs)
+  var ALL_COLORS = Object.assign({}, OEM_COLORS, {
+    "TOYOTA":"#F97316","BAMC":"#A78BFA","AAV":"#34D399","Citroen":"#FB7185","Ghabour":"#FBBF24"
+  });
+
   cardsEl.innerHTML = Object.entries(byOem).map(function(kv) {
     var oem = kv[0], data = kv[1];
-    var color = OEM_COLORS[oem] || "#94a3b8";
+    var color = ALL_COLORS[oem] || "#94a3b8";
     var tp = data.plan > 0 ? Math.round(data.actual / data.plan * 100) : (data.actual > 0 ? 999 : 0);
     var barW = Math.min(tp, 100);
     var pc = pctColor(tp);
     var pctLabel = tp === 999 ? "—" : tp + "%";
-    var deltaLabel = data.actual - data.plan;
-    var deltaStr = (deltaLabel >= 0 ? "+" : "") + deltaLabel.toLocaleString();
-    var deltaColor = deltaLabel >= 0 ? "#4ade80" : "#f87171";
+    var delta = data.actual - data.plan;
+    var deltaStr = (delta >= 0 ? "+" : "") + delta.toLocaleString();
+    var deltaColor = delta >= 0 ? "#4ade80" : "#f87171";
 
-    var modelRows = data.models.map(function(r) {
-      var mp = r.plan > 0 ? Math.min(Math.round(r.actual/r.plan*100),100) : (r.actual>0?100:0);
-      var rpct = r.pct === 999 ? "—" : r.pct + "%";
-      var rdelta = r.actual - r.plan;
-      var rdeltaStr = (rdelta >= 0 ? "+" : "") + rdelta.toLocaleString();
-      return '<div style="display:grid;grid-template-columns:1fr 44px 44px 44px 44px;gap:4px;align-items:center;padding:5px 0;border-bottom:1px solid #1A3050">'
-        + '<span style="font-size:12px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + r.model + '</span>'
-        + '<span style="font-size:12px;color:#64748b;text-align:right">' + r.plan.toLocaleString() + '</span>'
-        + '<span style="font-size:12px;color:' + color + ';text-align:right;font-weight:700">' + r.actual.toLocaleString() + '</span>'
-        + '<span style="font-size:11px;color:' + (rdelta>=0?"#4ade80":"#f87171") + ';text-align:right">' + rdeltaStr + '</span>'
-        + '<span style="font-size:12px;color:' + pctColor(r.pct) + ';text-align:right;font-weight:700">' + rpct + '</span>'
-        + '</div>';
-    }).join('');
+    // Model rows — only show models with plan > 0 OR actual > 0
+    var modelRows = data.models
+      .filter(function(r){ return r.plan > 0 || r.actual > 0; })
+      .map(function(r) {
+        var rpct = r.pct === 999 ? "—" : r.pct + "%";
+        var rdelta = r.actual - r.plan;
+        var rdeltaStr = (rdelta >= 0 ? "+" : "") + rdelta.toLocaleString();
+        return '<div style="display:grid;grid-template-columns:1fr 48px 48px 48px 44px;gap:3px;'
+          + 'align-items:center;padding:5px 0;border-bottom:1px solid #1A3050">'
+          + '<span style="font-size:12px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'
+          + r.model + '</span>'
+          + '<span style="font-size:12px;color:#64748b;text-align:right">' + r.plan.toLocaleString() + '</span>'
+          + '<span style="font-size:12px;color:' + color + ';text-align:right;font-weight:700">' + r.actual.toLocaleString() + '</span>'
+          + '<span style="font-size:11px;color:' + (rdelta>=0?"#4ade80":"#f87171") + ';text-align:right">' + rdeltaStr + '</span>'
+          + '<span style="font-size:12px;color:' + pctColor(r.pct) + ';text-align:right;font-weight:700">' + rpct + '</span>'
+          + '</div>';
+      }).join('');
 
-    return '<div style="background:#132338;border:1px solid ' + color + '33;border-left:3px solid ' + color + ';border-radius:10px;padding:12px 14px;margin-bottom:10px">'
+    return '<div style="background:#132338;border:1px solid ' + color + '33;border-left:3px solid '
+      + color + ';border-radius:10px;padding:12px 14px;margin-bottom:10px">'
       // OEM header
       + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
       + '<span style="color:' + color + ';font-family:var(--font);font-weight:800;font-size:16px;letter-spacing:1px">' + oem + '</span>'
-      + '<div style="text-align:right">'
+      + '<div style="display:flex;align-items:baseline;gap:8px">'
       + '<span style="font-family:var(--font);font-size:20px;font-weight:800;color:' + pc + '">' + pctLabel + '</span>'
-      + '<span style="font-size:11px;color:' + (deltaLabel>=0?"#4ade80":"#f87171") + ';margin-left:8px">' + deltaStr + '</span>'
+      + '<span style="font-size:11px;color:' + deltaColor + '">' + deltaStr + '</span>'
       + '</div></div>'
       // Progress bar
-      + '<div style="background:#0D1B2E;border-radius:4px;height:6px;margin-bottom:10px;overflow:hidden">'
-      + '<div style="background:' + pc + ';width:' + barW + '%;height:100%;border-radius:4px;transition:width .4s"></div>'
+      + '<div style="background:#0D1B2E;border-radius:4px;height:7px;margin-bottom:10px;overflow:hidden">'
+      + '<div style="background:' + pc + ';width:' + barW + '%;height:100%;border-radius:4px;transition:width .5s ease"></div>'
       + '</div>'
-      // Column headers
-      + '<div style="display:grid;grid-template-columns:1fr 44px 44px 44px 44px;gap:4px;font-size:10px;letter-spacing:1px;color:#64748b;padding:0 0 4px 0;border-bottom:1px solid #1A3050">'
-      + '<span>MODEL</span><span style="text-align:right">PLAN</span><span style="text-align:right">ACT</span><span style="text-align:right">Δ</span><span style="text-align:right">ACH%</span>'
+      // Column header
+      + '<div style="display:grid;grid-template-columns:1fr 48px 48px 48px 44px;gap:3px;'
+      + 'font-size:10px;letter-spacing:1px;color:#64748b;padding:0 0 4px 0;border-bottom:1px solid #1A3050">'
+      + '<span>MODEL</span>'
+      + '<span style="text-align:right">PLAN</span>'
+      + '<span style="text-align:right">ACT</span>'
+      + '<span style="text-align:right">Δ</span>'
+      + '<span style="text-align:right">ACH%</span>'
       + '</div>'
       + modelRows
       // OEM total row
-      + '<div style="display:grid;grid-template-columns:1fr 44px 44px 44px 44px;gap:4px;padding-top:6px;font-size:12px;font-weight:700">'
+      + '<div style="display:grid;grid-template-columns:1fr 48px 48px 48px 44px;gap:3px;padding-top:6px;font-size:12px;font-weight:700">'
       + '<span style="color:#94a3b8">TOTAL</span>'
       + '<span style="color:#64748b;text-align:right">' + data.plan.toLocaleString() + '</span>'
       + '<span style="color:' + color + ';text-align:right">' + data.actual.toLocaleString() + '</span>'
-      + '<span style="color:' + (deltaLabel>=0?"#4ade80":"#f87171") + ';text-align:right">' + deltaStr + '</span>'
+      + '<span style="color:' + deltaColor + ';text-align:right">' + deltaStr + '</span>'
       + '<span style="color:' + pc + ';text-align:right">' + pctLabel + '</span>'
       + '</div>'
       + '</div>';
   }).join('');
 }
 
-var planTabLoaded = false;
 async function loadPlanTab() {
   var monthStr = currentMonthStr();
   var statusEl = document.getElementById("plan-status");
@@ -1398,12 +1434,11 @@ async function loadPlanTab() {
 
   var planData = await fetchPlanFromSupabase(monthStr);
   if (!planData) {
-    statusEl.textContent = "NO PLAN DATA — RUN SQL SETUP";
+    statusEl.textContent = "NO PLAN DATA";
     return;
   }
   var rows = computePlanVsActual(planData, monthStr);
   renderPlanCards(rows, monthStr);
-  planTabLoaded = true;
 }
 
 // ── CLOSE MODALS ON BACKDROP ──────────────────────────

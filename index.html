@@ -276,6 +276,20 @@ select:focus{border-color:var(--accent);}
   .vk:active{transform:translateY(2px);box-shadow:none;background:#1E3A8A;}
   .vk.vk-clear{background:#7F1D1D;color:#FCA5A5;font-size:16px;}
   .vk.vk-back{background:var(--border);color:#93C5FD;font-size:16px;}
+  /* PLAN TAB */
+  .plan-oem-block{margin-bottom:18px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .plan-oem-header{padding:10px 14px;display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:2px;font-weight:800;border-bottom:1px solid var(--border);}
+  .plan-oem-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .plan-row{display:grid;grid-template-columns:1fr 52px 52px 52px 52px;gap:4px;padding:9px 14px;border-bottom:1px solid var(--bg3);align-items:center;font-size:13px;}
+  .plan-row:last-child{border-bottom:none;}
+  .plan-row-model{color:var(--sub);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .plan-hdr{display:grid;grid-template-columns:1fr 52px 52px 52px 52px;gap:4px;padding:6px 14px;font-size:10px;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--border);}
+  .plan-num{text-align:right;font-weight:700;}
+  .plan-pct{text-align:right;font-weight:700;}
+  .plan-badge{display:inline-block;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;text-align:center;}
+  .plan-summary{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;display:flex;justify-content:space-around;text-align:center;}
+  .plan-summary-item .label{font-size:10px;letter-spacing:2px;color:var(--muted);}
+  .plan-summary-item .val{font-size:20px;font-weight:800;color:var(--accent);margin-top:4px;}
 </style>
 </head>
 <body>
@@ -307,6 +321,7 @@ select:focus{border-color:var(--accent);}
   <button class="tab-btn active" onclick="switchTab('form',this)">ENTRY</button>
   <button class="tab-btn" onclick="switchTab('analysis',this)">ANALYSIS</button>
   <button class="tab-btn" onclick="switchTab('log',this)">LOG</button>
+  <button class="tab-btn" onclick="switchTab('plan',this)">PLAN</button>
 </div>
 
 <!-- CONTENT -->
@@ -384,6 +399,17 @@ select:focus{border-color:var(--accent);}
       </table>
     </div>
     <div id="no-log">NO ENTRIES YET</div>
+  </div>
+
+  <!-- PLAN TAB -->
+  <div id="plan" style="display:none;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <label style="font-size:11px;letter-spacing:2px;color:var(--dim);">MONTH</label>
+      <select id="plan-month-sel" onchange="renderPlan()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-family:var(--font);font-size:13px;">
+      </select>
+    </div>
+    <div id="plan-status" style="text-align:center;color:var(--muted);font-size:13px;padding:20px 0;">Loading...</div>
+    <div id="plan-body"></div>
   </div>
 </div>
 
@@ -741,7 +767,7 @@ window.onload = function() {
 
 // ── TABS ─────────────────────────────────────────────
 function switchTab(tab, btn) {
-  ["form","analysis","log"].forEach(t => {
+  ["form","analysis","log","plan"].forEach(t => {
     document.getElementById(t).style.display = "none";
   });
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -749,6 +775,7 @@ function switchTab(tab, btn) {
   btn.classList.add("active");
   if (tab === "analysis") renderAnalysis();
   if (tab === "log") renderLog();
+  if (tab === "plan") renderPlan();
 }
 
 // ── DROPDOWNS ────────────────────────────────────────
@@ -1987,6 +2014,191 @@ function yearViewCSV() {
 
 document.getElementById("modal").addEventListener("click", function(e){ if(e.target===this) document.getElementById("modal").style.display="none"; });
 document.getElementById("eod-modal").addEventListener("click", function(e){ if(e.target===this) this.classList.remove("show"); });
+
+// ── PLAN VS ACTUAL ────────────────────────────────────
+var GM_MODELS = {
+  "RT50 Leather": ["Left(L)","Right(L)"],
+  "RT50 Fabric":  ["Left(F)","Right(F)"],
+  "VL01":         ["LH (DR)","CDSB 1","CDSB2","CDSC"],
+  "VL20":         ["LH (DR)","CDSB","CDSC"],
+  "BRACKET":      ["Left","Right","Massad"],
+  "310vl1":       ["Left Seat","Right Seat","Cushion","Rear back 100%"],
+  "310vl2":       ["Left Seat","Right Seat","Cushion 40%","Cushion 60%","Rear back 40%","Rear Back 60%"]
+};
+
+var OEM_COLORS_PLAN = {
+  EXCEED:"#4FC3F7",Kasrawy:"#F48FB1",NISSAN:"#81C784",Suzuki:"#80DEEA",
+  GM:"#FFB74D",GEELY:"#CE93D8",ESAF:"#FFCC02",
+  TOYOTA:"#F97316",BAMC:"#A78BFA",AAV:"#34D399",Citroen:"#FB7185",Ghabour:"#FBBF24"
+};
+
+(function initPlanMonthSel(){
+  var sel = document.getElementById("plan-month-sel");
+  var months = ["2026-01","2026-02","2026-03","2026-04","2026-05","2026-06",
+                "2026-07","2026-08","2026-09","2026-10","2026-11","2026-12"];
+  var cur = (function(){
+    var d = new Date();
+    return d.getFullYear()+"-"+(""+(d.getMonth()+1)).padStart(2,"0");
+  })();
+  months.forEach(function(m){
+    var o = document.createElement("option");
+    o.value = m; o.textContent = m;
+    if(m === cur) o.selected = true;
+    sel.appendChild(o);
+  });
+})();
+
+function renderPlan() {
+  var month = document.getElementById("plan-month-sel").value;
+  var statusEl = document.getElementById("plan-status");
+  var bodyEl   = document.getElementById("plan-body");
+  statusEl.style.display = "block";
+  statusEl.textContent   = "Loading...";
+  bodyEl.innerHTML       = "";
+
+  // Fetch plan and deliveries in parallel
+  var planUrl = SB_URL+"/rest/v1/monthly_plan?month=eq."+month+"&select=oem,model,variant,plan_qty";
+  var actUrl  = SB_URL+"/rest/v1/deliveries?date=gte."+month+"-01&date=lte."+month+"-31&select=oem,model,variant,qty,location";
+
+  Promise.all([
+    fetch(planUrl, {headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY}}).then(function(r){return r.json();}),
+    fetch(actUrl,  {headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY}}).then(function(r){return r.json();})
+  ]).then(function(results){
+    var planRows   = Array.isArray(results[0]) ? results[0] : [];
+    var actualRows = Array.isArray(results[1]) ? results[1] : [];
+
+    // --- Aggregate plan to model level ---
+    // For GM: MIN of components per model; for others: SUM per model
+    var planMap = {}; // key: "oem|model" -> plan qty (model-level)
+    planRows.forEach(function(r){
+      var key = r.oem+"|"+r.model;
+      if(r.oem === "GM"){
+        if(!planMap[key]) planMap[key] = {vals:[]};
+        planMap[key].vals.push(r.plan_qty);
+      } else {
+        if(!planMap[key]) planMap[key] = {sum:0};
+        planMap[key].sum += (r.plan_qty||0);
+      }
+    });
+    var planAgg = {};
+    Object.keys(planMap).forEach(function(k){
+      var v = planMap[k];
+      planAgg[k] = v.vals ? Math.min.apply(null,v.vals) : v.sum;
+    });
+
+    // --- Aggregate actuals to model level ---
+    // For GM: MIN of components per model; for others: SUM per model
+    var actMap = {};
+    actualRows.forEach(function(r){
+      var key = r.oem+"|"+r.model;
+      if(r.oem === "GM"){
+        if(!actMap[key]) actMap[key] = {};
+        var vkey = (r.variant||"");
+        actMap[key][vkey] = (actMap[key][vkey]||0) + (r.qty||0);
+      } else {
+        if(!actMap[key]) actMap[key] = {sum:0};
+        actMap[key].sum += (r.qty||0);
+      }
+    });
+    var actAgg = {};
+    // For GM models, find min across components
+    var allGmModels = Object.keys(GM_MODELS);
+    Object.keys(actMap).forEach(function(k){
+      var parts = k.split("|");
+      var oem   = parts[0];
+      var model = parts[1];
+      if(oem === "GM"){
+        var compMap = actMap[k];
+        var comps   = GM_MODELS[model] || [];
+        if(comps.length === 0){
+          actAgg[k] = 0;
+        } else {
+          var mins = comps.map(function(c){ return compMap[c]||0; });
+          actAgg[k] = Math.min.apply(null, mins);
+        }
+      } else {
+        actAgg[k] = actMap[k].sum;
+      }
+    });
+
+    // Collect all unique oem|model keys
+    var allKeys = {};
+    Object.keys(planAgg).forEach(function(k){ allKeys[k]=1; });
+    Object.keys(actAgg).forEach(function(k){ allKeys[k]=1; });
+
+    // Group by OEM maintaining order
+    var OEM_ORDER = ["EXCEED","Kasrawy","NISSAN","Suzuki","GM","GEELY","ESAF","TOYOTA","BAMC","AAV","Citroen","Ghabour"];
+    var grouped = {};
+    OEM_ORDER.forEach(function(o){ grouped[o]=[]; });
+    Object.keys(allKeys).forEach(function(k){
+      var parts = k.split("|");
+      var oem = parts[0]; var model = parts[1];
+      if(!grouped[oem]) grouped[oem] = [];
+      grouped[oem].push({model:model, plan:planAgg[k]||0, actual:actAgg[k]||0});
+    });
+
+    // Summary totals
+    var totalPlan=0, totalActual=0, greenCount=0, totalModels=0;
+    Object.keys(grouped).forEach(function(oem){
+      grouped[oem].forEach(function(row){
+        totalPlan   += row.plan;
+        totalActual += row.actual;
+        totalModels++;
+        if(row.plan > 0 && (row.actual/row.plan) >= 1) greenCount++;
+      });
+    });
+
+    if(Object.keys(allKeys).length === 0){
+      statusEl.textContent = "No data for "+month;
+      return;
+    }
+    statusEl.style.display = "none";
+
+    var html = "";
+
+    // Summary card
+    var ovPct = totalPlan > 0 ? Math.round(totalActual/totalPlan*100) : 0;
+    html += '<div class="plan-summary">';
+    html += '<div class="plan-summary-item"><div class="label">PLAN</div><div class="val">'+totalPlan.toLocaleString()+'</div></div>';
+    html += '<div class="plan-summary-item"><div class="label">ACTUAL</div><div class="val" style="color:'+(ovPct>=100?"#34D399":ovPct>=80?"#FCD34D":"#F87171")+'">'+totalActual.toLocaleString()+'</div></div>';
+    html += '<div class="plan-summary-item"><div class="label">ACHIEVEMENT</div><div class="val" style="color:'+(ovPct>=100?"#34D399":ovPct>=80?"#FCD34D":"#F87171")+'">'+ovPct+'%</div></div>';
+    html += '</div>';
+
+    OEM_ORDER.forEach(function(oem){
+      var rows = grouped[oem];
+      if(!rows || rows.length === 0) return;
+      var color = OEM_COLORS_PLAN[oem]||"#888";
+      html += '<div class="plan-oem-block">';
+      html += '<div class="plan-oem-header">';
+      html += '<div class="plan-oem-dot" style="background:'+color+'"></div>';
+      html += oem;
+      html += '</div>';
+      html += '<div class="plan-hdr"><span>MODEL</span><span style="text-align:right">PLAN</span><span style="text-align:right">ACTUAL</span><span style="text-align:right">%</span><span style="text-align:right">STATUS</span></div>';
+      rows.forEach(function(row){
+        var pct = row.plan > 0 ? Math.round(row.actual/row.plan*100) : (row.actual > 0 ? 999 : 0);
+        var badge, bcolor, btext;
+        if(row.plan === 0 && row.actual === 0){ badge="—"; bcolor="var(--bg3)"; btext="var(--muted)"; }
+        else if(pct >= 100){ badge="🟢"; bcolor=""; btext=""; }
+        else if(pct >= 80) { badge="🟡"; bcolor=""; btext=""; }
+        else               { badge="🔴"; bcolor=""; btext=""; }
+        var pctStr = row.plan === 0 ? (row.actual > 0 ? "—" : "0%") : pct+"%";
+        html += '<div class="plan-row">';
+        html += '<div class="plan-row-model">'+row.model+'</div>';
+        html += '<div class="plan-num" style="color:var(--dim)">'+row.plan.toLocaleString()+'</div>';
+        html += '<div class="plan-num" style="color:var(--accent)">'+row.actual.toLocaleString()+'</div>';
+        html += '<div class="plan-pct" style="color:'+(pct>=100?"#34D399":pct>=80?"#FCD34D":"#F87171")+'">'+pctStr+'</div>';
+        html += '<div style="text-align:right;font-size:16px;">'+badge+'</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+
+    bodyEl.innerHTML = html;
+  }).catch(function(err){
+    statusEl.textContent = "Error loading data";
+    console.error(err);
+  });
+}
 </script>
 
 </body>

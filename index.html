@@ -377,8 +377,12 @@ select:focus{border-color:var(--accent);}
 
   <!-- ANALYSIS TAB -->
   <div id="analysis">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <label style="font-size:11px;letter-spacing:2px;color:var(--dim);">MONTH</label>
+      <select id="analysis-month-sel" onchange="renderAnalysis()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-family:var(--font);font-size:13px;"></select>
+    </div>
     <div id="grand-total">
-      <span class="label">GRAND TOTAL</span>
+      <span class="label" id="grand-label">GRAND TOTAL</span>
       <span class="value" id="grand-val">0</span>
     </div>
     <div id="oem-cards"></div>
@@ -747,6 +751,24 @@ window.onload = function() {
   });
   updateEntryCount();
   renderLog();
+
+  // Populate Analysis month selector
+  var anSel = document.getElementById("analysis-month-sel");
+  if (anSel && typeof YV_ALL_MONTHS !== "undefined") {
+    var mNames2 = {"01":"Jan","02":"Feb","03":"Mar","04":"Apr","05":"May","06":"Jun",
+                   "07":"Jul","08":"Aug","09":"Sep","10":"Oct","11":"Nov","12":"Dec"};
+    YV_ALL_MONTHS.forEach(function(ym) {
+      var o = document.createElement("option");
+      o.value = ym;
+      var p = ym.split("-");
+      o.textContent = (mNames2[p[1]] || p[1]) + " " + p[0];
+      anSel.appendChild(o);
+    });
+    // Default to current month
+    var nowYM = new Date().toISOString().substring(0,7);
+    if (YV_ALL_MONTHS.indexOf(nowYM) >= 0) anSel.value = nowYM;
+  }
+
   renderAnalysis();
   // Auto-sync from Supabase on load
   setTimeout(sbSync, 1500);
@@ -1107,11 +1129,32 @@ function renderAnalysis() {
   const container = document.getElementById("oem-cards");
   const noData = document.getElementById("no-data");
   const grandVal = document.getElementById("grand-val");
-  if (!entries.length) { container.innerHTML=""; noData.style.display="block"; grandVal.textContent="0"; return; }
+  const grandLabel = document.getElementById("grand-label");
+  const sel = document.getElementById("analysis-month-sel");
+  const selectedMonth = sel ? sel.value : "";
+
+  // Filter entries by selected month (YYYY-MM)
+  const filtered = selectedMonth
+    ? entries.filter(e => e.date && e.date.substring(0,7) === selectedMonth)
+    : entries;
+
+  // Update label
+  if (grandLabel) {
+    if (selectedMonth) {
+      var parts = selectedMonth.split("-");
+      var mNames = {"01":"JAN","02":"FEB","03":"MAR","04":"APR","05":"MAY","06":"JUN",
+                    "07":"JUL","08":"AUG","09":"SEP","10":"OCT","11":"NOV","12":"DEC"};
+      grandLabel.textContent = (mNames[parts[1]] || parts[1]) + " " + parts[0];
+    } else {
+      grandLabel.textContent = "GRAND TOTAL";
+    }
+  }
+
+  if (!filtered.length) { container.innerHTML=""; noData.style.display="block"; grandVal.textContent="0"; return; }
   noData.style.display = "none";
   const grouped = {}, totals = {};
   let grand = 0;
-  entries.forEach(({oem,model,variant,qty}) => {
+  filtered.forEach(({oem,model,variant,qty}) => {
     const sub = variant ? `${model} / ${variant}` : model;
     if (!grouped[oem]) grouped[oem] = {};
     grouped[oem][sub] = (grouped[oem][sub]||0) + Number(qty);

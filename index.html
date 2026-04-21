@@ -104,7 +104,7 @@ input[type="date"]{
   color:var(--text);outline:none;margin-bottom:14px;color-scheme:dark light;
 }
 #dn-input{
-  width:100%;padding:14px 16px;font-size:22px;font-weight:700;
+  width:100%;padding:14px 16px;font-size:33px;font-weight:700;
   border-radius:10px;border:2px solid var(--border);background:var(--bg2);
   color:var(--yellow);outline:none;margin-bottom:14px;letter-spacing:2px;font-family:var(--font);
 }
@@ -177,7 +177,7 @@ select:focus{border-color:var(--accent);}
 #modal-divider{border-top:2px solid var(--accent);margin-bottom:20px;}
 .modal-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;}
 .modal-key{font-size:12px;letter-spacing:2px;color:var(--muted);}
-.modal-val{font-size:22px;font-weight:700;color:var(--text);}
+.modal-val{font-size:33px;font-weight:700;color:var(--text);}
 .modal-val.qty{color:var(--accent);}
 #modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px;}
 #btn-edit{padding:16px 0;border-radius:10px;border:2px solid var(--border);background:transparent;color:var(--sub);font-size:16px;font-weight:700;letter-spacing:1px;}
@@ -211,15 +211,15 @@ select:focus{border-color:var(--accent);}
   padding:16px 20px;margin-bottom:16px;
   display:flex;justify-content:space-between;align-items:center;font-family:var(--font);
 }
-#grand-total .label{font-size:12px;letter-spacing:3px;color:var(--muted);}
-#grand-total .value{font-size:36px;font-weight:800;color:var(--accent);}
+#grand-total .label{font-size:18px;letter-spacing:3px;color:var(--muted);}
+#grand-total .value{font-size:54px;font-weight:800;color:var(--accent);}
 .oem-card{border-radius:12px;margin-bottom:12px;overflow:hidden;border:2px solid transparent;font-family:var(--font);}
 .oem-card-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;}
-.oem-card-name{font-weight:800;font-size:18px;letter-spacing:1px;}
+.oem-card-name{font-weight:800;font-size:27px;letter-spacing:1px;}
 .oem-card-total{font-weight:700;font-size:22px;}
 .oem-row{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--bg3);}
-.oem-row-name{font-size:15px;color:var(--sub);}
-.oem-row-qty{font-size:18px;font-weight:700;color:var(--text);}
+.oem-row-name{font-size:23px;color:var(--sub);}
+.oem-row-qty{font-size:27px;font-weight:700;color:var(--text);}
 #no-data{text-align:center;color:var(--dim);padding:40px 0;font-family:var(--font);font-size:16px;letter-spacing:2px;}
 
 /* LOG */
@@ -227,11 +227,11 @@ select:focus{border-color:var(--accent);}
 #log-actions{display:flex;justify-content:flex-end;margin-bottom:12px;}
 #btn-clear-all{background:#7F1D1D;border:none;border-radius:8px;padding:8px 16px;color:#FCA5A5;font-weight:700;font-size:13px;letter-spacing:1px;font-family:var(--font);}
 #log-table-wrap{background:var(--bg2);border:2px solid var(--border);border-radius:12px;overflow:hidden;overflow-x:auto;}
-#log-table{width:100%;border-collapse:collapse;font-size:14px;font-family:var(--font);}
-#log-table th{padding:10px;text-align:left;font-size:11px;letter-spacing:2px;color:var(--dim);border-bottom:2px solid var(--border);}
+#log-table{width:100%;border-collapse:collapse;font-size:21px;font-family:var(--font);}
+#log-table th{padding:10px;text-align:left;font-size:17px;letter-spacing:2px;color:var(--dim);border-bottom:2px solid var(--border);}
 #log-table td{padding:10px;color:var(--sub);border-bottom:1px solid var(--bg3);}
 #log-table td.qty-cell{color:var(--accent);font-weight:700;}
-.loc-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1.5px;padding:2px 6px;border-radius:4px;}
+.loc-badge{display:inline-block;font-size:14px;font-weight:800;letter-spacing:1.5px;padding:2px 6px;border-radius:4px;}
 .loc-badge.adv{background:#1E3A8A22;color:#4FC3F7;border:1px solid #1E3A8A;}
 .loc-badge.int{background:#1A3A1A44;color:#4ADE80;border:1px solid #1E5F35;}
 .del-btn{background:transparent;border:none;color:var(--dim);font-size:16px;padding:4px;cursor:pointer;}
@@ -269,7 +269,7 @@ select:focus{border-color:var(--accent);}
   .vqty-keypad{display:none;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px 0 4px;}
   .vqty-keypad.open{display:grid;}
   .vk{
-    padding:14px 0;font-size:22px;font-weight:700;border-radius:8px;border:none;
+    padding:14px 0;font-size:33px;font-weight:700;border-radius:8px;border:none;
     background:var(--bg3);color:var(--text);cursor:pointer;font-family:var(--font);
     box-shadow:0 2px 0 rgba(0,0,0,.4);transition:transform .08s;
   }
@@ -278,18 +278,18 @@ select:focus{border-color:var(--accent);}
   .vk.vk-back{background:var(--border);color:#93C5FD;font-size:16px;}
   /* PLAN TAB */
   .plan-oem-block{margin-bottom:18px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
-  .plan-oem-header{padding:10px 14px;display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:2px;font-weight:800;border-bottom:1px solid var(--border);}
+  .plan-oem-header{padding:10px 14px;display:flex;align-items:center;gap:8px;font-size:17px;letter-spacing:2px;font-weight:800;border-bottom:1px solid var(--border);}
   .plan-oem-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-  .plan-row{display:grid;grid-template-columns:1fr 52px 52px 52px 52px;gap:4px;padding:9px 14px;border-bottom:1px solid var(--bg3);align-items:center;font-size:13px;}
+  .plan-row{display:grid;grid-template-columns:1fr 52px 52px 52px 52px;gap:4px;padding:9px 14px;border-bottom:1px solid var(--bg3);align-items:center;font-size:20px;}
   .plan-row:last-child{border-bottom:none;}
-  .plan-row-model{color:var(--sub);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .plan-hdr{display:grid;grid-template-columns:1fr 52px 52px 52px 52px;gap:4px;padding:6px 14px;font-size:10px;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--border);}
+  .plan-row-model{color:var(--sub);font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .plan-hdr{display:grid;grid-template-columns:1fr 52px 52px 52px 52px;gap:4px;padding:6px 14px;font-size:15px;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--border);}
   .plan-num{text-align:right;font-weight:700;}
   .plan-pct{text-align:right;font-weight:700;}
-  .plan-badge{display:inline-block;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;text-align:center;}
+  .plan-badge{display:inline-block;font-size:15px;font-weight:800;padding:2px 8px;border-radius:6px;text-align:center;}
   .plan-summary{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;display:flex;justify-content:space-around;text-align:center;}
-  .plan-summary-item .label{font-size:10px;letter-spacing:2px;color:var(--muted);}
-  .plan-summary-item .val{font-size:20px;font-weight:800;color:var(--accent);margin-top:4px;}
+  .plan-summary-item .label{font-size:15px;letter-spacing:2px;color:var(--muted);}
+  .plan-summary-item .val{font-size:30px;font-weight:800;color:var(--accent);margin-top:4px;}
 </style>
 </head>
 <body>
@@ -379,7 +379,7 @@ select:focus{border-color:var(--accent);}
   <div id="analysis">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
       <label style="font-size:11px;letter-spacing:2px;color:var(--dim);">MONTH</label>
-      <select id="analysis-month-sel" onchange="renderAnalysis()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-family:var(--font);font-size:13px;"></select>
+      <select id="analysis-month-sel" onchange="renderAnalysis()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-family:var(--font);font-size:20px;"></select>
     </div>
     <div id="grand-total">
       <span class="label" id="grand-label">GRAND TOTAL</span>
@@ -409,10 +409,10 @@ select:focus{border-color:var(--accent);}
   <div id="plan" style="display:none;">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
       <label style="font-size:11px;letter-spacing:2px;color:var(--dim);">MONTH</label>
-      <select id="plan-month-sel" onchange="renderPlan()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-family:var(--font);font-size:13px;">
+      <select id="plan-month-sel" onchange="renderPlan()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-family:var(--font);font-size:20px;">
       </select>
     </div>
-    <div id="plan-status" style="text-align:center;color:var(--muted);font-size:13px;padding:20px 0;">Loading...</div>
+    <div id="plan-status" style="text-align:center;color:var(--muted);font-size:20px;padding:20px 0;">Loading...</div>
     <div id="plan-body"></div>
   </div>
 </div>
@@ -437,7 +437,7 @@ select:focus{border-color:var(--accent);}
 <!-- PASSWORD MODAL -->
 <div id="pw-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);align-items:center;justify-content:center;z-index:2000;padding:20px;">
   <div style="background:var(--bg2);border:2px solid var(--yellow);border-radius:16px;padding:28px;width:100%;max-width:360px;font-family:var(--font);">
-    <div style="font-size:12px;letter-spacing:3px;color:var(--muted);margin-bottom:6px;">🔒 PROTECTED ACTION</div>
+    <div style="font-size:18px;letter-spacing:3px;color:var(--muted);margin-bottom:6px;">🔒 PROTECTED ACTION</div>
     <div id="pw-action-label" style="font-size:16px;font-weight:700;color:var(--yellow);margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:12px;"></div>
     <label style="font-size:11px;letter-spacing:2px;color:var(--muted);">ENTER PASSWORD</label>
     <input type="password" id="pw-input" placeholder="••••••••"
@@ -452,7 +452,7 @@ select:focus{border-color:var(--accent);}
 <!-- BACKUP/RESTORE MODAL -->
 <div id="br-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);align-items:center;justify-content:center;z-index:1001;padding:20px;">
   <div style="background:var(--bg2);border:2px solid var(--accent);border-radius:16px;padding:26px;width:100%;max-width:420px;font-family:var(--font);">
-    <div style="font-size:12px;letter-spacing:3px;color:var(--muted);margin-bottom:8px;">BACKUP / RESTORE</div>
+    <div style="font-size:18px;letter-spacing:3px;color:var(--muted);margin-bottom:8px;">BACKUP / RESTORE</div>
     <div style="border-top:2px solid var(--accent);margin-bottom:18px;"></div>
 
     <div style="margin-bottom:14px;">
@@ -1998,7 +1998,7 @@ async function openYearView() {
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:'+(isEmpty?'0':'8px')+';">'+
         '<span style="font-size:14px;font-weight:800;color:var(--text);">'+label+'</span>'+
         '<div style="text-align:right;">'+
-        '<div style="font-size:18px;font-weight:800;color:var(--accent);">'+totalQty.toLocaleString()+' <span style="font-size:10px;color:var(--dim);">units</span></div>'+
+        '<div style="font-size:27px;font-weight:800;color:var(--accent);">'+totalQty.toLocaleString()+' <span style="font-size:15px;color:var(--dim);">units</span></div>'+
         (isEmpty?'':'<div style="font-size:11px;color:var(--yellow);">'+Math.round(totalVal).toLocaleString()+' <span style="color:var(--dim);">EGP</span></div>')+
         '</div>'+
         '</div>'+

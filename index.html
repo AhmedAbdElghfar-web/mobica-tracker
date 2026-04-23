@@ -650,8 +650,8 @@ const EXCEL_MAP = {
   Suzuki: { sheet:"SuZuKi", dateRowStart:3, cols:{
     "Van/Front":2,"Van/Rear":3
   }},
-  GM: { sheet:"GM", dateRowStart:3, cols:{
-    "RT50/Left(L)":2,"RT50/Right(L)":3,"RT50/Left(F)":4,"RT50/Right(F)":5,
+    GM: { sheet:"GM", dateRowStart:3, cols:{
+    "RT50 Leather/Left(L)":2,"RT50 Leather/Right(L)":3,"RT50 Fabric/Left(F)":4,"RT50 Fabric/Right(F)":5,
     "VL01/LH (DR)":6,"VL01/CDSB 1":7,"VL01/CDSB2":8,"VL01/CDSC":9,
     "VL20/LH (DR)":10,"VL20/CDSB":11,"VL20/CDSC":12,
     "BRACKET/Left":27,"BRACKET/Right":28,"BRACKET/Massad":29,
@@ -712,9 +712,11 @@ async function sbSync() {
       headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY }
     });
     if (!res.ok) { showToast("Sync failed"); return; }
-    const remote = await res.json();
-    if (!Array.isArray(remote)) { showToast("Sync error"); return; }
-    const localMap = {};
+        const remote = await res.json();
+            if (!Array.isArray(remote)) { showToast("Sync error"); return; }
+            migrateRT50(remote); // <-- This forces the cloud data to merge!
+            const localMap = {};
+
     entries.forEach(e => localMap[e.id] = e);
     remote.forEach(e => localMap[e.id] = e);
     entries = Object.values(localMap).sort((a,b) => a.ts - b.ts);

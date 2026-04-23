@@ -402,6 +402,9 @@ select:focus{border-color:var(--accent);}
       <span style="font-size:12px;letter-spacing:2px;color:var(--yellow);display:block;margin-bottom:4px;">TOTAL REVENUE</span>
       <span id="dash-grand-val" style="font-size:32px;font-weight:800;color:var(--yellow);">0 EGP</span>
     </div>
+    
+    <div id="dash-bar-chart" style="display:none; align-items:flex-end; gap:8px; height:180px; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:5px; overflow-x:auto;"></div>
+
     <div style="overflow-x:auto;">
       <table id="dash-table" style="width:100%; border-collapse:collapse; text-align:center; font-family:var(--font); font-size:13px; display:none;">
         <thead>
@@ -1291,50 +1294,63 @@ function renderDashboard() {
   entries.forEach(e => {
     if(e.date.startsWith(month)) {
       var price = 0;
+      var isValid = false;
       var schema = SCHEMA[e.oem];
       if(schema && schema.cols) {
         var ci = schema.cols.findIndex(c => c[0] === e.model && c[1] === (e.variant||""));
-        if(OEM_PRICES[e.oem] && OEM_PRICES[e.oem][ci]) price = OEM_PRICES[e.oem][ci];
+        if(ci >= 0) {
+          isValid = true;
+          if(OEM_PRICES[e.oem] && OEM_PRICES[e.oem][ci]) price = OEM_PRICES[e.oem][ci];
+        }
       } else if (INT_MODELS[e.oem]) {
         var mi = INT_MODELS[e.oem].indexOf(e.model);
-        if(OEM_PRICES[e.oem] && OEM_PRICES[e.oem][mi]) price = OEM_PRICES[e.oem][mi];
+        if(mi >= 0) {
+          isValid = true;
+          if(OEM_PRICES[e.oem] && OEM_PRICES[e.oem][mi]) price = OEM_PRICES[e.oem][mi];
+        }
       }
       
-      var qty = Number(e.qty);
-      var val = price * qty;
-      grandVal += val;
-      grandQty += qty;
-      
-      if(!oemAgg[e.oem]) oemAgg[e.oem] = {val:0, qty:0};
-      oemAgg[e.oem].val += val;
-      oemAgg[e.oem].qty += qty;
+      if(isValid) {
+        var qty = Number(e.qty);
+        var val = price * qty;
+        grandVal += val;
+        grandQty += qty;
+        
+        if(!oemAgg[e.oem]) oemAgg[e.oem] = {val:0, qty:0};
+        oemAgg[e.oem].val += val;
+        oemAgg[e.oem].qty += qty;
+      }
     }
   });
 
   var tbody = document.getElementById("dash-oem-rows");
   var table = document.getElementById("dash-table");
+  var barChart = document.getElementById("dash-bar-chart");
   if(!tbody || !table) return;
   
   var oems = Object.keys(oemAgg);
   if(oems.length === 0) {
     document.getElementById("dash-no-data").style.display = "block";
     table.style.display = "none";
+    if(barChart) barChart.style.display = "none";
     document.getElementById("dash-grand-container").style.display = "none";
     return;
   }
   
   document.getElementById("dash-no-data").style.display = "none";
   table.style.display = "table";
-  // document.getElementById("dash-grand-container").style.display = "block";
+  if(barChart) barChart.style.display = "flex";
   
   document.getElementById("dash-grand-qty").textContent = grandQty.toLocaleString('en');
   document.getElementById("dash-grand-val-foot").textContent = grandVal.toLocaleString('en',{minimumFractionDigits:2, maximumFractionDigits:2});
-  // document.getElementById("dash-grand-val").textContent = grandVal.toLocaleString('en',{minimumFractionDigits:2, maximumFractionDigits:2}) + " EGP";
   
   var html = "";
+  var chartHtml = "";
   var orderedOems = Object.keys(SCHEMA).concat(Object.keys(INT_MODELS));
   var finalOems = orderedOems.filter(o => oems.includes(o));
   oems.forEach(o => { if(!finalOems.includes(o)) finalOems.push(o); });
+
+  var maxVal = Math.max(...finalOems.map(o => oemAgg[o].val));
 
   finalOems.forEach(oem => {
     var c = OEM_COLORS[oem] || "#fff";
@@ -1348,9 +1364,19 @@ function renderDashboard() {
     html += '<td style="padding:10px; border:1px solid #4FC3F7; color:var(--yellow); font-weight:bold;">' + v.toLocaleString('en',{minimumFractionDigits:2, maximumFractionDigits:2}) + '</td>';
     html += '<td style="padding:10px; border:1px solid #4FC3F7; color:#ccc;">' + pct + '</td>';
     html += '</tr>';
+
+    var vM = (v / 1000000).toFixed(1) + "M";
+    var h = maxVal > 0 ? (v / maxVal) * 100 : 0;
+    if (h < 5) h = 5; // minimum height
+    chartHtml += `<div style="flex:1; min-width:40px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;">
+      <span style="font-size:10px; color:var(--text); margin-bottom:4px;">${vM}</span>
+      <div style="width:100%; max-width:30px; height:${h}%; background:${c}; border-radius:4px 4px 0 0; transition:height 0.5s;"></div>
+      <span style="font-size:10px; font-weight:bold; color:${c}; margin-top:4px; text-align:center; word-break:break-all;">${oem}</span>
+    </div>`;
   });
   
   tbody.innerHTML = html;
+  if(barChart) barChart.innerHTML = chartHtml;
 }
 
 function renderLog() {

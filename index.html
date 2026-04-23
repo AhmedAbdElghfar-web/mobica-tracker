@@ -731,18 +731,25 @@ const STORAGE_KEY = "mobica_tracker_apr2026";
 const TODAY_ISO = new Date().toISOString().split("T")[0];
 let entries = [];
 let qty = "";
-// Automatically migrates old RT50 data to the new model names
+// Automatically migrates old GM and TOYOTA data to the new model names
 function migrateRT50(list) {
   let changed = false;
   if (!list) return changed;
   list.forEach(e => {
+    // 1. GM RT50 Migration
     if (e.oem === "GM" && e.model === "RT50") {
       if (e.variant === "Left(L)" || e.variant === "Right(L)") { e.model = "RT50 Leather"; changed = true; }
       else if (e.variant === "Left(F)" || e.variant === "Right(F)") { e.model = "RT50 Fabric"; changed = true; }
     }
+    // 2. TOYOTA Fortuner Migration (strips the word "Fortuner ")
+    if (e.oem === "TOYOTA" && e.model && e.model.startsWith("Fortuner ")) {
+      e.model = e.model.replace("Fortuner ", ""); 
+      changed = true;
+    }
   });
   return changed;
 }
+
 function loadData(){ 
   try { 
     entries = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; 

@@ -545,7 +545,8 @@ const DATA_ADVANCED = {
     Van: ["Front","Rear"]
   },
   GM: {
-    RT50: ["Left(L)","Right(L)","Left(F)","Right(F)"],
+    "RT50 Leather": ["Left(L)","Right(L)"],
+    "RT50 Fabric": ["Left(F)","Right(F)"],
     VL01: ["LH (DR)","CDSB 1","CDSB2","CDSC"],
     VL20: ["LH (DR)","CDSB","CDSC"],
     BRACKET: ["Left","Right","Massad"],
@@ -728,8 +729,26 @@ const STORAGE_KEY = "mobica_tracker_apr2026";
 const TODAY_ISO = new Date().toISOString().split("T")[0];
 let entries = [];
 let qty = "";
-
-function loadData(){ try{ entries = JSON.parse(localStorage.getItem(STORAGE_KEY))||[]; }catch{ entries=[]; } }
+// Automatically migrates old RT50 data to the new model names
+function migrateRT50(list) {
+  let changed = false;
+  if (!list) return changed;
+  list.forEach(e => {
+    if (e.oem === "GM" && e.model === "RT50") {
+      if (e.variant === "Left(L)" || e.variant === "Right(L)") { e.model = "RT50 Leather"; changed = true; }
+      else if (e.variant === "Left(F)" || e.variant === "Right(F)") { e.model = "RT50 Fabric"; changed = true; }
+    }
+  });
+  return changed;
+}
+function loadData(){ 
+  try { 
+    entries = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; 
+    if (migrateRT50(entries)) persist(); // Auto-migrate local data
+  } catch { 
+    entries = []; 
+  } 
+}
 function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); }
 function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
 function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -2011,7 +2030,11 @@ async function openYearView() {
       {headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}}
     );
     if(!res.ok) throw new Error("Supabase error: "+res.status);
-    yearViewData=await res.json();
+       yearViewData=await res.json();
+           migrateRT50(yearViewData);
+
+    // Build month map - include all 12 months even if empty
+
 
     // Build month map — include all 12 months even if empty
     var months={};
@@ -2161,9 +2184,12 @@ function renderPlan() {
   Promise.all([
     fetch(planUrl, {headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY}}).then(function(r){return r.json();}),
     fetch(actUrl,  {headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY}}).then(function(r){return r.json();})
-  ]).then(function(results){
+   ]).then(function(results){
     var planRows   = Array.isArray(results[0]) ? results[0] : [];
     var actualRows = Array.isArray(results[1]) ? results[1] : [];
+    migrateRT50(planRows);
+    migrateRT50(actualRows);
+
 
     // --- Aggregate plan to model level (Summing all components) ---
     var planAgg = {}; 

@@ -403,7 +403,18 @@ select:focus{border-color:var(--accent);}
       </select>
     </div>
     <div id="log-actions">
-
+      <button id="btn-clear-all" onclick="clearAll()">CLEAR ALL</button>
+    </div>
+    <div id="log-table-wrap">
+      <table id="log-table">
+        <thead>
+          <tr><th>DN No.</th><th>Date</th><th>LOC</th><th>OEM</th><th>Model</th><th>Variant</th><th>Qty</th><th></th></tr>
+        </thead>
+        <tbody id="log-body"></tbody>
+      </table>
+    </div>
+    <div id="no-log">NO ENTRIES YET</div>
+  </div>
 
   <!-- PLAN TAB -->
   <div id="plan" style="display:none;">

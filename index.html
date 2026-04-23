@@ -398,11 +398,31 @@ select:focus{border-color:var(--accent);}
       <label style="font-size:11px;letter-spacing:2px;color:var(--dim);">MONTH</label>
       <select id="dashboard-month-sel" onchange="renderDashboard()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-family:var(--font);font-size:20px;"></select>
     </div>
-    <div style="background:var(--bg2);padding:16px;border-radius:12px;margin-bottom:16px;text-align:center;border:2px solid var(--yellow);box-shadow:0 6px 12px rgba(0,0,0,0.2);">
+    <div style="background:var(--bg2);padding:16px;border-radius:12px;margin-bottom:16px;text-align:center;border:2px solid var(--yellow);box-shadow:0 6px 12px rgba(0,0,0,0.2); display:none;" id="dash-grand-container">
       <span style="font-size:12px;letter-spacing:2px;color:var(--yellow);display:block;margin-bottom:4px;">TOTAL REVENUE</span>
       <span id="dash-grand-val" style="font-size:32px;font-weight:800;color:var(--yellow);">0 EGP</span>
     </div>
-    <div id="dash-oem-cards"></div>
+    <div style="overflow-x:auto;">
+      <table id="dash-table" style="width:100%; border-collapse:collapse; text-align:center; font-family:var(--font); font-size:13px; display:none;">
+        <thead>
+          <tr style="background:#4FC3F7; color:#000;">
+            <th style="padding:10px; border:1px solid #4FC3F7;">OEM</th>
+            <th style="padding:10px; border:1px solid #4FC3F7;">TOTAL QTY</th>
+            <th style="padding:10px; border:1px solid #4FC3F7;">TOTAL VALUE (EGP)</th>
+            <th style="padding:10px; border:1px solid #4FC3F7;">% OF TOTAL QTY</th>
+          </tr>
+        </thead>
+        <tbody id="dash-oem-rows"></tbody>
+        <tfoot>
+          <tr style="background:#4FC3F7; color:#000; font-weight:800;">
+            <td style="padding:10px; border:1px solid #4FC3F7; text-align:left;">GRAND TOTAL</td>
+            <td id="dash-grand-qty" style="padding:10px; border:1px solid #4FC3F7;">0</td>
+            <td id="dash-grand-val-foot" style="padding:10px; border:1px solid #4FC3F7;">0.00</td>
+            <td style="padding:10px; border:1px solid #4FC3F7;">100%</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
     <div id="dash-no-data" style="text-align:center;color:var(--muted);font-size:18px;margin-top:30px;">NO DATA YET</div>
   </div>
 
@@ -1264,11 +1284,12 @@ function renderDashboard() {
   var dashSel = document.getElementById("dashboard-month-sel");
   if(!dashSel) return;
   var month = dashSel.value;
-  var grand = 0;
+  var grandVal = 0;
+  var grandQty = 0;
   var oemAgg = {};
 
   entries.forEach(e => {
-    if(e.date.startsWith(month) && (e.location === currentLocation || (!e.location && currentLocation === 'integrated' && INT_MODELS[e.oem]))) {
+    if(e.date.startsWith(month)) {
       var price = 0;
       var schema = SCHEMA[e.oem];
       if(schema && schema.cols) {
@@ -1279,50 +1300,57 @@ function renderDashboard() {
         if(OEM_PRICES[e.oem] && OEM_PRICES[e.oem][mi]) price = OEM_PRICES[e.oem][mi];
       }
       
-      var val = price * Number(e.qty);
-      grand += val;
+      var qty = Number(e.qty);
+      var val = price * qty;
+      grandVal += val;
+      grandQty += qty;
       
-      if(!oemAgg[e.oem]) oemAgg[e.oem] = {total:0, models:{}};
-      oemAgg[e.oem].total += val;
-      
-      var mKey = e.model + (e.variant ? " / " + e.variant : "");
-      oemAgg[e.oem].models[mKey] = (oemAgg[e.oem].models[mKey]||0) + val;
+      if(!oemAgg[e.oem]) oemAgg[e.oem] = {val:0, qty:0};
+      oemAgg[e.oem].val += val;
+      oemAgg[e.oem].qty += qty;
     }
   });
 
-  document.getElementById("dash-grand-val").textContent = grand.toLocaleString('en',{maximumFractionDigits:0}) + " EGP";
+  var tbody = document.getElementById("dash-oem-rows");
+  var table = document.getElementById("dash-table");
+  if(!tbody || !table) return;
   
-  var html = "";
-  var sortedOems = Object.keys(oemAgg).sort((a,b) => oemAgg[b].total - oemAgg[a].total);
-  if(sortedOems.length === 0) {
+  var oems = Object.keys(oemAgg);
+  if(oems.length === 0) {
     document.getElementById("dash-no-data").style.display = "block";
-    document.getElementById("dash-oem-cards").innerHTML = "";
+    table.style.display = "none";
+    document.getElementById("dash-grand-container").style.display = "none";
     return;
   }
   
   document.getElementById("dash-no-data").style.display = "none";
+  table.style.display = "table";
+  // document.getElementById("dash-grand-container").style.display = "block";
   
-  sortedOems.forEach(oem => {
+  document.getElementById("dash-grand-qty").textContent = grandQty.toLocaleString('en');
+  document.getElementById("dash-grand-val-foot").textContent = grandVal.toLocaleString('en',{minimumFractionDigits:2, maximumFractionDigits:2});
+  // document.getElementById("dash-grand-val").textContent = grandVal.toLocaleString('en',{minimumFractionDigits:2, maximumFractionDigits:2}) + " EGP";
+  
+  var html = "";
+  var orderedOems = Object.keys(SCHEMA).concat(Object.keys(INT_MODELS));
+  var finalOems = orderedOems.filter(o => oems.includes(o));
+  oems.forEach(o => { if(!finalOems.includes(o)) finalOems.push(o); });
+
+  finalOems.forEach(oem => {
     var c = OEM_COLORS[oem] || "#fff";
-    var t = oemAgg[oem].total;
-    html += '<div class="oem-card" style="border-left-color:' + c + '">';
-    html += '<div class="oem-card-header">';
-    html += '<span class="oem-card-name" style="color:' + c + '">' + oem + '</span>';
-    html += '<span class="oem-card-total">' + t.toLocaleString('en',{maximumFractionDigits:0}) + ' EGP</span>';
-    html += '</div>';
+    var v = oemAgg[oem].val;
+    var q = oemAgg[oem].qty;
+    var pct = grandQty > 0 ? ((q / grandQty) * 100).toFixed(1) + "%" : "0%";
     
-    var sortedMods = Object.keys(oemAgg[oem].models).sort((a,b) => oemAgg[oem].models[b] - oemAgg[oem].models[a]);
-    sortedMods.forEach(m => {
-      var mq = oemAgg[oem].models[m];
-      html += '<div class="oem-row">';
-      html += '<span class="oem-row-name">' + m + '</span>';
-      html += '<span class="oem-row-qty">' + mq.toLocaleString('en',{maximumFractionDigits:0}) + '</span>';
-      html += '</div>';
-    });
-    html += '</div>';
+    html += '<tr style="border:1px solid #4FC3F7; background:transparent;">';
+    html += '<td style="padding:10px; border:1px solid #4FC3F7; color:' + c + '; font-weight:bold; text-align:left;">' + oem + '</td>';
+    html += '<td style="padding:10px; border:1px solid #4FC3F7; color:#4FC3F7; font-weight:bold;">' + q.toLocaleString('en') + '</td>';
+    html += '<td style="padding:10px; border:1px solid #4FC3F7; color:var(--yellow); font-weight:bold;">' + v.toLocaleString('en',{minimumFractionDigits:2, maximumFractionDigits:2}) + '</td>';
+    html += '<td style="padding:10px; border:1px solid #4FC3F7; color:#ccc;">' + pct + '</td>';
+    html += '</tr>';
   });
   
-  document.getElementById("dash-oem-cards").innerHTML = html;
+  tbody.innerHTML = html;
 }
 
 function renderLog() {

@@ -2099,9 +2099,14 @@ function renderPlan() {
   statusEl.textContent   = "Loading...";
   bodyEl.innerHTML       = "";
 
+  // Fix date logic: get the first day of the next month to use 'lt' (less than) instead of 'lte.31'
+  var parts = month.split("-");
+  var nextMonthDate = new Date(parseInt(parts[0]), parseInt(parts[1]), 1);
+  var nextMonthStr = nextMonthDate.getFullYear() + "-" + String(nextMonthDate.getMonth() + 1).padStart(2, '0') + "-01";
+
   // Fetch plan and deliveries in parallel
   var planUrl = SB_URL+"/rest/v1/monthly_plan?month=eq."+month+"&select=oem,model,variant,plan_qty";
-  var actUrl  = SB_URL+"/rest/v1/deliveries?date=gte."+month+"-01&date=lte."+month+"-31&select=oem,model,variant,qty,location";
+  var actUrl  = SB_URL+"/rest/v1/deliveries?date=gte."+month+"-01&date=lt."+nextMonthStr+"&select=oem,model,variant,qty,location";
 
   Promise.all([
     fetch(planUrl, {headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY}}).then(function(r){return r.json();}),
@@ -2110,57 +2115,18 @@ function renderPlan() {
     var planRows   = Array.isArray(results[0]) ? results[0] : [];
     var actualRows = Array.isArray(results[1]) ? results[1] : [];
 
-    // --- Aggregate plan to model level ---
-    // For GM: MIN of components per model; for others: SUM per model
-    var planMap = {}; // key: "oem|model" -> plan qty (model-level)
+    // --- Aggregate plan to model level (Summing all components) ---
+    var planAgg = {}; 
     planRows.forEach(function(r){
       var key = r.oem+"|"+r.model;
-      if(r.oem === "GM"){
-        if(!planMap[key]) planMap[key] = {vals:[]};
-        planMap[key].vals.push(r.plan_qty);
-      } else {
-        if(!planMap[key]) planMap[key] = {sum:0};
-        planMap[key].sum += (r.plan_qty||0);
-      }
-    });
-    var planAgg = {};
-    Object.keys(planMap).forEach(function(k){
-      var v = planMap[k];
-      planAgg[k] = v.vals ? Math.min.apply(null,v.vals) : v.sum;
+      planAgg[key] = (planAgg[key] || 0) + (r.plan_qty || 0);
     });
 
-    // --- Aggregate actuals to model level ---
-    // For GM: MIN of components per model; for others: SUM per model
-    var actMap = {};
+    // --- Aggregate actuals to model level (Summing all components) ---
+    var actAgg = {};
     actualRows.forEach(function(r){
       var key = r.oem+"|"+r.model;
-      if(r.oem === "GM"){
-        if(!actMap[key]) actMap[key] = {};
-        var vkey = (r.variant||"");
-        actMap[key][vkey] = (actMap[key][vkey]||0) + (r.qty||0);
-      } else {
-        if(!actMap[key]) actMap[key] = {sum:0};
-        actMap[key].sum += (r.qty||0);
-      }
-    });
-    var actAgg = {};
-    // For GM models, find min across components
-    Object.keys(actMap).forEach(function(k){
-      var parts = k.split("|");
-      var oem   = parts[0];
-      var model = parts[1];
-      if(oem === "GM"){
-        var compMap = actMap[k];
-        var comps   = GM_MODELS[model] || [];
-        if(comps.length === 0){
-          actAgg[k] = 0;
-        } else {
-          var mins = comps.map(function(c){ return compMap[c]||0; });
-          actAgg[k] = Math.min.apply(null, mins);
-        }
-      } else {
-        actAgg[k] = actMap[k].sum;
-      }
+      actAgg[key] = (actAgg[key] || 0) + (r.qty || 0);
     });
 
     // Collect all unique oem|model keys
@@ -2241,6 +2207,7 @@ function renderPlan() {
     console.error(err);
   });
 }
+
 </script>
 
 </body>

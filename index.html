@@ -84,13 +84,15 @@ select,input{font-family:var(--font);}
 #btn-eod:active{background:#166534;}
 
 /* TABS */
-#tabs{display:flex;background:var(--bg2);border-bottom:2px solid var(--border);}
+#tabs{display:flex;background:var(--bg2);padding:10px 10px 14px 10px;gap:8px;overflow-x:auto;border-bottom:2px solid var(--border);}
 .tab-btn{
-  flex:1;padding:14px 0;font-size:13px;font-weight:700;letter-spacing:2px;
-  border:none;background:transparent;color:var(--dim);transition:all .2s;font-family:var(--font);
+  flex:1;padding:12px 10px;font-size:11px;font-weight:800;letter-spacing:1px;
+  border:none;background:var(--bg3);color:var(--dim);transition:all .1s;font-family:var(--font);
+  border-radius:8px;box-shadow:0 4px 0 var(--border);transform:translateY(0);cursor:pointer;
+  white-space:nowrap;
 }
-.tab-btn.active{background:var(--accent);color:var(--bg);}
-
+.tab-btn:active{box-shadow:0 0 0 var(--border);transform:translateY(4px);}
+.tab-btn.active{background:var(--accent);color:var(--bg);box-shadow:0 4px 0 rgba(0,0,0,0.4);}
 /* CONTENT */
 #content{max-width:480px;margin:0 auto;padding:20px 16px 60px;}
 
@@ -320,6 +322,7 @@ select:focus{border-color:var(--accent);}
 <div id="tabs">
   <button class="tab-btn active" onclick="switchTab('form',this)">ENTRY</button>
   <button class="tab-btn" onclick="switchTab('analysis',this)">ANALYSIS</button>
+  <button class="tab-btn" onclick="switchTab('dashboard',this)">DASHBOARD</button>
   <button class="tab-btn" onclick="switchTab('log',this)">LOG</button>
   <button class="tab-btn" onclick="switchTab('plan',this)">PLAN</button>
 </div>
@@ -389,9 +392,24 @@ select:focus{border-color:var(--accent);}
     <div id="no-data">NO DATA YET</div>
   </div>
 
+  <!-- DASHBOARD TAB -->
+  <div id="dashboard" style="display:none;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <label style="font-size:11px;letter-spacing:2px;color:var(--dim);">MONTH</label>
+      <select id="dashboard-month-sel" onchange="renderDashboard()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-family:var(--font);font-size:20px;"></select>
+    </div>
+    <div style="background:var(--bg2);padding:16px;border-radius:12px;margin-bottom:16px;text-align:center;border:2px solid var(--yellow);box-shadow:0 6px 12px rgba(0,0,0,0.2);">
+      <span style="font-size:12px;letter-spacing:2px;color:var(--yellow);display:block;margin-bottom:4px;">TOTAL REVENUE</span>
+      <span id="dash-grand-val" style="font-size:32px;font-weight:800;color:var(--yellow);">0 EGP</span>
+    </div>
+    <div id="dash-oem-cards"></div>
+    <div id="dash-no-data" style="text-align:center;color:var(--muted);font-size:18px;margin-top:30px;">NO DATA YET</div>
+  </div>
+
     <!-- LOG TAB -->
   <div id="log">
     <div id="log-filters" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;background:var(--bg2);padding:10px;border-radius:10px;border:1px solid var(--border);">
+      <input type="date" id="log-filter-date" onchange="renderLog()" style="flex:1;min-width:120px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-family:var(--font);">
       <select id="log-filter-oem" onchange="renderLog()" style="flex:1;min-width:100px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-family:var(--font);">
         <option value="">All OEMs</option>
       </select>
@@ -542,7 +560,8 @@ const DATA_ADVANCED = {
     L12F: ["Upper Seat","Upper Door","Lower Seat","Lower Door"]
   },
   Suzuki: {
-    Van: ["Front","Rear"]
+    Van: ["Front","Rear"],
+    Truck: []
   },
   GM: {
     "RT50 Leather": ["Left(L)","Right(L)"],
@@ -629,6 +648,22 @@ const OEM_COLORS_INTEGRATED = {
 
 const OEM_COLORS = Object.assign({}, OEM_COLORS_ADVANCED, OEM_COLORS_INTEGRATED);
 
+var SCHEMA = {"EXCEED": {"file": "xl/worksheets/sheet1.xml", "dateRow": 3, "totalRow": 35, "cols": [["GLE", "Black"], ["GLE", "Brown"], ["GLE", "Beige"], ["GLS", "Black"], ["GLS", "Brown"], ["GLS", "Beige"], ["AMG", "Black"], ["AMG", "Red"], ["RX", "Seat Red"], ["RX", "DP Red"], ["RX", "Flagship Seat"], ["RX", "Flagship DP"], ["VX", "Luxury Black"], ["VX", "Flagship Brown"]]}, "Kasrawy": {"file": "xl/worksheets/sheet2.xml", "dateRow": 3, "totalRow": 34, "cols": [["Golden Dragon", ""], ["Jetour", ""], ["Jack", "Seat"], ["Jack", "DP"], ["Zemex", ""]]}, "NISSAN": {"file": "xl/worksheets/sheet3.xml", "dateRow": 3, "totalRow": 48, "cols": [["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["MC15 Beige", "Seat"], ["MC15 Beige", "Door"], ["MC15 Beige", "Luxe Door"], ["MC15 Black", "Seat"], ["MC15 Black", "Door"], ["MC15 Black", "Luxe Door"], ["L12F", "Upper Seat"], ["L12F", "Upper Door"], ["L12F", "Lower Seat"], ["L12F", "Lower Door"]]}, "Suzuki": {"file": "xl/worksheets/sheet4.xml", "dateRow": 3, "totalRow": 34, "cols": [["Van", "Front"], ["Van", "Rear"], ["Truck", ""]]}, "GM": {"file": "xl/worksheets/sheet5.xml", "dateRow": 3, "totalRow": 35, "cols": [["RT50 Leather", "Left(L)"], ["RT50 Leather", "Right(L)"], ["RT50 Fabric", "Left(F)"], ["RT50 Fabric", "Right(F)"], ["VL01", "LH (DR)"], ["VL01", "CDSB 1"], ["VL01", "CDSB2"], ["VL01", "CDSC"], ["VL20", "LH (DR)"], ["VL20", "CDSB"], ["VL20", "CDSC"], ["BRACKET", "Left"], ["BRACKET", "Right"], ["BRACKET", "Massad"], ["310vl1", "Left Seat"], ["310vl1", "Right Seat"], ["310vl1", "Cushion"], ["310vl1", "Rear back 100%"], ["310vl2", "Left Seat"], ["310vl2", "Right Seat"], ["310vl2", "Cushion 40%"], ["310vl2", "Cushion 60%"], ["310vl2", "Rear back 40%"], ["310vl2", "Rear Back 60%"]]}, "GEELY": {"file": "xl/worksheets/sheet6.xml", "dateRow": 4, "totalRow": 36, "cols": [["SS GS", "Seat"], ["SS GS", "DP"], ["SS GF", "Seat"], ["SS GF", "DP"], ["SS GF Black", "Seat"], ["SS GF Black", "DP"], ["SX GF", "Seat"], ["SX GF", "DP"], ["SX GK", "Seat"], ["SX GK", "DP"], ["SX GL", "Seat"], ["SX GL", "DP"]]}, "ESAF": {"file": "xl/worksheets/sheet7.xml", "dateRow": 4, "totalRow": 36, "cols": [["Proton", "Seat"], ["Proton", "DP"]]}};
+var OEM_PRICES = {"EXCEED": {"0": 365140.8, "1": 365140.8, "2": 365140.8, "10": 158229, "11": 42237, "12": 153306}, "Kasrawy": {"0": 36970, "1": 50903.94, "2": 26367.03, "3": 9735.05}, "NISSAN": {"8": 20360, "9": 5500}, "Suzuki": {"0": 9857, "1": 8145, "2": 4485}, "GM": {"0": 9486.33, "1": 9322.98, "2": 4298.71, "3": 4299.45, "4": 2874.67, "5": 1471.17, "6": 1134.61, "7": 1994.64, "8": 2874.67, "9": 3269.06, "10": 2047.01, "11": 108.08, "12": 108.08, "13": 37.18}, "GEELY": {"0": 38151.806, "1": 20047.897, "2": 48104.94, "3": 23369.59, "4": 41759.65, "5": 21952.79, "6": 51475.98, "7": 15165.27, "8": 55522.97, "9": 15706.56, "10": 39684.034, "11": 14184.43}, "ESAF": {"0": 35788.5, "1": 8403.1},
+  "TOYOTA": {"0": 140131.33, "1": 11535.36, "2": 102937.11, "3": 10955.17},
+  "BAMC": {"0": 380248, "1": 259054, "2": 280172, "3": 271023, "4": 159125, "5": 159125},
+  "AAV": {"0": 396450.35, "1": 135086.11},
+  "Citroen": {"0": 78552.41, "1": 53397.74},
+  "Ghabour": {"0": 8141.29, "1": 7687.7, "2": 12883}
+};
+var INT_MODELS = {
+  "TOYOTA": ["Seats Leather","Doors Leather","Seats Fabric","Doors Fabric"],
+  "BAMC": ["G07 - X7","G05 EU 35","G05 EU 25","G06- X6","G45-15","G45-85"],
+  "AAV": ["SEATS W4","DP W4"],
+  "Citroen": ["C43 L3","C43 L2"],
+  "Ghabour": ["RB Accent","T7HL (???)","T7BL (????)"]
+};
+
 // ── EXCEL SHEET MAPPING ──────────────────────────────
 // Maps OEM/model/variant → Excel sheet + column (1-based)
 const EXCEL_MAP = {
@@ -648,7 +683,7 @@ const EXCEL_MAP = {
     "L12F/Upper Seat":16,"L12F/Upper Door":17,"L12F/Lower Seat":18,"L12F/Lower Door":19
   }},
   Suzuki: { sheet:"SuZuKi", dateRowStart:3, cols:{
-    "Van/Front":2,"Van/Rear":3
+    "Van/Front":2,"Van/Rear":3,"Truck/":4
   }},
     GM: { sheet:"GM", dateRowStart:3, cols:{
     "RT50 Leather/Left(L)":2,"RT50 Leather/Right(L)":3,"RT50 Fabric/Left(F)":4,"RT50 Fabric/Right(F)":5,
@@ -793,6 +828,7 @@ window.onload = function() {
 
   // Populate Analysis month selector
   var anSel = document.getElementById("analysis-month-sel");
+  var dashSel = document.getElementById("dashboard-month-sel");
   if (anSel && typeof YV_ALL_MONTHS !== "undefined") {
     var mNames2 = {"01":"Jan","02":"Feb","03":"Mar","04":"Apr","05":"May","06":"Jun",
                    "07":"Jul","08":"Aug","09":"Sep","10":"Oct","11":"Nov","12":"Dec"};
@@ -802,13 +838,18 @@ window.onload = function() {
       var p = ym.split("-");
       o.textContent = (mNames2[p[1]] || p[1]) + " " + p[0];
       anSel.appendChild(o);
+      if(dashSel) dashSel.appendChild(o.cloneNode(true));
     });
     // Default to current month
     var nowYM = new Date().toISOString().substring(0,7);
-    if (YV_ALL_MONTHS.indexOf(nowYM) >= 0) anSel.value = nowYM;
+    if (YV_ALL_MONTHS.indexOf(nowYM) >= 0) {
+      anSel.value = nowYM;
+      if(dashSel) dashSel.value = nowYM;
+    }
   }
 
   renderAnalysis();
+  if (typeof renderDashboard === "function") renderDashboard();
   // Auto-sync from Supabase on load
   setTimeout(sbSync, 1500);
   // Test connection on load
@@ -828,13 +869,14 @@ window.onload = function() {
 
 // ── TABS ─────────────────────────────────────────────
 function switchTab(tab, btn) {
-  ["form","analysis","log","plan"].forEach(t => {
+  ["form","analysis","dashboard","log","plan"].forEach(t => {
     document.getElementById(t).style.display = "none";
   });
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.getElementById(tab).style.display = "block";
   btn.classList.add("active");
   if (tab === "analysis") renderAnalysis();
+  if (tab === "dashboard") renderDashboard();
   if (tab === "log") renderLog();
   if (tab === "plan") renderPlan();
 }
@@ -1214,9 +1256,75 @@ function renderAnalysis() {
         <span class="oem-card-total" style="color:${color}">${(totals[oem]||0).toLocaleString()}</span>
       </div>${rows}</div>`;
   }).join("");
+  if(typeof renderDashboard === "function") renderDashboard();
 }
 
 // ── LOG ───────────────────────────────────────────────
+function renderDashboard() {
+  var dashSel = document.getElementById("dashboard-month-sel");
+  if(!dashSel) return;
+  var month = dashSel.value;
+  var grand = 0;
+  var oemAgg = {};
+
+  entries.forEach(e => {
+    if(e.date.startsWith(month) && (e.location === currentLocation || (!e.location && currentLocation === 'integrated' && INT_MODELS[e.oem]))) {
+      var price = 0;
+      var schema = SCHEMA[e.oem];
+      if(schema && schema.cols) {
+        var ci = schema.cols.findIndex(c => c[0] === e.model && c[1] === (e.variant||""));
+        if(OEM_PRICES[e.oem] && OEM_PRICES[e.oem][ci]) price = OEM_PRICES[e.oem][ci];
+      } else if (INT_MODELS[e.oem]) {
+        var mi = INT_MODELS[e.oem].indexOf(e.model);
+        if(OEM_PRICES[e.oem] && OEM_PRICES[e.oem][mi]) price = OEM_PRICES[e.oem][mi];
+      }
+      
+      var val = price * Number(e.qty);
+      grand += val;
+      
+      if(!oemAgg[e.oem]) oemAgg[e.oem] = {total:0, models:{}};
+      oemAgg[e.oem].total += val;
+      
+      var mKey = e.model + (e.variant ? " / " + e.variant : "");
+      oemAgg[e.oem].models[mKey] = (oemAgg[e.oem].models[mKey]||0) + val;
+    }
+  });
+
+  document.getElementById("dash-grand-val").textContent = grand.toLocaleString('en',{maximumFractionDigits:0}) + " EGP";
+  
+  var html = "";
+  var sortedOems = Object.keys(oemAgg).sort((a,b) => oemAgg[b].total - oemAgg[a].total);
+  if(sortedOems.length === 0) {
+    document.getElementById("dash-no-data").style.display = "block";
+    document.getElementById("dash-oem-cards").innerHTML = "";
+    return;
+  }
+  
+  document.getElementById("dash-no-data").style.display = "none";
+  
+  sortedOems.forEach(oem => {
+    var c = OEM_COLORS[oem] || "#fff";
+    var t = oemAgg[oem].total;
+    html += '<div class="oem-card" style="border-left-color:' + c + '">';
+    html += '<div class="oem-card-header">';
+    html += '<span class="oem-card-name" style="color:' + c + '">' + oem + '</span>';
+    html += '<span class="oem-card-total">' + t.toLocaleString('en',{maximumFractionDigits:0}) + ' EGP</span>';
+    html += '</div>';
+    
+    var sortedMods = Object.keys(oemAgg[oem].models).sort((a,b) => oemAgg[oem].models[b] - oemAgg[oem].models[a]);
+    sortedMods.forEach(m => {
+      var mq = oemAgg[oem].models[m];
+      html += '<div class="oem-row">';
+      html += '<span class="oem-row-name">' + m + '</span>';
+      html += '<span class="oem-row-qty">' + mq.toLocaleString('en',{maximumFractionDigits:0}) + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  
+  document.getElementById("dash-oem-cards").innerHTML = html;
+}
+
 function renderLog() {
   const tbody = document.getElementById("log-body");
   const noLog = document.getElementById("no-log");
@@ -1224,10 +1332,12 @@ function renderLog() {
   const actions = document.getElementById("log-actions");
 
   // Filter Elements
+  const dateFilterEl = document.getElementById("log-filter-date");
   const oemFilterEl = document.getElementById("log-filter-oem");
   const modelFilterEl = document.getElementById("log-filter-model");
   const variantFilterEl = document.getElementById("log-filter-variant");
 
+  let dateF = dateFilterEl ? dateFilterEl.value : "";
   let oemF = oemFilterEl ? oemFilterEl.value : "";
   let modF = modelFilterEl ? modelFilterEl.value : "";
   let varF = variantFilterEl ? variantFilterEl.value : "";
@@ -1253,6 +1363,7 @@ function renderLog() {
   let sorted = [...entries].sort((a,b) => b.ts - a.ts);
 
   // Apply the selected filters
+  if (dateF) sorted = sorted.filter(e => e.date.startsWith(dateF));
   if (oemF) sorted = sorted.filter(e => e.oem === oemF);
   if (modF) sorted = sorted.filter(e => e.model === modF);
   if (varF) sorted = sorted.filter(e => e.variant === varF);

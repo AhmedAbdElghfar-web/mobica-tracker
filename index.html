@@ -389,21 +389,21 @@ select:focus{border-color:var(--accent);}
     <div id="no-data">NO DATA YET</div>
   </div>
 
-  <!-- LOG TAB -->
+    <!-- LOG TAB -->
   <div id="log">
+    <div id="log-filters" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;background:var(--bg2);padding:10px;border-radius:10px;border:1px solid var(--border);">
+      <select id="log-filter-oem" onchange="renderLog()" style="flex:1;min-width:100px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-family:var(--font);">
+        <option value="">All OEMs</option>
+      </select>
+      <select id="log-filter-model" onchange="renderLog()" style="flex:1;min-width:100px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-family:var(--font);">
+        <option value="">All Models</option>
+      </select>
+      <select id="log-filter-variant" onchange="renderLog()" style="flex:1;min-width:100px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-family:var(--font);">
+        <option value="">All Variants</option>
+      </select>
+    </div>
     <div id="log-actions">
-      <button id="btn-clear-all" onclick="clearAll()">CLEAR ALL</button>
-    </div>
-    <div id="log-table-wrap">
-      <table id="log-table">
-        <thead>
-          <tr><th>DN No.</th><th>Date</th><th>LOC</th><th>OEM</th><th>Model</th><th>Variant</th><th>Qty</th><th></th></tr>
-        </thead>
-        <tbody id="log-body"></tbody>
-      </table>
-    </div>
-    <div id="no-log">NO ENTRIES YET</div>
-  </div>
+
 
   <!-- PLAN TAB -->
   <div id="plan" style="display:none;">
@@ -1183,9 +1183,47 @@ function renderLog() {
   const noLog = document.getElementById("no-log");
   const wrap = document.getElementById("log-table-wrap");
   const actions = document.getElementById("log-actions");
+
+  // Filter Elements
+  const oemFilterEl = document.getElementById("log-filter-oem");
+  const modelFilterEl = document.getElementById("log-filter-model");
+  const variantFilterEl = document.getElementById("log-filter-variant");
+
+  let oemF = oemFilterEl ? oemFilterEl.value : "";
+  let modF = modelFilterEl ? modelFilterEl.value : "";
+  let varF = variantFilterEl ? variantFilterEl.value : "";
+
+  // Dynamically update dropdown options based on current entries
+  if (oemFilterEl) {
+    const oems = [...new Set(entries.map(e => e.oem))].sort();
+    const models = [...new Set(entries.filter(e => !oemF || e.oem === oemF).map(e => e.model))].sort();
+    const variants = [...new Set(entries.filter(e => (!oemF || e.oem === oemF) && (!modF || e.model === modF)).map(e => e.variant).filter(v => v))].sort();
+
+    if (oemF && !oems.includes(oemF)) oemF = "";
+    if (modF && !models.includes(modF)) modF = "";
+    if (varF && !variants.includes(varF)) varF = "";
+
+    oemFilterEl.innerHTML = '<option value="">All OEMs</option>' + oems.map(o => `<option value="${o}" ${o===oemF?'selected':''}>${o}</option>`).join('');
+    modelFilterEl.innerHTML = '<option value="">All Models</option>' + models.map(m => `<option value="${m}" ${m===modF?'selected':''}>${m}</option>`).join('');
+    variantFilterEl.innerHTML = '<option value="">All Variants</option>' + variants.map(v => `<option value="${v}" ${v===varF?'selected':''}>${v}</option>`).join('');
+  }
+
   if (!entries.length) { noLog.style.display="block"; wrap.style.display="none"; actions.style.display="none"; return; }
   noLog.style.display="none"; wrap.style.display="block"; actions.style.display="flex";
-  const sorted = [...entries].sort((a,b) => b.ts - a.ts);
+  
+  let sorted = [...entries].sort((a,b) => b.ts - a.ts);
+
+  // Apply the selected filters
+  if (oemF) sorted = sorted.filter(e => e.oem === oemF);
+  if (modF) sorted = sorted.filter(e => e.model === modF);
+  if (varF) sorted = sorted.filter(e => e.variant === varF);
+
+  // If filters result in 0 rows
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;">No entries match your filters.</td></tr>`;
+    return;
+  }
+
   tbody.innerHTML = sorted.map(e => {
     var intOems=["TOYOTA","BAMC","AAV","Citroen","Ghabour"];
     var isInt=(e.location==='integrated')||(e.location===undefined&&intOems.indexOf(e.oem)>=0);
@@ -1201,6 +1239,7 @@ function renderLog() {
     </tr>`;
   }).join("");
 }
+
 
 // ── CSV ───────────────────────────────────────────────
 function downloadCSV() {

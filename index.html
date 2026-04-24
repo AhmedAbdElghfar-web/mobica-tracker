@@ -412,7 +412,7 @@ select:focus{border-color:var(--accent);}
             <th style="padding:10px; border:1px solid #4FC3F7;">OEM</th>
             <th style="padding:10px; border:1px solid #4FC3F7;">TOTAL QTY</th>
             <th style="padding:10px; border:1px solid #4FC3F7;">TOTAL VALUE (EGP)</th>
-            <th style="padding:10px; border:1px solid #4FC3F7;">% OF TOTAL QTY</th>
+            <th style="padding:10px; border:1px solid #4FC3F7;">% OF TOTAL VALUE</th>
           </tr>
         </thead>
         <tbody id="dash-oem-rows"></tbody>
@@ -1303,7 +1303,7 @@ function renderDashboard() {
           if(OEM_PRICES[e.oem] && OEM_PRICES[e.oem][ci]) price = OEM_PRICES[e.oem][ci];
         }
       } else if (INT_MODELS[e.oem]) {
-        var mi = INT_MODELS[e.oem].findIndex(m => m === e.model || m.startsWith(e.model) || e.model.startsWith(m));
+        var mi = INT_MODELS[e.oem].findIndex(m => m === e.model || (e.model!=null && (m.startsWith(e.model) || e.model.startsWith(m))));
         if(mi >= 0) {
           isValid = true;
           if(OEM_PRICES[e.oem] && OEM_PRICES[e.oem][mi]) price = OEM_PRICES[e.oem][mi];
@@ -1356,7 +1356,7 @@ function renderDashboard() {
     var c = OEM_COLORS[oem] || "#fff";
     var v = oemAgg[oem].val;
     var q = oemAgg[oem].qty;
-    var pct = grandQty > 0 ? ((q / grandQty) * 100).toFixed(1) + "%" : "0%";
+    var pct = grandVal > 0 ? ((v / grandVal) * 100).toFixed(1) + "%" : "0%";
     
     html += '<tr style="border:1px solid #4FC3F7; background:transparent;">';
     html += '<td style="padding:10px; border:1px solid #4FC3F7; color:' + c + '; font-weight:bold; text-align:left;">' + oem + '</td>';
@@ -1555,7 +1555,7 @@ function exportExcel() {
           lookup[e.oem][e.date][ci]=(lookup[e.oem][e.date][ci]||0)+Number(e.qty);
         } else if(INT_MODELS[e.oem]) {
           var models=INT_MODELS[e.oem];
-          var mi=models.findIndex(function(m){return m===e.model||m.startsWith(e.model)||e.model.startsWith(m);});
+          var mi=models.findIndex(function(m){return m===e.model||(e.model!=null&&(m.startsWith(e.model)||e.model.startsWith(m)));});
           if(mi===-1)return;
           if(!intLookup[e.oem])intLookup[e.oem]={};
           if(!intLookup[e.oem][e.date])intLookup[e.oem][e.date]={};
@@ -1641,7 +1641,7 @@ function exportExcel() {
       ];
       var DB_INT_FIRST_ROW=12;   // INT rows: 12-16
       var DB_GRAND_TOTAL_ROW=17; // GRAND TOTAL row after patch
-      var DB_PCT_DENOM="E17";    // all % formulas divide by this
+      var DB_PCT_DENOM="H17";    // all % formulas divide by this
       var DB_ADV_ROWS=[5,6,7,8,9,10,11]; // ADV OEM rows (unchanged position)
       var DB_SHIFT_FROM=12;      // original rows 12-33 shift to 17-38
       var DB_SHIFT_TO=17;
@@ -1715,7 +1715,7 @@ function exportExcel() {
       for(var i=5;i<=11;i++){
         if(!rowMap[i]) continue;
         // Replace E_n/E12 with E_n/E17 (GRAND TOTAL moved from row 12 to 17)
-        newSD+=rowMap[i].replace(/E(\d+)\/E12/g,'E$1/'+DB_PCT_DENOM);
+        newSD+=rowMap[i].replace(/E(\d+)\/E12/g,'H$1/'+DB_PCT_DENOM);
       }
 
       // 4c. Rows 12-16: new INT OEM rows (generated, not from template)
@@ -1734,7 +1734,7 @@ function exportExcel() {
           dcf('H',r,s[6],"SUM('"+d.oem+"'!"+d.val+")")+
           dcn('I',r,s[4])+
           dcn('J',r,s[5])+
-          dcf('K',r,s[7],'E'+r+'/'+DB_PCT_DENOM)+
+          dcf('K',r,s[7],'H'+r+'/'+DB_PCT_DENOM)+
           dcn('L',r,s[4])+
           dcn('M',r,s[5])+
           dcn('N',r,211)+
@@ -1755,7 +1755,7 @@ function exportExcel() {
         rx=rx.replace('SUM(E5:E11)','SUM(E5:E16)');
         rx=rx.replace('SUM(H5:H11)','SUM(H5:H16)');
         // Update any % formula denominators (defensive — should only appear in ADV rows)
-        rx=rx.replace(/E(\d+)\/E12/g,'E$1/'+DB_PCT_DENOM);
+        rx=rx.replace(/E(\d+)\/E12/g,'H$1/'+DB_PCT_DENOM);
         newSD+=rx;
       }
 
@@ -2087,7 +2087,7 @@ function exportExcel() {
           var price=(OEM_PRICES[e.oem]&&OEM_PRICES[e.oem][ci])||0;
           return sum+price*Number(e.qty);
         } else if(INT_MODELS[e.oem]) {
-          var mi=INT_MODELS[e.oem].findIndex(function(m){return m===e.model||m.startsWith(e.model)||e.model.startsWith(m);});
+          var mi=INT_MODELS[e.oem].findIndex(function(m){return m===e.model||(e.model!=null&&(m.startsWith(e.model)||e.model.startsWith(m)));});
           var price2=(OEM_PRICES[e.oem]&&OEM_PRICES[e.oem][mi])||0;
           return sum+price2*Number(e.qty);
         }
@@ -2178,7 +2178,7 @@ function yvCalcValue(e){
   var isInt=(e.location==="integrated")||(e.location===undefined&&YV_INT_OEMS.indexOf(e.oem)>=0);
   if(isInt){
     var models=YV_INT_MODELS[e.oem]||[];
-    var mi=models.findIndex(function(m){return m===e.model||m.startsWith(e.model)||e.model.startsWith(m);});
+    var mi=models.findIndex(function(m){return m===e.model||(e.model!=null&&(m.startsWith(e.model)||e.model.startsWith(m)));});
     var price=(YV_PRICES[e.oem]&&YV_PRICES[e.oem][mi])||0;
     return qty*price;
   } else {
@@ -2460,6 +2460,8 @@ function renderPlan() {
 
 </body>
 </html>
+
+
 
 
 

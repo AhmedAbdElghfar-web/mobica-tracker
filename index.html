@@ -294,7 +294,7 @@ select:focus{border-color:var(--accent);}
   .plan-summary-item .val{font-size:30px;font-weight:800;color:var(--accent);margin-top:4px;}
 @media (min-width: 900px) {
   #content { max-width: 900px !important; padding: 40px 20px !important; }
-  #form {
+  #form:not([style*="none"]) {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
     gap: 40px;
@@ -2492,6 +2492,7 @@ function renderPlan() {
 
 </body>
 </html>
+
 
 
 

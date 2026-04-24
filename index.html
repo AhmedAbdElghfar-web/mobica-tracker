@@ -292,6 +292,34 @@ select:focus{border-color:var(--accent);}
   .plan-summary{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;display:flex;justify-content:space-around;text-align:center;}
   .plan-summary-item .label{font-size:15px;letter-spacing:2px;color:var(--muted);}
   .plan-summary-item .val{font-size:30px;font-weight:800;color:var(--accent);margin-top:4px;}
+@media (min-width: 900px) {
+  #content { max-width: 900px !important; padding: 40px 20px !important; }
+  #form {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+  #form-left {
+    display: flex;
+    flex-direction: column;
+  }
+  #form-right {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg2);
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+  #tabs { max-width: 900px !important; gap: 12px; }
+  .tab-btn { padding: 18px !important; font-size: 15px !important; }
+  #analysis, #dashboard, #log, #plan { font-size: 16px; }
+  #dash-table th, #dash-table td { padding: 16px !important; }
+  .stat-grid { grid-template-columns: repeat(4, 1fr) !important; }
+  input, select { font-size: 18px !important; padding: 16px 20px !important; }
+  .field-label { font-size: 13px !important; }
+}
 </style>
 </head>
 <body>
@@ -332,6 +360,7 @@ select:focus{border-color:var(--accent);}
 
   <!-- FORM TAB -->
   <div id="form">
+    <div id="form-left">
     <label class="field-label">DELIVERY NOTE NO.</label>
     <input type="text" id="dn-input" placeholder="e.g. DN-2026-001 (optional)" oninput="resetVerified()" autocomplete="off" autocorrect="off" spellcheck="false"/>
 
@@ -353,7 +382,9 @@ select:focus{border-color:var(--accent);}
     </label>
     <div id="variant-chips" style="display:none;flex-wrap:wrap;gap:8px;margin-bottom:14px;"></div>
 
-    <div id="variant-qty-rows" style="display:none;margin-bottom:8px;"></div>
+        </div>
+    <div id="form-right">
+      <div id="variant-qty-rows" style="display:none;margin-bottom:8px;"></div>
 
     <div id="single-qty-section">
       <label class="field-label">QUANTITY</label>
@@ -376,6 +407,7 @@ select:focus{border-color:var(--accent);}
 
     <button id="btn-verify" disabled onclick="openModal()">VERIFY ENTRY →</button>
     <div id="success-bar">✓ Saved successfully</div>
+    </div>
   </div>
 
   <!-- ANALYSIS TAB -->
@@ -2460,6 +2492,10 @@ function renderPlan() {
 
 </body>
 </html>
+
+
+
+
 
 
 

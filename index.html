@@ -294,7 +294,7 @@ select:focus{border-color:var(--accent);}
   .plan-summary-item .val{font-size:30px;font-weight:800;color:var(--accent);margin-top:4px;}
 @media (min-width: 900px) {
   #content { max-width: 900px !important; padding: 40px 20px !important; }
-  #form:not([style*="none"]) {
+  #form.tab-active {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
     gap: 40px;
@@ -359,7 +359,7 @@ select:focus{border-color:var(--accent);}
 <div id="content">
 
   <!-- FORM TAB -->
-  <div id="form">
+  <div id="form" class="tab-active">
     <div id="form-left">
     <label class="field-label">DELIVERY NOTE NO.</label>
     <input type="text" id="dn-input" placeholder="e.g. DN-2026-001 (optional)" oninput="resetVerified()" autocomplete="off" autocorrect="off" spellcheck="false"/>
@@ -925,10 +925,10 @@ window.onload = function() {
 // ── TABS ─────────────────────────────────────────────
 function switchTab(tab, btn) {
   ["form","analysis","dashboard","log","plan"].forEach(t => {
-    document.getElementById(t).style.display = "none";
+    document.getElementById(t).style.display = "none"; document.getElementById(t).classList.remove("tab-active");
   });
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  document.getElementById(tab).style.display = "block";
+  document.getElementById(tab).style.display = "block"; document.getElementById(tab).classList.add("tab-active");
   btn.classList.add("active");
   if (tab === "analysis") renderAnalysis();
   if (tab === "dashboard") renderDashboard();
@@ -2492,13 +2492,6 @@ function renderPlan() {
 
 </body>
 </html>
-
-
-
-
-
-
-
 
 
 

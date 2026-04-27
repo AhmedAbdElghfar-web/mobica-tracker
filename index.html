@@ -432,7 +432,7 @@ body.loc-integrated .brand{color:#ffffff;}
     <label class="field-label">OEM</label>
     <select id="sel-oem" onchange="onOemChange()">
       <option value="">Select OEM...</option>
-    <option value="EXCEED">EXCEED</option><option value="Kasrawy">Kasrawy</option><option value="NISSAN">NISSAN</option><option value="Suzuki">Suzuki</option><option value="GM">GM</option><option value="GEELY">GEELY</option><option value="ESAF">ESAF</option></select>
+    </select>
 
     <label class="field-label">MODEL</label>
     <select id="sel-model" onchange="onModelChange()" disabled="">
@@ -8301,12 +8301,7 @@ window.onload = function() {
   loadTheme();
   loadData();
   document.getElementById("date-input").value = todayStr();
-  const sel = document.getElementById("sel-oem");
-  Object.keys(DATA).forEach(oem => {
-    const o = document.createElement("option");
-    o.value = o.textContent = oem;
-    sel.appendChild(o);
-  });
+  setLocation(currentLocation); // populates OEM dropdown
   updateEntryCount();
   renderLog();
 

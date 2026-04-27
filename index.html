@@ -38,16 +38,18 @@ body.light-mode{
   --glow:rgba(13,141,230,0.12);
 }
 body.light-mode.loc-integrated{
-  --bg:#e8f4fc;--bg2:#ffffff;--bg3:#d4ecf7;--border:#cbd5e1;
-  --accent:#0d8de6;--green:#16a34a;--yellow:#f59e0b;
+  --bg:#f0fdf4;--bg2:#ffffff;--bg3:#dcfce7;--border:#bbf7d0;
+  --accent:#16a34a;--green:#16a34a;--yellow:#f59e0b;
+  --primary:#15803d;--primary-light:#16a34a;
   --text:#1e293b;--muted:#64748b;--dim:#94a3b8;--sub:#334155;
-  --glow:rgba(13,141,230,0.12);
+  --glow:rgba(22,163,74,0.12);
 }
 body.loc-integrated{
-  --bg:#e8f4fc;--bg2:#ffffff;--bg3:#d4ecf7;--border:#cbd5e1;
-  --accent:#0d8de6;--green:#16a34a;--yellow:#f59e0b;
+  --bg:#f0fdf4;--bg2:#ffffff;--bg3:#dcfce7;--border:#bbf7d0;
+  --accent:#16a34a;--green:#16a34a;--yellow:#f59e0b;
+  --primary:#15803d;--primary-light:#16a34a;
   --text:#1e293b;--muted:#64748b;--dim:#94a3b8;--sub:#334155;
-  --glow:rgba(13,141,230,0.12);
+  --glow:rgba(22,163,74,0.12);
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;}
 button{font-family:var(--font);cursor:pointer;}
@@ -63,18 +65,43 @@ select,input{font-family:var(--font);}
   padding:7px 10px;border:none;background:transparent;color:var(--dim);cursor:pointer;
   transition:all .15s;white-space:nowrap;
 }
-.loc-btn.active-adv{background:#1e3a5f;color:#0d8de6;}
-.loc-btn.active-int{background:#064e3b;color:#34d399;}
+.loc-btn.active-adv{background:#1a4a7a;color:#ffffff;border-color:#1a4a7a;}
+.loc-btn.active-int{background:#15803d;color:#ffffff;border-color:#15803d;}
+
+/* ── LOCATION BANNER ── */
+#loc-banner{
+  display:flex;width:100%;background:var(--bg2);
+  border-bottom:2px solid var(--border);
+}
+.loc-banner-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;padding:10px 8px;border:none;background:transparent;
+  cursor:pointer;transition:all .2s;font-family:var(--font);
+  border-bottom:3px solid transparent;color:var(--muted);
+}
+.loc-banner-btn .loc-icon{font-size:18px;line-height:1;}
+.loc-banner-btn .loc-label{font-size:16px;font-weight:900;letter-spacing:2px;}
+.loc-banner-btn .loc-sublabel{font-size:9px;letter-spacing:2px;font-weight:600;text-transform:uppercase;}
+.loc-banner-btn.active-adv{
+  background:#e8f4fc;color:#1a4a7a;
+  border-bottom:3px solid #1a4a7a;
+}
+.loc-banner-btn.active-int{
+  background:#f0fdf4;color:#15803d;
+  border-bottom:3px solid #15803d;
+}
+body.loc-integrated #loc-banner{border-bottom-color:#bbf7d0;}
 
 /* HEADER */
 #header{
   background:rgba(26,74,122,0.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  transition:background .3s ease;
   border-bottom:1px solid rgba(255,255,255,0.06);
   padding:14px 16px;display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:100;
 }
-.brand-sub{font-size:11px;letter-spacing:4px;color:var(--muted);font-family:var(--font);}
-.brand{font-size:22px;font-weight:800;letter-spacing:1px;color:var(--primary,#1a4a7a);font-family:var(--font);}
+.brand-sub{font-size:11px;letter-spacing:4px;color:rgba(255,255,255,0.6);font-family:var(--font);}
+.brand{font-size:22px;font-weight:800;letter-spacing:1px;color:#ffffff;font-family:var(--font);}
 #header-right{display:flex;align-items:center;gap:8px;}
 #entry-count{
   background:var(--bg3);border:1px solid var(--border);border-radius:8px;
@@ -246,8 +273,8 @@ select:focus{border-color:var(--accent);box-shadow:0 0 16px var(--glow);}
 #log-table td{padding:10px;color:var(--sub);border-bottom:1px solid var(--bg3);}
 #log-table td.qty-cell{color:var(--accent);font-weight:700;}
 .loc-badge{display:inline-block;font-size:14px;font-weight:800;letter-spacing:1.5px;padding:2px 6px;border-radius:4px;}
-.loc-badge.adv{background:#1E3A8A22;color:#4FC3F7;border:1px solid #1E3A8A;}
-.loc-badge.int{background:#1A3A1A44;color:#4ADE80;border:1px solid #1E5F35;}
+.loc-badge.adv{background:#dbeafe;color:#1a4a7a;border:1px solid #93c5fd;}
+.loc-badge.int{background:#dcfce7;color:#15803d;border:1px solid #86efac;}
 .del-btn{background:transparent;border:none;color:var(--dim);font-size:16px;padding:4px;cursor:pointer;}
 #no-log{text-align:center;color:var(--dim);padding:40px 0;font-family:var(--font);font-size:16px;letter-spacing:2px;}
 
@@ -335,6 +362,15 @@ select:focus{border-color:var(--accent);box-shadow:0 0 16px var(--glow);}
   input, select { font-size: 18px !important; padding: 16px 20px !important; }
   .field-label { font-size: 13px !important; }
 }
+
+/* ── LOCATION-BASED HEADER COLOR ── */
+body.loc-integrated #header{
+  background:rgba(21,128,61,0.95);
+}
+body.loc-integrated .loc-btn.active-int{
+  background:#ffffff;color:#15803d;border-color:#ffffff;
+}
+body.loc-integrated .brand{color:#ffffff;}
 </style>
 </head>
 <body data-new-gr-c-s-check-loaded="14.1286.0" data-gr-ext-installed="">
@@ -348,10 +384,7 @@ select:focus{border-color:var(--accent);box-shadow:0 0 16px var(--glow);}
   </div>
   <div id="header-right">
     <div id="entry-count"><span class="adv-count">849</span><span> ADV</span><span class="divider">·</span><span class="int-count">58</span><span> INT</span></div>
-    <div id="loc-toggle">
-      <button class="loc-btn active-adv" id="loc-adv" onclick="setLocation(&#39;advanced&#39;)">ADV</button>
-      <button class="loc-btn" id="loc-int" onclick="setLocation(&#39;integrated&#39;)">INT</button>
-    </div>
+
     <button class="hbtn" id="btn-theme" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
     <button class="hbtn" id="btn-sync" onclick="sbSync()" title="Sync with cloud">☁️</button>
     <button class="hbtn" id="btn-yearview" onclick="openYearView()" title="Year View">📅</button>
@@ -359,6 +392,20 @@ select:focus{border-color:var(--accent);box-shadow:0 0 16px var(--glow);}
     <button class="hbtn" id="btn-csv" onclick="downloadCSV()">CSV ↓</button>
     <button class="hbtn" id="btn-eod" onclick="exportExcel()">EXCEL ↓</button>
   </div>
+</div>
+
+<!-- LOCATION BANNER -->
+<div id="loc-banner">
+  <button id="loc-adv" class="loc-banner-btn active-adv" onclick="setLocation('advanced')">
+    <span class="loc-icon">🏭</span>
+    <span class="loc-label">ADV</span>
+    <span class="loc-sublabel">Advanced</span>
+  </button>
+  <button id="loc-int" class="loc-banner-btn" onclick="setLocation('integrated')">
+    <span class="loc-icon">🏗️</span>
+    <span class="loc-label">INT</span>
+    <span class="loc-sublabel">Integrated</span>
+  </button>
 </div>
 
 <!-- TABS -->
@@ -8024,8 +8071,9 @@ function setLocation(loc) {
   currentLocation = loc;
   DATA = loc === "advanced" ? DATA_ADVANCED : DATA_INTEGRATED;
   document.body.classList.toggle("loc-integrated", loc === "integrated");
-  document.getElementById("loc-adv").className = "loc-btn" + (loc==="advanced"?" active-adv":"");
-  document.getElementById("loc-int").className = "loc-btn" + (loc==="integrated"?" active-int":"");
+  // Update banner buttons
+  document.getElementById("loc-adv").className = "loc-banner-btn" + (loc==="advanced"?" active-adv":"");
+  document.getElementById("loc-int").className = "loc-banner-btn" + (loc==="integrated"?" active-int":"");
   // Reset form
   document.getElementById("sel-oem").innerHTML = "<option value=''>Select OEM...</option>";
   Object.keys(DATA).forEach(oem => {

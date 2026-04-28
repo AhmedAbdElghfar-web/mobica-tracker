@@ -8187,8 +8187,11 @@ async function sbInsert(entry) {
 async function syncLocalToSupabase() {
   const localEntries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
   if (!localEntries.length) return;
+  // Filter out deleted IDs before pushing to Supabase
+  const deletedIds = getDeletedIds();
+  const cleanEntries = localEntries.filter(e => !deletedIds.has(e.id));
   try {
-    showToast("Syncing " + localEntries.length + " entries to cloud...");
+    showToast("Syncing " + cleanEntries.length + " entries to cloud...");
     const res = await fetch(SB_URL + "/rest/v1/deliveries?on_conflict=id", {
       method: "POST",
       headers: {
@@ -8197,7 +8200,7 @@ async function syncLocalToSupabase() {
         "Authorization": "Bearer " + SB_KEY,
         "Prefer": "resolution=merge-duplicates,return=minimal"
       },
-      body: JSON.stringify(localEntries.map(e => ({
+      body: JSON.stringify(cleanEntries.map(e => ({
         id: e.id, ts: e.ts, dn: e.dn||"",
         date: e.date, oem: e.oem, model: e.model,
         variant: e.variant||"", qty: Number(e.qty),
@@ -8205,8 +8208,8 @@ async function syncLocalToSupabase() {
       })))
     });
     if (res.ok) {
-      console.log("Startup sync: all local entries pushed to Supabase");
-      showToast("✓ Cloud sync complete (" + localEntries.length + " entries)");
+      console.log("Startup sync: " + cleanEntries.length + " entries pushed to Supabase");
+      showToast("✓ Cloud sync complete (" + cleanEntries.length + " entries)");
     } else {
       console.warn("Startup sync failed:", res.status, await res.text());
     }
@@ -8242,10 +8245,15 @@ async function sbSync() {
       if (page.length < PAGE) break;
       offset += PAGE;
     }
+    // Filter out locally deleted IDs from remote results
+    const deletedIds = getDeletedIds();
+    allRemote = allRemote.filter(e => !deletedIds.has(e.id));
     migrateRT50(allRemote);
     const localMap = {};
     entries.forEach(e => localMap[e.id] = e);
     allRemote.forEach(e => localMap[e.id] = e);
+    // Remove deleted IDs from merged result
+    deletedIds.forEach(id => delete localMap[id]);
     entries = Object.values(localMap).sort((a,b) => a.ts - b.ts);
     persist();
     updateEntryCount(); renderLog(); renderAnalysis();
@@ -8654,10 +8662,20 @@ function cancelPassword() {
   pwPendingAction = null;
 }
 
+function getDeletedIds() {
+  try { return new Set(JSON.parse(localStorage.getItem("mobica_deleted_ids") || "[]")); }
+  catch(e) { return new Set(); }
+}
+function addDeletedId(id) {
+  var ids = getDeletedIds();
+  ids.add(id);
+  localStorage.setItem("mobica_deleted_ids", JSON.stringify([...ids]));
+}
 function deleteEntry(id) {
   requirePassword("DELETE ENTRY", function() {
     entries = entries.filter(e => e.id !== id);
     persist(); updateEntryCount(); renderLog(); renderAnalysis();
+    addDeletedId(id);
     sbDelete(id);
     showToast("Entry deleted ✓");
   });
@@ -9931,12 +9949,6 @@ function renderPlan() {
 }
 
 </script>
-
-
-
-
-
-
 
 
 

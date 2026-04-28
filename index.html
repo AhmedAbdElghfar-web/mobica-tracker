@@ -8185,36 +8185,61 @@ async function sbInsert(entry) {
 
 // ── STARTUP SYNC — push all local entries to Supabase on load ──
 async function syncLocalToSupabase() {
-  const localEntries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  if (!localEntries.length) return;
-  // Filter out deleted IDs before pushing to Supabase
-  const deletedIds = getDeletedIds();
-  const cleanEntries = localEntries.filter(e => !deletedIds.has(e.id));
   try {
-    showToast("Syncing " + cleanEntries.length + " entries to cloud...");
-    const res = await fetch(SB_URL + "/rest/v1/deliveries?on_conflict=id", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": SB_KEY,
-        "Authorization": "Bearer " + SB_KEY,
-        "Prefer": "resolution=merge-duplicates,return=minimal"
-      },
-      body: JSON.stringify(cleanEntries.map(e => ({
-        id: e.id, ts: e.ts, dn: e.dn||"",
-        date: e.date, oem: e.oem, model: e.model,
-        variant: e.variant||"", qty: Number(e.qty),
-        location: e.location||"advanced"
-      })))
-    });
-    if (res.ok) {
-      console.log("Startup sync: " + cleanEntries.length + " entries pushed to Supabase");
-      showToast("✓ Cloud sync complete (" + cleanEntries.length + " entries)");
-    } else {
-      console.warn("Startup sync failed:", res.status, await res.text());
+    showToast("Syncing...");
+
+    // Step 1: Pull Supabase — it is the source of truth
+    const PAGE = 1000;
+    let remote = [];
+    let offset = 0;
+    while (true) {
+      const res = await fetch(
+        SB_URL + "/rest/v1/deliveries?select=*&order=ts.asc&limit=" + PAGE + "&offset=" + offset,
+        { headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY } }
+      );
+      if (!res.ok) { showToast("Sync failed"); return; }
+      const page = await res.json();
+      if (!Array.isArray(page)) { showToast("Sync error"); return; }
+      remote = remote.concat(page);
+      if (page.length < PAGE) break;
+      offset += PAGE;
     }
+
+    // Step 2: Find local entries NOT in Supabase (created offline)
+    const remoteIds = new Set(remote.map(e => e.id));
+    const localEntries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const offlineEntries = localEntries.filter(e => !remoteIds.has(e.id));
+
+    // Step 3: Push offline entries to Supabase
+    if (offlineEntries.length > 0) {
+      const pushRes = await fetch(SB_URL + "/rest/v1/deliveries?on_conflict=id", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SB_KEY,
+          "Authorization": "Bearer " + SB_KEY,
+          "Prefer": "resolution=merge-duplicates,return=minimal"
+        },
+        body: JSON.stringify(offlineEntries.map(e => ({
+          id: e.id, ts: e.ts, dn: e.dn||"",
+          date: e.date, oem: e.oem, model: e.model,
+          variant: e.variant||"", qty: Number(e.qty),
+          location: e.location||"advanced"
+        })))
+      });
+      if (pushRes.ok) remote = remote.concat(offlineEntries);
+    }
+
+    // Step 4: Replace local with Supabase data (deletions now propagate)
+    migrateRT50(remote);
+    entries = remote.sort((a, b) => a.ts - b.ts);
+    persist();
+    updateEntryCount(); renderLog(); renderAnalysis();
+    showToast("✓ Cloud sync complete (" + entries.length + " entries)");
+
   } catch(e) {
     console.warn("Startup sync offline:", e.message);
+    showToast("Offline — using local data");
   }
 }
 
@@ -9949,6 +9974,12 @@ function renderPlan() {
 }
 
 </script>
+
+
+
+
+
+
 
 
 

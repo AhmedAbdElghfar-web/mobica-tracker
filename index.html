@@ -8227,7 +8227,7 @@ async function sbDelete(id) {
 async function sbSync() {
   try {
     showToast("Syncing...");
-    const res = await fetch(SB_URL + "/rest/v1/deliveries?select=*&order=ts.asc", {
+    const res = await fetch(SB_URL + "/rest/v1/deliveries?select=*&order=ts.asc&limit=10000", {
       headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY }
     });
     if (!res.ok) { showToast("Sync failed"); return; }

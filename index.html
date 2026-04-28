@@ -8188,6 +8188,17 @@ async function syncLocalToSupabase() {
   try {
     showToast("Syncing...");
 
+    // Step 0: Retry any pending deletions from Supabase
+    const deletedIds = getDeletedIds();
+    if (deletedIds.size > 0) {
+      await Promise.all([...deletedIds].map(function(id) {
+        return fetch(SB_URL + "/rest/v1/deliveries?id=eq." + id, {
+          method: "DELETE",
+          headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY, "Prefer": "return=minimal" }
+        }).catch(function(){});
+      }));
+    }
+
     // Step 1: Pull Supabase — it is the source of truth
     const PAGE = 1000;
     let remote = [];
@@ -8230,7 +8241,9 @@ async function syncLocalToSupabase() {
       if (pushRes.ok) remote = remote.concat(offlineEntries);
     }
 
-    // Step 4: Replace local with Supabase data (deletions now propagate)
+    // Step 4: Replace local with Supabase data — filter any still-pending deletions
+    const stillDeleted = getDeletedIds();
+    remote = remote.filter(e => !stillDeleted.has(e.id));
     migrateRT50(remote);
     entries = remote.sort((a, b) => a.ts - b.ts);
     persist();
@@ -8245,11 +8258,25 @@ async function syncLocalToSupabase() {
 
 async function sbDelete(id) {
   try {
-    await fetch(SB_URL + "/rest/v1/deliveries?id=eq." + id, {
+    const res = await fetch(SB_URL + "/rest/v1/deliveries?id=eq." + id, {
       method: "DELETE",
-      headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY }
+      headers: {
+        "apikey": SB_KEY,
+        "Authorization": "Bearer " + SB_KEY,
+        "Prefer": "return=minimal"
+      }
     });
-  } catch(e) { console.warn("Supabase delete failed:", e.message); }
+    if (!res.ok) {
+      const txt = await res.text();
+      console.error("sbDelete failed:", res.status, txt);
+      return false;
+    }
+    console.log("sbDelete OK:", id);
+    return true;
+  } catch(e) {
+    console.warn("sbDelete network error:", e.message);
+    return false;
+  }
 }
 
 async function sbSync() {
@@ -8697,12 +8724,16 @@ function addDeletedId(id) {
   localStorage.setItem("mobica_deleted_ids", JSON.stringify([...ids]));
 }
 function deleteEntry(id) {
-  requirePassword("DELETE ENTRY", function() {
+  requirePassword("DELETE ENTRY", async function() {
     entries = entries.filter(e => e.id !== id);
     persist(); updateEntryCount(); renderLog(); renderAnalysis();
     addDeletedId(id);
-    sbDelete(id);
-    showToast("Entry deleted ✓");
+    const ok = await sbDelete(id);
+    if (ok) {
+      showToast("Entry deleted ✓");
+    } else {
+      showToast("⚠ Deleted locally — cloud delete failed, will retry on next sync");
+    }
   });
 }
 function clearAll() {

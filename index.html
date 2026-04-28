@@ -8188,13 +8188,15 @@ async function syncLocalToSupabase() {
   try {
     showToast("Syncing...");
 
-    // Step 0: Retry any pending deletions from Supabase
+    // Step 0: Retry soft-delete for any locally pending deletions
     const deletedIds = getDeletedIds();
     if (deletedIds.size > 0) {
       await Promise.all([...deletedIds].map(function(id) {
         return fetch(SB_URL + "/rest/v1/deliveries?id=eq." + id, {
-          method: "DELETE",
-          headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY, "Prefer": "return=minimal" }
+          method: "PATCH",
+          headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY,
+                     "Content-Type": "application/json", "Prefer": "return=minimal" },
+          body: JSON.stringify({ deleted: true })
         }).catch(function(){});
       }));
     }
@@ -8241,9 +8243,10 @@ async function syncLocalToSupabase() {
       if (pushRes.ok) remote = remote.concat(offlineEntries);
     }
 
-    // Step 4: Replace local with Supabase data — filter any still-pending deletions
+    // Step 4: Replace local with Supabase data
+    // Filter soft-deleted entries AND any locally pending deletions
     const stillDeleted = getDeletedIds();
-    remote = remote.filter(e => !stillDeleted.has(e.id));
+    remote = remote.filter(e => !e.deleted && !stillDeleted.has(e.id));
     migrateRT50(remote);
     entries = remote.sort((a, b) => a.ts - b.ts);
     persist();
@@ -8258,20 +8261,23 @@ async function syncLocalToSupabase() {
 
 async function sbDelete(id) {
   try {
+    // Soft delete: mark deleted=true in Supabase so all devices see it
     const res = await fetch(SB_URL + "/rest/v1/deliveries?id=eq." + id, {
-      method: "DELETE",
+      method: "PATCH",
       headers: {
         "apikey": SB_KEY,
         "Authorization": "Bearer " + SB_KEY,
+        "Content-Type": "application/json",
         "Prefer": "return=minimal"
-      }
+      },
+      body: JSON.stringify({ deleted: true })
     });
     if (!res.ok) {
       const txt = await res.text();
       console.error("sbDelete failed:", res.status, txt);
       return false;
     }
-    console.log("sbDelete OK:", id);
+    console.log("sbDelete OK (soft):", id);
     return true;
   } catch(e) {
     console.warn("sbDelete network error:", e.message);
@@ -8297,9 +8303,9 @@ async function sbSync() {
       if (page.length < PAGE) break;
       offset += PAGE;
     }
-    // Filter out locally deleted IDs from remote results
+    // Filter soft-deleted and locally deleted entries
     const deletedIds = getDeletedIds();
-    allRemote = allRemote.filter(e => !deletedIds.has(e.id));
+    allRemote = allRemote.filter(e => !e.deleted && !deletedIds.has(e.id));
     migrateRT50(allRemote);
     const localMap = {};
     entries.forEach(e => localMap[e.id] = e);

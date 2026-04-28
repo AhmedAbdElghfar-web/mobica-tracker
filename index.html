@@ -9858,16 +9858,18 @@ function renderPlan() {
   var nextMonthDate = new Date(parseInt(parts[0]), parseInt(parts[1]), 1);
   var nextMonthStr = nextMonthDate.getFullYear() + "-" + String(nextMonthDate.getMonth() + 1).padStart(2, '0') + "-01";
 
-  // Fetch plan and deliveries in parallel
+  // Fetch plan from Supabase; use local entries for actuals (same source as LOG/ANALYSIS)
   var planUrl = SB_URL+"/rest/v1/monthly_plan?month=eq."+month+"&select=oem,model,variant,plan_qty";
-  var actUrl  = SB_URL+"/rest/v1/deliveries?date=gte."+month+"-01&date=lt."+nextMonthStr+"&select=oem,model,variant,qty,location";
+
+  // Filter local entries for selected month
+  var actualRows = entries.filter(function(e){
+    return e.date && e.date.slice(0,7) === month;
+  });
 
   Promise.all([
-    fetch(planUrl, {headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY}}).then(function(r){return r.json();}),
-    fetch(actUrl,  {headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY}}).then(function(r){return r.json();})
-   ]).then(function(results){
-    var planRows   = Array.isArray(results[0]) ? results[0] : [];
-    var actualRows = Array.isArray(results[1]) ? results[1] : [];
+    fetch(planUrl, {headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY}}).then(function(r){return r.json();})
+  ]).then(function(results){
+    var planRows = Array.isArray(results[0]) ? results[0] : [];
     migrateRT50(planRows);
     migrateRT50(actualRows);
 

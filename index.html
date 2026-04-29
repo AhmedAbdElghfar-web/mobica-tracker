@@ -371,7 +371,25 @@ body.loc-integrated .loc-btn.active-int{
   background:#ffffff;color:#15803d;border-color:#ffffff;
 }
 body.loc-integrated .brand{color:#ffffff;}
+/* ── REALTIME INDICATOR ── */
+#rt-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--dim); display: inline-block;
+  transition: background 0.4s;
+  box-shadow: 0 0 0 0 transparent;
+}
+#rt-dot.connected {
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse-rt 2s infinite;
+}
+#rt-dot.error { background: #ef4444; }
+@keyframes pulse-rt {
+  0%,100% { box-shadow: 0 0 4px var(--green); }
+  50%      { box-shadow: 0 0 10px var(--green); }
+}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body data-new-gr-c-s-check-loaded="14.1286.0" data-gr-ext-installed="">
 
@@ -387,6 +405,7 @@ body.loc-integrated .brand{color:#ffffff;}
 
     <button class="hbtn" id="btn-theme" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
     <button class="hbtn" id="btn-sync" onclick="sbSync()" title="Sync with cloud">☁️</button>
+    <span id="rt-dot" title="Realtime: connecting..."></span>
     <button class="hbtn" id="btn-yearview" onclick="openYearView()" title="Year View">📅</button>
     <button class="hbtn" id="btn-backup" onclick="backupRestore()" title="Backup / Restore">💾</button>
     <button class="hbtn" id="btn-csv" onclick="downloadCSV()">CSV ↓</button>
@@ -11979,23 +11998,131 @@ async function sbSync() {
       if (page.length < PAGE) break;
       offset += PAGE;
     }
-    // Collect remote-deleted IDs BEFORE filtering (fixes cross-device delete propagation)
+    // Collect remote-deleted IDs before filtering
     const remoteDeletedIds = new Set(allRemote.filter(e => e.deleted).map(e => e.id));
-    // Filter soft-deleted and locally deleted entries
-    const deletedIds = getDeletedIds();
-    allRemote = allRemote.filter(e => !e.deleted && !deletedIds.has(e.id));
+    const localDeletedIds = getDeletedIds();
+    const allDeletedIds = new Set([...remoteDeletedIds, ...localDeletedIds]);
+    // Full replace — Supabase is source of truth, no local merge
+    allRemote = allRemote.filter(e => !e.deleted && !localDeletedIds.has(e.id));
+    // Push any offline-only entries (created while offline) to Supabase
+    const remoteIds = new Set(allRemote.map(e => e.id));
+    const offlineEntries = entries.filter(e => !remoteIds.has(e.id) && !allDeletedIds.has(e.id));
+    if (offlineEntries.length > 0) {
+      await fetch(SB_URL + "/rest/v1/deliveries?on_conflict=id", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY,
+          "Prefer": "resolution=merge-duplicates,return=minimal"
+        },
+        body: JSON.stringify(offlineEntries.map(e => ({
+          id: e.id, ts: e.ts, dn: e.dn||"",
+          date: e.date, oem: e.oem, model: e.model,
+          variant: e.variant||"", qty: Number(e.qty),
+          location: e.location||"advanced"
+        })))
+      }).catch(function(){});
+      allRemote = allRemote.concat(offlineEntries);
+    }
     migrateRT50(allRemote);
-    const localMap = {};
-    entries.forEach(e => localMap[e.id] = e);
-    allRemote.forEach(e => localMap[e.id] = e);
-    // Remove BOTH locally-deleted AND remotely-deleted IDs from merged result
-    remoteDeletedIds.forEach(id => delete localMap[id]);
-    deletedIds.forEach(id => delete localMap[id]);
-    entries = Object.values(localMap).sort((a,b) => a.ts - b.ts);
+    entries = allRemote.sort((a,b) => a.ts - b.ts);
     persist();
     updateEntryCount(); renderLog(); renderAnalysis();
-    showToast("Synced " + allRemote.length + " entries ✓");
+    if (typeof renderDashboard === "function") renderDashboard();
+    showToast("Synced " + entries.length + " entries ✓");
   } catch(e) { showToast("Sync failed: " + e.message); }
+}
+
+// ── SILENT SYNC (background, no toast) ───────────────
+async function silentSync() {
+  try {
+    const PAGE = 1000;
+    let allRemote = [];
+    let offset = 0;
+    while (true) {
+      const res = await fetch(
+        SB_URL + "/rest/v1/deliveries?select=*&order=ts.asc&limit=" + PAGE + "&offset=" + offset,
+        { headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY } }
+      );
+      if (!res.ok) return;
+      const page = await res.json();
+      if (!Array.isArray(page)) return;
+      allRemote = allRemote.concat(page);
+      if (page.length < PAGE) break;
+      offset += PAGE;
+    }
+    const remoteDeletedIds = new Set(allRemote.filter(e => e.deleted).map(e => e.id));
+    const localDeletedIds = getDeletedIds();
+    const allDeletedIds = new Set([...remoteDeletedIds, ...localDeletedIds]);
+    allRemote = allRemote.filter(e => !e.deleted && !localDeletedIds.has(e.id));
+    // Push offline-only entries silently
+    const remoteIds = new Set(allRemote.map(e => e.id));
+    const offlineEntries = entries.filter(e => !remoteIds.has(e.id) && !allDeletedIds.has(e.id));
+    if (offlineEntries.length > 0) {
+      await fetch(SB_URL + "/rest/v1/deliveries?on_conflict=id", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY,
+          "Prefer": "resolution=merge-duplicates,return=minimal"
+        },
+        body: JSON.stringify(offlineEntries.map(e => ({
+          id: e.id, ts: e.ts, dn: e.dn||"",
+          date: e.date, oem: e.oem, model: e.model,
+          variant: e.variant||"", qty: Number(e.qty),
+          location: e.location||"advanced"
+        })))
+      }).catch(function(){});
+      allRemote = allRemote.concat(offlineEntries);
+    }
+    migrateRT50(allRemote);
+    const newEntries = allRemote.sort((a,b) => a.ts - b.ts);
+    // Only re-render if data actually changed
+    if (JSON.stringify(newEntries.map(e=>e.id+e.qty)) !== JSON.stringify(entries.map(e=>e.id+e.qty))) {
+      entries = newEntries;
+      persist();
+      updateEntryCount(); renderLog(); renderAnalysis();
+      if (typeof renderDashboard === "function") renderDashboard();
+    }
+  } catch(e) { /* silent — offline */ }
+}
+
+// ── SUPABASE REALTIME ────────────────────────────────
+var _realtimeClient = null;
+function initRealtime() {
+  try {
+    if (typeof supabase === "undefined") {
+      console.warn("Supabase JS not loaded — realtime unavailable");
+      return;
+    }
+    _realtimeClient = supabase.createClient(SB_URL, SB_KEY);
+    var dot = document.getElementById("rt-dot");
+    _realtimeClient
+      .channel("deliveries-live")
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "deliveries" },
+        function(payload) {
+          // Any change on any device → silent pull
+          silentSync();
+        }
+      )
+      .subscribe(function(status) {
+        if (dot) {
+          if (status === "SUBSCRIBED") {
+            dot.className = "connected";
+            dot.title = "Realtime: live ✓";
+          } else if (status === "CLOSED" || status === "CHANNEL_ERROR") {
+            dot.className = "error";
+            dot.title = "Realtime: disconnected";
+          } else {
+            dot.className = "";
+            dot.title = "Realtime: " + status;
+          }
+        }
+      });
+  } catch(e) {
+    console.warn("Realtime init failed:", e.message);
+  }
 }
 
 // ── STORAGE ──────────────────────────────────────────
@@ -12082,10 +12209,12 @@ window.onload = function() {
 
   renderAnalysis();
   if (typeof renderDashboard === "function") renderDashboard();
-  // Auto-sync from Supabase on load
-  setTimeout(sbSync, 1500);
-  // Startup sync — push all local entries to Supabase
-  setTimeout(function() { syncLocalToSupabase(); }, 1500);
+  // Startup sync — Supabase is source of truth
+  setTimeout(syncLocalToSupabase, 1500);
+  // Auto-sync every 30 seconds (background, no toast)
+  setInterval(silentSync, 30000);
+  // Realtime subscription — instant cross-device updates
+  setTimeout(initRealtime, 2000);
   // Test connection on load
   setTimeout(function() {
     fetch(SB_URL + "/rest/v1/deliveries?select=count&limit=1", {

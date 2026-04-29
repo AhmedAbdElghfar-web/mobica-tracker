@@ -12178,6 +12178,9 @@ function loadTheme() {
 }
 
 window.onload = function() {
+  if (location.protocol === 'file:') {
+    alert('⚠ You are opening a local file.\nPlease use the correct URL:\nhttps://ahmedabdelghfar-web.github.io/mobica-tracker/');
+  }
   loadTheme();
   loadData();
   document.getElementById("date-input").value = todayStr();

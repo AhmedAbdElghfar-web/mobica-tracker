@@ -12178,9 +12178,6 @@ function loadTheme() {
 }
 
 window.onload = function() {
-  if (location.protocol === 'file:') {
-    alert('⚠ You are opening a local file.\nPlease use the correct URL:\nhttps://ahmedabdelghfar-web.github.io/mobica-tracker/');
-  }
   loadTheme();
   loadData();
   document.getElementById("date-input").value = todayStr();
@@ -12586,6 +12583,12 @@ function showToast(msg) {
 }
 
 // ── ANALYSIS ─────────────────────────────────────────
+// ── GLOBAL EXCLUSION FILTER ──────────────────────────
+// GM BRACKET is out of scope — excluded from all tabs
+function isExcluded(e) {
+  return e.oem === "GM" && e.model === "BRACKET";
+}
+
 function renderAnalysis() {
   const container = document.getElementById("oem-cards");
   const noData = document.getElementById("no-data");
@@ -12596,8 +12599,8 @@ function renderAnalysis() {
 
   // Filter entries by selected month (YYYY-MM)
   const filtered = selectedMonth
-    ? entries.filter(e => e.date && e.date.substring(0,7) === selectedMonth)
-    : entries;
+    ? entries.filter(e => e.date && e.date.substring(0,7) === selectedMonth && !isExcluded(e))
+    : entries.filter(e => !isExcluded(e));
 
   // Update label
   if (grandLabel) {
@@ -12649,6 +12652,7 @@ function renderDashboard() {
   var oemAgg = {};
 
   entries.forEach(e => {
+    if(isExcluded(e)) return;
     if(e.date.startsWith(month)) {
       var price = 0;
       var isValid = false;
@@ -12755,9 +12759,9 @@ function renderLog() {
 
   // Dynamically update dropdown options based on current entries
   if (oemFilterEl) {
-    const oems = [...new Set(entries.map(e => e.oem))].sort();
-    const models = [...new Set(entries.filter(e => !oemF || e.oem === oemF).map(e => e.model))].sort();
-    const variants = [...new Set(entries.filter(e => (!oemF || e.oem === oemF) && (!modF || e.model === modF)).map(e => e.variant).filter(v => v))].sort();
+    const oems = [...new Set(entries.filter(e=>!isExcluded(e)).map(e => e.oem))].sort();
+    const models = [...new Set(entries.filter(e => !isExcluded(e) && (!oemF || e.oem === oemF)).map(e => e.model))].sort();
+    const variants = [...new Set(entries.filter(e => !isExcluded(e) && (!oemF || e.oem === oemF) && (!modF || e.model === modF)).map(e => e.variant).filter(v => v))].sort();
 
     if (oemF && !oems.includes(oemF)) oemF = "";
     if (modF && !models.includes(modF)) modF = "";
@@ -12771,7 +12775,7 @@ function renderLog() {
   if (!entries.length) { noLog.style.display="block"; wrap.style.display="none"; actions.style.display="none"; return; }
   noLog.style.display="none"; wrap.style.display="block"; actions.style.display="flex";
   
-  let sorted = [...entries].sort((a,b) => b.ts - a.ts);
+  let sorted = [...entries].filter(e => !isExcluded(e)).sort((a,b) => b.ts - a.ts);
 
   // Apply the selected filters
   if (dateF) sorted = sorted.filter(e => e.date.startsWith(dateF));
@@ -13725,6 +13729,7 @@ function renderPlan() {
     // --- Aggregate plan to model level (Summing all components) ---
     var planAgg = {}; 
     planRows.forEach(function(r){
+      if(r.oem==="GM" && r.model==="BRACKET") return;
       var key = r.oem+"|"+r.model;
       planAgg[key] = (planAgg[key] || 0) + (r.plan_qty || 0);
     });
@@ -13732,6 +13737,7 @@ function renderPlan() {
     // --- Aggregate actuals to model level (Summing all components) ---
     var actAgg = {};
     actualRows.forEach(function(r){
+      if(r.oem==="GM" && r.model==="BRACKET") return;
       var key = r.oem+"|"+r.model;
       actAgg[key] = (actAgg[key] || 0) + (r.qty || 0);
     });

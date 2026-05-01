@@ -13697,6 +13697,97 @@ var OEM_COLORS_PLAN = {
   });
 })();
 
+function buildPlanTrackingUnits(planRows, actualRows) {
+  /* Returns array of tracking units with corrected logic:
+     GM      → min(all variants) per model  = complete seat sets
+     NISSAN  → Seat line / Door Panel line independent; Door+Luxe Door summed
+     Others  → sum all variants per model  (raw qty)
+  */
+  var planMap = {}, actMap = {};
+
+  planRows.forEach(function(r) {
+    if (r.oem === "GM" && r.model === "BRACKET") return;
+    var k = r.oem + "|" + r.model + "|" + (r.variant || "");
+    planMap[k] = (planMap[k] || 0) + (r.plan_qty || 0);
+  });
+  actualRows.forEach(function(r) {
+    if (r.oem === "GM" && r.model === "BRACKET") return;
+    if (isExcluded && isExcluded(r)) return;
+    var k = r.oem + "|" + r.model + "|" + (r.variant || "");
+    actMap[k] = (actMap[k] || 0) + (r.qty || 0);
+  });
+
+  // Collect all oem|model combinations + their variants
+  var omVariants = {};
+  function regVariant(oem, model, variant) {
+    var om = oem + "|" + model;
+    if (!omVariants[om]) omVariants[om] = { oem: oem, model: model, variants: [] };
+    if (omVariants[om].variants.indexOf(variant) < 0) omVariants[om].variants.push(variant);
+  }
+  Object.keys(planMap).forEach(function(k) {
+    var p = k.split("|"); regVariant(p[0], p[1], p[2]);
+  });
+  Object.keys(actMap).forEach(function(k) {
+    var p = k.split("|"); regVariant(p[0], p[1], p[2]);
+  });
+
+  var units = [];
+
+  Object.keys(omVariants).forEach(function(om) {
+    var info = omVariants[om];
+    var oem = info.oem, model = info.model, variants = info.variants;
+
+    if (oem === "GM") {
+      // — MIN logic: all variants are seat components, need every one —
+      var pVals = variants.map(function(v){ return planMap[oem+"|"+model+"|"+v] || 0; });
+      var aVals = variants.map(function(v){ return actMap[oem+"|"+model+"|"+v]  || 0; });
+      var planMin = pVals.length ? Math.min.apply(null, pVals) : 0;
+      var actMin  = aVals.length ? Math.min.apply(null, aVals)  : 0;
+      // Identify the bottleneck variant for tooltip
+      var bottleneckIdx = aVals.indexOf(actMin);
+      var bottleneckVar = variants[bottleneckIdx] || "";
+      units.push({
+        oem: oem, model: model, label: model, line: "",
+        logicTag: "min", bottleneck: bottleneckVar,
+        plan: planMin, actual: actMin
+      });
+
+    } else if (oem === "NISSAN") {
+      // — LINE SPLIT: Seat line and Door Panel line are separate production lines —
+      var seatVars = variants.filter(function(v){ return v && /seat/i.test(v); });
+      var doorVars = variants.filter(function(v){ return v && (/door/i.test(v) || /luxe/i.test(v)); });
+
+      if (seatVars.length > 0) {
+        units.push({
+          oem: oem, model: model, label: model, line: "Seat",
+          logicTag: "seat",
+          plan:   seatVars.reduce(function(s,v){ return s + (planMap[oem+"|"+model+"|"+v]||0); }, 0),
+          actual: seatVars.reduce(function(s,v){ return s + (actMap[oem+"|"+model+"|"+v]||0);  }, 0)
+        });
+      }
+      if (doorVars.length > 0) {
+        units.push({
+          oem: oem, model: model, label: model, line: "Door Panel",
+          logicTag: "door",
+          plan:   doorVars.reduce(function(s,v){ return s + (planMap[oem+"|"+model+"|"+v]||0); }, 0),
+          actual: doorVars.reduce(function(s,v){ return s + (actMap[oem+"|"+model+"|"+v]||0);  }, 0)
+        });
+      }
+
+    } else {
+      // — STANDARD: sum all variants —
+      units.push({
+        oem: oem, model: model, label: model, line: "",
+        logicTag: "std",
+        plan:   variants.reduce(function(s,v){ return s + (planMap[oem+"|"+model+"|"+v]||0); }, 0),
+        actual: variants.reduce(function(s,v){ return s + (actMap[oem+"|"+model+"|"+v]||0);  }, 0)
+      });
+    }
+  });
+
+  return units;
+}
+
 function renderPlan() {
   var month = document.getElementById("plan-month-sel").value;
   var statusEl = document.getElementById("plan-status");
@@ -13705,126 +13796,185 @@ function renderPlan() {
   statusEl.textContent   = "Loading...";
   bodyEl.innerHTML       = "";
 
-  // Fix date logic: get the first day of the next month to use 'lt' (less than) instead of 'lte.31'
   var parts = month.split("-");
   var nextMonthDate = new Date(parseInt(parts[0]), parseInt(parts[1]), 1);
-  var nextMonthStr = nextMonthDate.getFullYear() + "-" + String(nextMonthDate.getMonth() + 1).padStart(2, '0') + "-01";
+  var nextMonthStr  = nextMonthDate.getFullYear() + "-" +
+    String(nextMonthDate.getMonth() + 1).padStart(2, "0") + "-01";
 
-  // Fetch plan from Supabase; use local entries for actuals (same source as LOG/ANALYSIS)
-  var planUrl = SB_URL+"/rest/v1/monthly_plan?month=eq."+month+"&select=oem,model,variant,plan_qty";
+  var planUrl = SB_URL + "/rest/v1/monthly_plan?month=eq." + month +
+    "&select=oem,model,variant,plan_qty";
 
-  // Filter local entries for selected month
   var actualRows = entries.filter(function(e){
-    return e.date && e.date.slice(0,7) === month;
+    return e.date && e.date.slice(0, 7) === month;
   });
 
   Promise.all([
-    fetch(planUrl, {headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY}}).then(function(r){return r.json();})
-  ]).then(function(results){
+    fetch(planUrl, { headers:{ apikey:SB_KEY, Authorization:"Bearer "+SB_KEY }})
+      .then(function(r){ return r.json(); })
+  ]).then(function(results) {
     var planRows = Array.isArray(results[0]) ? results[0] : [];
     migrateRT50(planRows);
     migrateRT50(actualRows);
 
+    var units = buildPlanTrackingUnits(planRows, actualRows);
 
-    // --- Aggregate plan to model level (Summing all components) ---
-    var planAgg = {}; 
-    planRows.forEach(function(r){
-      if(r.oem==="GM" && r.model==="BRACKET") return;
-      var key = r.oem+"|"+r.model;
-      planAgg[key] = (planAgg[key] || 0) + (r.plan_qty || 0);
-    });
-
-    // --- Aggregate actuals to model level (Summing all components) ---
-    var actAgg = {};
-    actualRows.forEach(function(r){
-      if(r.oem==="GM" && r.model==="BRACKET") return;
-      var key = r.oem+"|"+r.model;
-      actAgg[key] = (actAgg[key] || 0) + (r.qty || 0);
-    });
-
-    // Collect all unique oem|model keys
-    var allKeys = {};
-    Object.keys(planAgg).forEach(function(k){ allKeys[k]=1; });
-    Object.keys(actAgg).forEach(function(k){ allKeys[k]=1; });
-
-    // Group by OEM maintaining order
-    var OEM_ORDER = ["EXCEED","Kasrawy","NISSAN","Suzuki","GM","GEELY","ESAF","TOYOTA","BAMC","AAV","Citroen","Ghabour"];
-    var grouped = {};
-    OEM_ORDER.forEach(function(o){ grouped[o]=[]; });
-    Object.keys(allKeys).forEach(function(k){
-      var parts = k.split("|");
-      var oem = parts[0]; var model = parts[1];
-      if(!grouped[oem]) grouped[oem] = [];
-      grouped[oem].push({model:model, plan:planAgg[k]||0, actual:actAgg[k]||0});
-    });
-
-    // Summary totals
-    var totalPlan=0, totalActual=0, greenCount=0, totalModels=0;
-    Object.keys(grouped).forEach(function(oem){
-      grouped[oem].forEach(function(row){
-        totalPlan   += row.plan;
-        totalActual += row.actual;
-        totalModels++;
-        if(row.plan > 0 && (row.actual/row.plan) >= 1) greenCount++;
-      });
-    });
-
-    if(Object.keys(allKeys).length === 0){
-      statusEl.textContent = "No data for "+month;
+    if (units.length === 0) {
+      statusEl.textContent = "No data for " + month;
       return;
     }
     statusEl.style.display = "none";
 
-    var html = "";
+    // ── Totals (achievement capped at 100% per unit) ──────────────
+    var totalPlan = 0, totalActCapped = 0, totalRawActual = 0;
+    var greenCnt = 0, unitCnt = 0;
+    units.forEach(function(u) {
+      if (u.plan > 0) {
+        totalPlan     += u.plan;
+        totalActCapped += Math.min(u.actual, u.plan);
+        totalRawActual += u.actual;
+        unitCnt++;
+        if (u.actual >= u.plan) greenCnt++;
+      }
+    });
+    var ovPct = totalPlan > 0 ? (totalActCapped / totalPlan * 100).toFixed(1) : 0;
+    var ovPctNum = parseFloat(ovPct);
+    var ovColor = ovPctNum >= 100 ? "#34D399" : ovPctNum >= 85 ? "#FCD34D" : "#F87171";
 
-    // Summary card
-    var ovPct = totalPlan > 0 ? Math.round(totalActual/totalPlan*100) : 0;
-    html += '<div class="plan-summary">';
-    html += '<div class="plan-summary-item"><div class="label">PLAN</div><div class="val">'+totalPlan.toLocaleString()+'</div></div>';
-    html += '<div class="plan-summary-item"><div class="label">ACTUAL</div><div class="val" style="color:'+(ovPct>=100?"#34D399":ovPct>=80?"#FCD34D":"#F87171")+'">'+totalActual.toLocaleString()+'</div></div>';
-    html += '<div class="plan-summary-item"><div class="label">ACHIEVEMENT</div><div class="val" style="color:'+(ovPct>=100?"#34D399":ovPct>=80?"#FCD34D":"#F87171")+'">'+ovPct+'%</div></div>';
+    // ── Summary card ──────────────────────────────────────────────
+    var html = '<div class="plan-summary">';
+    html += '<div class="plan-summary-item"><div class="label">PLAN</div>' +
+      '<div class="val">' + totalPlan.toLocaleString() + '</div></div>';
+    html += '<div class="plan-summary-item"><div class="label">ACTUAL</div>' +
+      '<div class="val" style="color:' + ovColor + '">' + totalActCapped.toLocaleString() + '</div></div>';
+    html += '<div class="plan-summary-item"><div class="label">ACHIEVEMENT</div>' +
+      '<div class="val" style="color:' + ovColor + '">' + ovPct + '%</div></div>';
+    html += '<div class="plan-summary-item"><div class="label">ON PLAN</div>' +
+      '<div class="val" style="color:#34D399">' + greenCnt + '/' + unitCnt + '</div></div>';
     html += '</div>';
 
-    OEM_ORDER.forEach(function(oem){
+    // Logic legend
+    html += '<div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">';
+    html += '<span style="font-size:12px;color:var(--muted)">Calculation rules:</span>';
+    html += '<span style="font-size:11px;background:#FFB74D22;color:#FFB74D;padding:2px 8px;border-radius:6px;font-weight:700">⚙ GM — min(variants)</span>';
+    html += '<span style="font-size:11px;background:#81C78422;color:#81C784;padding:2px 8px;border-radius:6px;font-weight:700">↔ NISSAN — line split</span>';
+    html += '<span style="font-size:11px;background:#4FC3F722;color:#4FC3F7;padding:2px 8px;border-radius:6px;font-weight:700">Σ Others — sum</span>';
+    html += '<span style="font-size:11px;background:#F8717122;color:#F87171;padding:2px 8px;border-radius:6px;font-weight:700">⛔ capped at 100%</span>';
+    html += '</div>';
+
+    // ── Group by OEM ──────────────────────────────────────────────
+    var OEM_ORDER = ["GM","NISSAN","ESAF","Ghabour","EXCEED","Suzuki",
+                     "BAMC","GEELY","TOYOTA","Citroen","AAV","Kasrawy"];
+    var grouped = {};
+    OEM_ORDER.forEach(function(o){ grouped[o] = []; });
+    units.forEach(function(u) {
+      if (!grouped[u.oem]) grouped[u.oem] = [];
+      grouped[u.oem].push(u);
+    });
+
+    OEM_ORDER.forEach(function(oem) {
       var rows = grouped[oem];
-      if(!rows || rows.length === 0) return;
-      var color = OEM_COLORS_PLAN[oem]||"#888";
-      html += '<div class="plan-oem-block">';
-      // OEM totals
-      var oemPlan = rows.reduce(function(s,r){return s+r.plan;},0);
-      var oemActual = rows.reduce(function(s,r){return s+r.actual;},0);
-      var oemPct = oemPlan > 0 ? Math.round(oemActual/oemPlan*100) : (oemActual > 0 ? 999 : 0);
-      var oemPctColor = oemPct>=100?"#34D399":oemPct>=80?"#FCD34D":"#F87171";
-      html += '<div class="plan-oem-header">';
-      html += '<div class="plan-oem-dot" style="background:'+color+'"></div>';
-      html += '<span style="flex:1">'+oem+'</span>';
-      html += '<span style="font-size:11px;color:var(--dim);margin-right:8px">PLAN <b style="color:var(--accent)">'+oemPlan.toLocaleString()+'</b></span>';
-      html += '<span style="font-size:11px;color:var(--dim);margin-right:8px">ACTUAL <b style="color:var(--accent)">'+oemActual.toLocaleString()+'</b></span>';
-      html += '<span style="font-size:12px;font-weight:700;color:'+oemPctColor+'">'+oemPct+'%</span>';
-      html += '</div>';
-      html += '<div class="plan-hdr"><span>MODEL</span><span style="text-align:right">PLAN</span><span style="text-align:right">ACTUAL</span><span style="text-align:right">%</span><span style="text-align:right">STATUS</span></div>';
-      rows.forEach(function(row){
-        var pct = row.plan > 0 ? Math.round(row.actual/row.plan*100) : (row.actual > 0 ? 999 : 0);
-        var badge, bcolor, btext;
-        if(row.plan === 0 && row.actual === 0){ badge="—"; bcolor="var(--bg3)"; btext="var(--muted)"; }
-        else if(pct >= 100){ badge="🟢"; bcolor=""; btext=""; }
-        else if(pct >= 80) { badge="🟡"; bcolor=""; btext=""; }
-        else               { badge="🔴"; bcolor=""; btext=""; }
-        var pctStr = row.plan === 0 ? (row.actual > 0 ? "—" : "0%") : pct+"%";
-        html += '<div class="plan-row">';
-        html += '<div class="plan-row-model">'+row.model+'</div>';
-        html += '<div class="plan-num" style="color:var(--dim)">'+row.plan.toLocaleString()+'</div>';
-        html += '<div class="plan-num" style="color:var(--accent)">'+row.actual.toLocaleString()+'</div>';
-        html += '<div class="plan-pct" style="color:'+(pct>=100?"#34D399":pct>=80?"#FCD34D":"#F87171")+'">'+pctStr+'</div>';
-        html += '<div style="text-align:right;font-size:16px;">'+badge+'</div>';
-        html += '</div>';
+      if (!rows || rows.length === 0) return;
+
+      var color = OEM_COLORS_PLAN[oem] || "#888";
+
+      // OEM header totals
+      var oemPlan = 0, oemActCapped = 0;
+      rows.forEach(function(u) {
+        if (u.plan > 0) {
+          oemPlan     += u.plan;
+          oemActCapped += Math.min(u.actual, u.plan);
+        }
       });
+      var oemPct = oemPlan > 0 ? Math.round(oemActCapped / oemPlan * 100) : 0;
+      var oemPctColor = oemPct >= 100 ? "#34D399" : oemPct >= 80 ? "#FCD34D" : "#F87171";
+
+      html += '<div class="plan-oem-block">';
+      html += '<div class="plan-oem-header">';
+      html += '<div class="plan-oem-dot" style="background:' + color + '"></div>';
+      html += '<span style="flex:1">' + oem + '</span>';
+
+      // Show logic tag for GM and NISSAN
+      if (oem === "GM")
+        html += '<span style="font-size:10px;background:#FFB74D33;color:#FFB74D;padding:1px 6px;border-radius:4px;margin-right:6px;font-weight:700">⚙ min</span>';
+      if (oem === "NISSAN")
+        html += '<span style="font-size:10px;background:#81C78433;color:#81C784;padding:1px 6px;border-radius:4px;margin-right:6px;font-weight:700">↔ lines</span>';
+
+      html += '<span style="font-size:11px;color:var(--dim);margin-right:8px">PLAN <b style="color:var(--accent)">' + oemPlan.toLocaleString() + '</b></span>';
+      html += '<span style="font-size:11px;color:var(--dim);margin-right:8px">ACTUAL <b style="color:var(--accent)">' + oemActCapped.toLocaleString() + '</b></span>';
+      html += '<span style="font-size:12px;font-weight:700;color:' + oemPctColor + '">' + oemPct + '%</span>';
+      html += '</div>';
+
+      // Column headers — NISSAN gets an extra LINE column
+      var isNissan = (oem === "NISSAN");
+      var colsStyle = isNissan
+        ? "grid-template-columns:1fr 70px 52px 52px 52px 52px"
+        : "grid-template-columns:1fr 52px 52px 52px 52px";
+
+      html += '<div class="plan-hdr" style="' + colsStyle + '">';
+      html += '<span>MODEL</span>';
+      if (isNissan) html += '<span style="text-align:center">LINE</span>';
+      html += '<span style="text-align:right">PLAN</span>';
+      html += '<span style="text-align:right">ACTUAL</span>';
+      html += '<span style="text-align:right">%</span>';
+      html += '<span style="text-align:right">STATUS</span>';
+      html += '</div>';
+
+      var prevModel = "";
+      rows.forEach(function(u) {
+        var cappedAct = Math.min(u.actual, u.plan);
+        var pct = u.plan > 0 ? Math.round(cappedAct / u.plan * 100) : (u.actual > 0 ? 999 : 0);
+        var pctStr = u.plan === 0 ? (u.actual > 0 ? "—" : "—") : pct + "%";
+        var badge;
+        if      (u.plan === 0 && u.actual === 0) badge = "—";
+        else if (pct >= 100) badge = "🟢";
+        else if (pct >= 80)  badge = "🟡";
+        else                 badge = "🔴";
+        var pctColor = pct >= 100 ? "#34D399" : pct >= 80 ? "#FCD34D" : "#F87171";
+
+        // Progress bar width (capped 0-100%)
+        var barPct = Math.min(pct, 100);
+        var barColor = pct >= 100 ? "#34D399" : pct >= 80 ? "#FCD34D" : "#F87171";
+
+        html += '<div class="plan-row" style="' + colsStyle + ';position:relative;overflow:hidden;">';
+
+        // Background progress fill (subtle)
+        if (barPct > 0 && u.plan > 0) {
+          html += '<div style="position:absolute;left:0;top:0;height:100%;width:' +
+            barPct + '%;background:' + barColor + '18;pointer-events:none;border-radius:4px;"></div>';
+        }
+
+        // Model label — for NISSAN, show model name only on first line
+        var modelLabel = (isNissan && u.model === prevModel) ? "" : u.model;
+        html += '<div class="plan-row-model" style="z-index:1">' + modelLabel;
+        if (u.logicTag === "min" && u.bottleneck) {
+          html += '<br><span style="font-size:11px;color:var(--muted)">↓ ' + u.bottleneck + '</span>';
+        }
+        html += '</div>';
+
+        // LINE badge for NISSAN
+        if (isNissan) {
+          var lineColor = (u.line === "Door Panel") ? "#7C3AED" : "#0D9488";
+          html += '<div style="text-align:center;z-index:1">' +
+            '<span style="font-size:11px;background:' + lineColor + ';color:#fff;' +
+            'padding:1px 5px;border-radius:4px;font-weight:700">' + u.line + '</span></div>';
+        }
+
+        html += '<div class="plan-num" style="color:var(--dim);z-index:1">' + u.plan.toLocaleString() + '</div>';
+        html += '<div class="plan-num" style="color:var(--accent);z-index:1">' + cappedAct.toLocaleString() + '</div>';
+        html += '<div class="plan-pct" style="color:' + pctColor + ';z-index:1">' + pctStr + '</div>';
+        html += '<div style="text-align:right;font-size:16px;z-index:1">' + badge + '</div>';
+        html += '</div>';
+
+        prevModel = u.model;
+      });
+
       html += '</div>';
     });
 
     bodyEl.innerHTML = html;
-  }).catch(function(err){
-    statusEl.textContent = "Error loading data";
+
+  }).catch(function(err) {
+    statusEl.textContent = "Error loading plan data";
     console.error(err);
   });
 }

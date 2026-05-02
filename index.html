@@ -118,6 +118,11 @@ body.loc-integrated #loc-banner{border-bottom-color:#bbf7d0;}
 #btn-csv{background:var(--bg3);border:2px solid var(--border);color:var(--accent);}
 #btn-eod{background:#dcfce7;border:2px solid var(--green);color:var(--green);}
 #btn-eod:active{background:#166534;}
+#btn-more{background:var(--bg3);border:1px solid var(--border);color:var(--sub);font-size:18px;letter-spacing:2px;padding:6px 12px;}
+#btn-more:hover{background:var(--border);}
+.more-item{padding:13px 18px;font-size:14px;font-family:var(--font);font-weight:600;color:var(--text);cursor:pointer;transition:background .12s;white-space:nowrap;}
+.more-item:hover{background:var(--border);}
+.more-sep{height:1px;background:var(--border);margin:2px 0;}
 
 /* TABS */
 #tabs{display:flex;background:rgba(20,20,32,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:10px 10px 14px 10px;gap:8px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,0.06);}
@@ -403,13 +408,19 @@ body.loc-integrated .brand{color:#ffffff;}
   <div id="header-right">
     <div id="entry-count"><span class="adv-count">1293</span><span> ADV</span><span class="divider">·</span><span class="int-count">74</span><span> INT</span></div>
 
-    <button class="hbtn" id="btn-theme" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
-    <button class="hbtn" id="btn-sync" onclick="sbSync()" title="Sync with cloud">☁️</button>
     <span id="rt-dot" title="Realtime: connecting..."></span>
     <button class="hbtn" id="btn-yearview" onclick="openYearView()" title="Year View">📅</button>
-    <button class="hbtn" id="btn-backup" onclick="backupRestore()" title="Backup / Restore">💾</button>
     <button class="hbtn" id="btn-csv" onclick="downloadCSV()">CSV ↓</button>
     <button class="hbtn" id="btn-eod" onclick="exportExcel()">EXCEL ↓</button>
+    <div id="more-wrap" style="position:relative;">
+      <button class="hbtn" id="btn-more" onclick="toggleMoreMenu()" title="More options">&#8943;</button>
+      <div id="more-menu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--bg2);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.35);min-width:190px;z-index:999;overflow:hidden;">
+        <div class="more-item" onclick="sbSync();closeMoreMenu()">☁️&#160;&#160;Manual Sync</div>
+        <div class="more-item" onclick="backupRestore();closeMoreMenu()">💾&#160;&#160;Backup / Restore</div>
+        <div class="more-sep"></div>
+        <div class="more-item" id="more-theme" onclick="toggleTheme();updateMoreThemeLabel();closeMoreMenu()">🌙&#160;&#160;Dark Mode</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -12163,9 +12174,28 @@ function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMo
 
 // ── INIT ─────────────────────────────────────────────
 // ── THEME ─────────────────────────────────────────────
+function toggleMoreMenu(){
+  var m=document.getElementById("more-menu");
+  if(!m) return;
+  m.style.display=(m.style.display==="none"?"block":"none");
+}
+function closeMoreMenu(){
+  var m=document.getElementById("more-menu");
+  if(m) m.style.display="none";
+}
+function updateMoreThemeLabel(){
+  var isLight=document.body.classList.contains("light");
+  var el=document.getElementById("more-theme");
+  if(!el) return;
+  el.innerHTML=isLight?"☀️&#160;&#160;Light Mode":"🌙&#160;&#160;Dark Mode";
+}
+document.addEventListener("click",function(e){
+  var wrap=document.getElementById("more-wrap");
+  if(wrap&&!wrap.contains(e.target)) closeMoreMenu();
+});
 function toggleTheme() {
   var isLight = document.body.classList.toggle('light-mode');
-  document.getElementById('btn-theme').textContent = isLight ? '🌙' : '☀️';
+  updateMoreThemeLabel();
   localStorage.setItem('mobica_theme', isLight ? 'light' : 'dark');
 }
 
@@ -12173,7 +12203,7 @@ function loadTheme() {
   var saved = localStorage.getItem('mobica_theme');
   if (saved === 'light') {
     document.body.classList.add('light-mode');
-    document.getElementById('btn-theme').textContent = '☀️';
+    updateMoreThemeLabel();
   }
 }
 

@@ -13779,14 +13779,35 @@ function buildPlanTrackingUnits(planRows, actualRows) {
     var oem = info.oem, model = info.model, variants = info.variants;
 
     if (oem === "GM") {
-      // — MIN logic: all variants are seat components, need every one —
-      var pVals = variants.map(function(v){ return planMap[oem+"|"+model+"|"+v] || 0; });
-      var aVals = variants.map(function(v){ return actMap[oem+"|"+model+"|"+v]  || 0; });
-      var planMin = pVals.length ? Math.min.apply(null, pVals) : 0;
-      var actMin  = aVals.length ? Math.min.apply(null, aVals)  : 0;
-      // Identify the bottleneck variant for tooltip
-      var bottleneckIdx = aVals.indexOf(actMin);
-      var bottleneckVar = variants[bottleneckIdx] || "";
+      // — Option B: detect model-level plan (variant='') vs variant-level plan —
+      var modelLevelPlan   = planMap[oem+"|"+model+"|"] || 0;
+      var variantLevelPlan = variants.filter(function(v){
+        return v !== "" && (planMap[oem+"|"+model+"|"+v]||0) > 0;
+      }).length > 0;
+
+      var planMin, actMin, bottleneckVar;
+
+      if (!variantLevelPlan && modelLevelPlan > 0) {
+        // Model-level plan: use directly as planMin
+        // Actual = min of variant actuals only (bottleneck still applies to what was delivered)
+        var actVars = variants.filter(function(v){ return v !== ""; });
+        var aVals2  = actVars.length
+          ? actVars.map(function(v){ return actMap[oem+"|"+model+"|"+v]||0; })
+          : [actMap[oem+"|"+model+"|"]||0];
+        planMin = modelLevelPlan;
+        actMin  = aVals2.length ? Math.min.apply(null, aVals2) : 0;
+        var bIdx = aVals2.indexOf(actMin);
+        bottleneckVar = (actVars.length ? actVars : [""])[bIdx] || "";
+      } else {
+        // Variant-level plan: original min logic
+        var pVals = variants.map(function(v){ return planMap[oem+"|"+model+"|"+v]||0; });
+        var aVals = variants.map(function(v){ return actMap[oem+"|"+model+"|"+v]||0; });
+        planMin = pVals.length ? Math.min.apply(null, pVals) : 0;
+        actMin  = aVals.length ? Math.min.apply(null, aVals)  : 0;
+        var bottleneckIdx = aVals.indexOf(actMin);
+        bottleneckVar = variants[bottleneckIdx] || "";
+      }
+
       units.push({
         oem: oem, model: model, label: model, line: "",
         logicTag: "min", bottleneck: bottleneckVar,
@@ -13795,24 +13816,42 @@ function buildPlanTrackingUnits(planRows, actualRows) {
 
     } else if (oem === "NISSAN") {
       // — LINE SPLIT: Seat line and Door Panel line are separate production lines —
-      var seatVars = variants.filter(function(v){ return v && /seat/i.test(v); });
-      var doorVars = variants.filter(function(v){ return v && (/door/i.test(v) || /luxe/i.test(v)); });
+      // Option B: detect model-level plan (variant='') — treat as combined total, no line split
+      var nissanModelPlan = planMap[oem+"|"+model+"|"] || 0;
+      var nissanHasLinePlan = variants.filter(function(v){
+        return v !== "" && (planMap[oem+"|"+model+"|"+v]||0) > 0;
+      }).length > 0;
 
-      if (seatVars.length > 0) {
+      if (!nissanHasLinePlan && nissanModelPlan > 0) {
+        // Model-level plan: show as single row, actual = sum all variants
+        var totalAct = variants.reduce(function(s,v){
+          return s + (actMap[oem+"|"+model+"|"+v]||0);
+        }, 0);
         units.push({
-          oem: oem, model: model, label: model, line: "Seat",
-          logicTag: "seat",
-          plan:   seatVars.reduce(function(s,v){ return s + (planMap[oem+"|"+model+"|"+v]||0); }, 0),
-          actual: seatVars.reduce(function(s,v){ return s + (actMap[oem+"|"+model+"|"+v]||0);  }, 0)
+          oem: oem, model: model, label: model, line: "",
+          logicTag: "std",
+          plan:   nissanModelPlan,
+          actual: totalAct
         });
-      }
-      if (doorVars.length > 0) {
-        units.push({
-          oem: oem, model: model, label: model, line: "Door Panel",
-          logicTag: "door",
-          plan:   doorVars.reduce(function(s,v){ return s + (planMap[oem+"|"+model+"|"+v]||0); }, 0),
-          actual: doorVars.reduce(function(s,v){ return s + (actMap[oem+"|"+model+"|"+v]||0);  }, 0)
-        });
+      } else {
+        var seatVars = variants.filter(function(v){ return v && /seat/i.test(v); });
+        var doorVars = variants.filter(function(v){ return v && (/door/i.test(v) || /luxe/i.test(v)); });
+        if (seatVars.length > 0) {
+          units.push({
+            oem: oem, model: model, label: model, line: "Seat",
+            logicTag: "seat",
+            plan:   seatVars.reduce(function(s,v){ return s + (planMap[oem+"|"+model+"|"+v]||0); }, 0),
+            actual: seatVars.reduce(function(s,v){ return s + (actMap[oem+"|"+model+"|"+v]||0);  }, 0)
+          });
+        }
+        if (doorVars.length > 0) {
+          units.push({
+            oem: oem, model: model, label: model, line: "Door Panel",
+            logicTag: "door",
+            plan:   doorVars.reduce(function(s,v){ return s + (planMap[oem+"|"+model+"|"+v]||0); }, 0),
+            actual: doorVars.reduce(function(s,v){ return s + (actMap[oem+"|"+model+"|"+v]||0);  }, 0)
+          });
+        }
       }
 
     } else {

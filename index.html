@@ -12969,9 +12969,23 @@ function exportExcel() {
       var files=fflate.unzipSync(zipBytes);
 
       // Patch each OEM sheet
+      // Patch date labels: April 2026 serials (46113-46142) → target month serials
+      var APR1_SERIAL = 46113;
+      var _targetStart = new Date(_exportYear, _exportMon, 1);
+      var _apr1 = new Date(2026, 3, 1);
+      var _dayOffset = Math.round((_targetStart.getTime() - _apr1.getTime()) / 86400000);
+
       Object.entries(SCHEMA).forEach(function(kv){
         var oem=kv[0],schema=kv[1];
         var xml=fflate.strFromU8(files[schema.file]);
+        // Patch date serial numbers in column A (April 2026 → target month)
+        if (_dayOffset !== 0) {
+          for (var _d = 0; _d < 31; _d++) {
+            var _aprSer = APR1_SERIAL + _d;
+            var _tgtSer = APR1_SERIAL + _dayOffset + _d;
+            xml = xml.split('<v>'+_aprSer+'</v>').join('<v>'+_tgtSer+'</v>');
+          }
+        }
         var colTotals=new Array(schema.cols.length).fill(0);
 
         APRIL_DATES.forEach(function(iso,di){

@@ -12913,7 +12913,7 @@ function exportExcel() {
   document.getElementById("btn-eod").style.opacity = "0.6";
   setTimeout(function() {
     try {
-      var SCHEMA = {"EXCEED": {"file": "xl/worksheets/sheet1.xml", "dateRow": 3, "totalRow": 35, "cols": [["GLE", "Black"], ["GLE", "Brown"], ["GLE", "Beige"], ["GLS", "Black"], ["GLS", "Brown"], ["GLS", "Beige"], ["AMG", "Black"], ["AMG", "Red"], ["RX", "Seat Red"], ["RX", "DP Red"], ["RX", "Flagship Seat"], ["RX", "Flagship DP"], ["VX", "Luxury Black"], ["VX", "Flagship Brown"]]}, "Kasrawy": {"file": "xl/worksheets/sheet2.xml", "dateRow": 3, "totalRow": 34, "cols": [["Golden Dragon", ""], ["Jetour", ""], ["Jack", "Seat"], ["Jack", "DP"], ["Zemex", ""]]}, "NISSAN": {"file": "xl/worksheets/sheet3.xml", "dateRow": 3, "totalRow": 48, "cols": [["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["MC15 Beige", "Seat"], ["MC15 Beige", "Door"], ["MC15 Beige", "Luxe Door"], ["MC15 Black", "Seat"], ["MC15 Black", "Door"], ["MC15 Black", "Luxe Door"], ["L12F", "Upper Seat"], ["L12F", "Upper Door"], ["L12F", "Lower Seat"], ["L12F", "Lower Door"]]}, "Suzuki": {"file": "xl/worksheets/sheet4.xml", "dateRow": 3, "totalRow": 34, "cols": [["Van", "Front"], ["Van", "Rear"]]}, "GM": {"file": "xl/worksheets/sheet5.xml", "dateRow": 3, "totalRow": 35, "cols": [["RT50 Leather", "Left(L)"], ["RT50 Leather", "Right(L)"], ["RT50 Fabric", "Left(F)"], ["RT50 Fabric", "Right(F)"], ["VL01", "LH (DR)"], ["VL01", "CDSB 1"], ["VL01", "CDSB2"], ["VL01", "CDSC"], ["VL20", "LH (DR)"], ["VL20", "CDSB"], ["VL20", "CDSC"], ["BRACKET", "Left"], ["BRACKET", "Right"], ["BRACKET", "Massad"], ["310vl1", "Left Seat"], ["310vl1", "Right Seat"], ["310vl1", "Cushion"], ["310vl1", "Rear back 100%"], ["310vl2", "Left Seat"], ["310vl2", "Right Seat"], ["310vl2", "Cushion 40%"], ["310vl2", "Cushion 60%"], ["310vl2", "Rear back 40%"], ["310vl2", "Rear Back 60%"],["310S Lv0","Seat"],["310S Lv2","Seat"]]}, "GEELY": {"file": "xl/worksheets/sheet6.xml", "dateRow": 4, "totalRow": 36, "cols": [["SS GS", "Seat"], ["SS GS", "DP"], ["SS GF", "Seat"], ["SS GF", "DP"], ["SS GF Black", "Seat"], ["SS GF Black", "DP"], ["SX GF", "Seat"], ["SX GF", "DP"], ["SX GK", "Seat"], ["SX GK", "DP"], ["SX GL", "Seat"], ["SX GL", "DP"]]}, "ESAF": {"file": "xl/worksheets/sheet7.xml", "dateRow": 4, "totalRow": 36, "cols": [["Proton", "Seat"], ["Proton", "DP"]]}};
+      var SCHEMA = {"EXCEED": {"file": "xl/worksheets/sheet1.xml", "dateRow": 3, "totalRow": 35, "cols": [["GLE", "Black"], ["GLE", "Brown"], ["GLE", "Beige"], ["GLS", "Black"], ["GLS", "Brown"], ["GLS", "Beige"], ["AMG", "Black"], ["AMG", "Red"], ["RX", "Seat Red"], ["RX", "DP Red"], ["RX", "Flagship Seat"], ["RX", "Flagship DP"], ["VX", "Luxury Black"], ["VX", "Flagship Brown"]]}, "Kasrawy": {"file": "xl/worksheets/sheet2.xml", "dateRow": 3, "totalRow": 34, "cols": [["Golden Dragon", ""], ["Jetour", ""], ["Jack", "Seat"], ["Jack", "DP"], ["Zemex", ""]]}, "NISSAN": {"file": "xl/worksheets/sheet3.xml", "dateRow": 3, "totalRow": 48, "cols": [["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["MC15 Beige", "Seat"], ["MC15 Beige", "Door"], ["MC15 Beige", "Luxe Door"], ["MC15 Black", "Seat"], ["MC15 Black", "Door"], ["MC15 Black", "Luxe Door"], ["L12F", "Upper Seat"], ["L12F", "Upper Door"], ["L12F", "Lower Seat"], ["L12F", "Lower Door"]]}, "Suzuki": {"file": "xl/worksheets/sheet4.xml", "dateRow": 3, "totalRow": 34, "cols": [["Van", "Front"], ["Van", "Rear"]]}, "GM": {"file": "xl/worksheets/sheet5.xml", "dateRow": 3, "totalRow": 35, "cols": [["RT50 Leather", "Left(L)"], ["RT50 Leather", "Right(L)"], ["RT50 Fabric", "Left(F)"], ["RT50 Fabric", "Right(F)"], ["VL01", "LH (DR)"], ["VL01", "CDSB 1"], ["VL01", "CDSC"], ["VL20", "LH (DR)"], ["VL20", "CDSB"], ["VL20", "CDSC"], ["BRACKET", "Left"], ["BRACKET", "Right"], ["BRACKET", "Massad"], ["310vl1", "Left Seat"], ["310vl1", "Right Seat"], ["310vl1", "Cushion"], ["310vl1", "Rear back 100%"], ["310vl2", "Left Seat"], ["310vl2", "Right Seat"], ["310vl2", "Cushion 40%"], ["310vl2", "Cushion 60%"], ["310vl2", "Rear back 40%"], ["310vl2", "Rear Back 60%"],["310S Lv0","Seat"],["310S Lv2","Seat"]]}, "GEELY": {"file": "xl/worksheets/sheet6.xml", "dateRow": 4, "totalRow": 36, "cols": [["SS GS", "Seat"], ["SS GS", "DP"], ["SS GF", "Seat"], ["SS GF", "DP"], ["SS GF Black", "Seat"], ["SS GF Black", "DP"], ["SX GF", "Seat"], ["SX GF", "DP"], ["SX GK", "Seat"], ["SX GK", "DP"], ["SX GL", "Seat"], ["SX GL", "DP"]]}, "ESAF": {"file": "xl/worksheets/sheet7.xml", "dateRow": 4, "totalRow": 36, "cols": [["Proton", "Seat"], ["Proton", "DP"]]}};
       var OEM_PRICES = {"EXCEED": {"0": 363665.48, "1": 363665.48, "2": 363665.48, "3": 620123.13, "4": 625561.43, "5": 620123.13, "6": 335594.62, "7": 335594.62, "8": 133125.90, "9": 43926.20, "10": 178887.53, "11": 51277.10, "12": 159638.30, "13": 222746.20}, "Kasrawy": {"0": 35303.44, "1": 50044.83, "2": 26055.13, "3": 9444.48, "4": 27824.68}, "NISSAN": {"8": 8565.47, "9": 3287.48, "10": 3287.48, "11": 8565.47, "12": 3250.28, "13": 3250.28, "16": 41200.0, "17": 14980.0}, "Suzuki": {"0": 9857.0, "1": 8145.0, "2": 4485.0}, "GM": {"0": 8832.646237, "1": 4362.427543, "2": 8527.361929, "3": 4224.59474, "4": 2895.503032, "5": 1432.54302, "6": 1096.832862, "7": 1932.085894, "8": 2895.503032, "9": 3128.626521, "10": 1985.089397, "11": 108.08, "12": 108.08, "13": 37.18, "14": 8023.577447, "15": 8220.211947, "16": 6068.549053, "17": 3200.734773, "18": 8182.552871, "19": 8379.187371, "20": 3979.632508, "21": 2791.660261, "22": 1867.431816, "23": 1542.197505}, "GEELY": {"0": 29149.68, "1": 16771.21, "2": 36216.78, "3": 19817.36, "4": 36701.90, "5": 20411.87, "6": 51254.43, "7": 14879.46, "8": 40044.44, "9": 12310.67, "10": 34470.47, "11": 12253.05}, "ESAF": {"0": 37074.0, "1": 9998.0},
         "TOYOTA": {"0": 163278.0, "1": 13334.0, "2": 118568.0, "3": 12881.0},
         "BAMC": {"0": 382417.96, "1": 248433.96, "2": 248433.96, "3": 254061.17, "4": 153526.68, "5": 153492.72},
@@ -12970,100 +12970,123 @@ function exportExcel() {
       function _toSerial(iso){ var p=iso.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]); return Math.round((d-new Date(1899,11,30))/86400000); }
       function _cL(n){ if(n<26) return String.fromCharCode(65+n); return String.fromCharCode(64+Math.floor(n/26))+String.fromCharCode(65+(n%26)); }
 
-      var _stylesXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
-'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">\n'+
-'<numFmts count="1"><numFmt numFmtId="164" formatCode="d-mmm-yy"/></numFmts>\n'+
-'<fonts count="4"><font><sz val="10"/><name val="Calibri"/></font>'+
-'<font><b/><sz val="10"/><name val="Calibri"/><color rgb="FFFFFFFF"/></font>'+
-'<font><b/><sz val="10"/><name val="Calibri"/></font>'+
-'<font><sz val="10"/><name val="Calibri"/><color rgb="FF555555"/></font></fonts>\n'+
-'<fills count="5">'+
-'<fill><patternFill patternType="none"/></fill>'+
-'<fill><patternFill patternType="gray125"/></fill>'+
-'<fill><patternFill patternType="solid"><fgColor rgb="FF0D1B4B"/></patternFill></fill>'+
-'<fill><patternFill patternType="solid"><fgColor rgb="FFF4A800"/></patternFill></fill>'+
-'<fill><patternFill patternType="solid"><fgColor rgb="FFD6E4F7"/></patternFill></fill></fills>\n'+
-'<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>\n'+
-'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>\n'+
-'<cellXfs count="6">\n'+
-'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>\n'+
-'<xf numFmtId="164" fontId="3" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>\n'+
-'<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>\n'+
-'<xf numFmtId="0" fontId="2" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1"><alignment horizontal="center" vertical="center"/></xf>\n'+
-'<xf numFmtId="0" fontId="1" fillId="4" borderId="0" xfId="0" applyFont="1" applyFill="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>\n'+
-'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"><alignment horizontal="center"/></xf>\n'+
-'</cellXfs>\n'+
-'<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>\n'+
-'</styleSheet>';
+      // MOBICA style index map (s=):
+      //  0=default  1=date(grey,border)  2=title(primaryBlue #1A4A7A,white-bold,no-border)
+      //  3=col-hdr(accentBlue #0D8DE6,white-bold,wrap,thin-border)
+      //  4=totals(green #16A34A,white-bold,thin-border)
+      //  5=data-white(thin-border,centered)  6=data-alt-blue-tint(thin-border,centered)
+      //  7=total-col(blue-tint,primary-bold,thin-border,centered)
+      var _stylesXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+      +'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">\n'
+      +'<numFmts count="1"><numFmt numFmtId="164" formatCode="d-mmm-yy"/></numFmts>\n'
+      +'<fonts count="6">'
+      +'<font><sz val="10"/><name val="Calibri"/></font>'
+      +'<font><b/><sz val="11"/><name val="Calibri"/><color rgb="FFFFFFFF"/></font>'
+      +'<font><b/><sz val="10"/><name val="Calibri"/></font>'
+      +'<font><sz val="10"/><name val="Calibri"/><color rgb="FF64748B"/></font>'
+      +'<font><b/><sz val="10"/><name val="Calibri"/><color rgb="FF1A4A7A"/></font>'
+      +'<font><sz val="9"/><name val="Calibri"/><color rgb="FF334155"/></font>'
+      +'</fonts>\n'
+      +'<fills count="9">'
+      +'<fill><patternFill patternType="none"/></fill>'
+      +'<fill><patternFill patternType="gray125"/></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FF1A4A7A"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FF0D8DE6"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FF16A34A"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFE8F4FC"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFD4ECF7"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFF0FDF4"/></patternFill></fill>'
+      +'</fills>\n'
+      +'<borders count="2">'
+      +'<border><left/><right/><top/><bottom/><diagonal/></border>'
+      +'<border><left style="thin"><color rgb="FFCBD5E1"/></left><right style="thin"><color rgb="FFCBD5E1"/></right><top style="thin"><color rgb="FFCBD5E1"/></top><bottom style="thin"><color rgb="FFCBD5E1"/></bottom><diagonal/></border>'
+      +'</borders>\n'
+      +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>\n'
+      +'<cellXfs count="8">\n'
+      +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>\n'
+      +'<xf numFmtId="164" fontId="3" fillId="6" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="left" vertical="center"/></xf>\n'
+      +'<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>\n'
+      +'<xf numFmtId="0" fontId="1" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>\n'
+      +'<xf numFmtId="0" fontId="1" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>\n'
+      +'<xf numFmtId="0" fontId="5" fillId="6" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>\n'
+      +'<xf numFmtId="0" fontId="5" fillId="5" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>\n'
+      +'<xf numFmtId="0" fontId="4" fillId="7" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>\n'
+      +'</cellXfs>\n'
+      +'<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>\n'
+      +'</styleSheet>';
 
       function _makeSheet(oemName, dCols, lkp, dates){
         var nC=dCols.length, tC=1+nC, rows=[], ct=new Array(nC).fill(0);
-        // Title row
-        var r1='<row r="1" ht="22" customHeight="1"><c r="A1" s="2" t="inlineStr"><is><t>'+_escX(oemName)+' \u2014 '+dates[0].substring(0,7)+'</t></is></c>';
+        // Row 1: Title â€” primary blue (#1A4A7A), white bold, no border (s=2)
+        var r1='<row r="1" ht="24" customHeight="1"><c r="A1" s="2" t="inlineStr"><is><t>'+_escX(oemName)+' \u2014 '+dates[0].substring(0,7)+'</t></is></c>';
         for(var i=1;i<=tC;i++) r1+='<c r="'+_cL(i)+'1" s="2"/>';
         rows.push(r1+'</row>');
-        // Header row
-        var r2='<row r="2" ht="32" customHeight="1"><c r="A2" s="2" t="inlineStr"><is><t>DATE</t></is></c>';
+        // Row 2: Column headers â€” accent blue (#0D8DE6), white bold, wrap, thin border (s=3)
+        var r2='<row r="2" ht="36" customHeight="1"><c r="A2" s="3" t="inlineStr"><is><t>DATE</t></is></c>';
         dCols.forEach(function(col,ci){
-          r2+='<c r="'+_cL(1+ci)+'2" s="2" t="inlineStr"><is><t>'+_escX(col.model+(col.variant?'\n'+col.variant:''))+'</t></is></c>';
+          r2+='<c r="'+_cL(1+ci)+'2" s="3" t="inlineStr"><is><t>'+_escX(col.model+(col.variant?'\n'+col.variant:''))+'</t></is></c>';
         });
-        r2+='<c r="'+_cL(tC)+'2" s="2" t="inlineStr"><is><t>TOTAL</t></is></c></row>';
+        r2+='<c r="'+_cL(tC)+'2" s="3" t="inlineStr"><is><t>TOTAL</t></is></c></row>';
         rows.push(r2);
-        // Data rows
+        // Data rows â€” alternating white(s=5)/light-blue(s=6); total col blue-tint bold(s=7)
         dates.forEach(function(iso,di){
           var rn=3+di, dd=(lkp&&lkp[iso])||{}, rt=0;
+          var dataSty=di%2===0?'5':'6';
           var r='<row r="'+rn+'"><c r="A'+rn+'" s="1"><v>'+_toSerial(iso)+'</v></c>';
           dCols.forEach(function(col,ci){
             var v=dd[col.idx]||0; ct[ci]+=v; rt+=v;
-            r+='<c r="'+_cL(1+ci)+rn+'" s="5">'+(v>0?'<v>'+v+'</v>':'')+'</c>';
+            r+='<c r="'+_cL(1+ci)+rn+'" s="'+dataSty+'">'+(v>0?'<v>'+v+'</v>':'')+'</c>';
           });
-          r+='<c r="'+_cL(tC)+rn+'" s="5">'+(rt>0?'<v>'+rt+'</v>':'')+'</c></row>';
+          r+='<c r="'+_cL(tC)+rn+'" s="7">'+(rt>0?'<v>'+rt+'</v>':'')+'</c></row>';
           rows.push(r);
         });
-        // Total row
+        // TOTAL row â€” green (#16A34A), white bold, border (s=4)
         var trn=3+dates.length, gt=ct.reduce(function(s,v){return s+v;},0);
-        var rTot='<row r="'+trn+'" ht="18" customHeight="1"><c r="A'+trn+'" s="3" t="inlineStr"><is><t>TOTAL</t></is></c>';
-        ct.forEach(function(v,ci){ rTot+='<c r="'+_cL(1+ci)+trn+'" s="3">'+(v>0?'<v>'+v+'</v>':'')+'</c>'; });
-        rTot+='<c r="'+_cL(tC)+trn+'" s="3">'+(gt>0?'<v>'+gt+'</v>':'')+'</c></row>';
+        var rTot='<row r="'+trn+'" ht="20" customHeight="1"><c r="A'+trn+'" s="4" t="inlineStr"><is><t>TOTAL</t></is></c>';
+        ct.forEach(function(v,ci){ rTot+='<c r="'+_cL(1+ci)+trn+'" s="4">'+(v>0?'<v>'+v+'</v>':'')+'</c>'; });
+        rTot+='<c r="'+_cL(tC)+trn+'" s="4">'+(gt>0?'<v>'+gt+'</v>':'')+'</c></row>';
         rows.push(rTot);
-        // Column widths
-        var cw='<cols><col min="1" max="1" width="11" customWidth="1"/>';
-        for(var c=0;c<tC;c++) cw+='<col min="'+(2+c)+'" max="'+(2+c)+'" width="10" customWidth="1"/>';
+        var cw='<cols><col min="1" max="1" width="13" customWidth="1"/>';
+        for(var c=0;c<nC;c++) cw+='<col min="'+(2+c)+'" max="'+(2+c)+'" width="12" customWidth="1"/>';
+        cw+='<col min="'+(2+nC)+'" max="'+(2+nC)+'" width="13" customWidth="1"/>';
         cw+='</cols>';
         var merge='<mergeCells count="1"><mergeCell ref="A1:'+_cL(tC)+'1"/></mergeCells>';
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
-'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
-cw+'<sheetData>'+rows.join('')+'</sheetData>'+merge+'</worksheet>';
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+cw+'<sheetData>'+rows.join('')+'</sheetData>'+merge+'</worksheet>';
       }
 
       function _makeIntSheet(oemName, models, lkp, dates){
         var nC=models.length, tC=1+nC, rows=[], ct=new Array(nC).fill(0);
-        var r1='<row r="1" ht="22" customHeight="1"><c r="A1" s="2" t="inlineStr"><is><t>'+_escX(oemName)+' \u2014 '+dates[0].substring(0,7)+'</t></is></c>';
+        // Row 1: Title â€” primary blue (#1A4A7A) (s=2)
+        var r1='<row r="1" ht="24" customHeight="1"><c r="A1" s="2" t="inlineStr"><is><t>'+_escX(oemName)+' \u2014 '+dates[0].substring(0,7)+'</t></is></c>';
         for(var i=1;i<=tC;i++) r1+='<c r="'+_cL(i)+'1" s="2"/>';
         rows.push(r1+'</row>');
-        var r2='<row r="2" ht="32" customHeight="1"><c r="A2" s="2" t="inlineStr"><is><t>DATE</t></is></c>';
-        models.forEach(function(m,ci){ r2+='<c r="'+_cL(1+ci)+'2" s="2" t="inlineStr"><is><t>'+_escX(m)+'</t></is></c>'; });
-        r2+='<c r="'+_cL(tC)+'2" s="2" t="inlineStr"><is><t>TOTAL</t></is></c></row>';
+        // Row 2: Column headers â€” accent blue (#0D8DE6), thin border (s=3)
+        var r2='<row r="2" ht="36" customHeight="1"><c r="A2" s="3" t="inlineStr"><is><t>DATE</t></is></c>';
+        models.forEach(function(m,ci){ r2+='<c r="'+_cL(1+ci)+'2" s="3" t="inlineStr"><is><t>'+_escX(m)+'</t></is></c>'; });
+        r2+='<c r="'+_cL(tC)+'2" s="3" t="inlineStr"><is><t>TOTAL</t></is></c></row>';
         rows.push(r2);
+        // Data rows â€” alternating white(s=5)/light-blue(s=6); total col blue-tint bold(s=7)
         dates.forEach(function(iso,di){
           var rn=3+di, dd=(lkp&&lkp[iso])||{}, rt=0;
+          var dataSty=di%2===0?'5':'6';
           var r='<row r="'+rn+'"><c r="A'+rn+'" s="1"><v>'+_toSerial(iso)+'</v></c>';
-          models.forEach(function(m,ci){ var v=dd[ci]||0; ct[ci]+=v; rt+=v; r+='<c r="'+_cL(1+ci)+rn+'" s="5">'+(v>0?'<v>'+v+'</v>':'')+'</c>'; });
-          r+='<c r="'+_cL(tC)+rn+'" s="5">'+(rt>0?'<v>'+rt+'</v>':'')+'</c></row>';
+          models.forEach(function(m,ci){ var v=dd[ci]||0; ct[ci]+=v; rt+=v; r+='<c r="'+_cL(1+ci)+rn+'" s="'+dataSty+'">'+(v>0?'<v>'+v+'</v>':'')+'</c>'; });
+          r+='<c r="'+_cL(tC)+rn+'" s="7">'+(rt>0?'<v>'+rt+'</v>':'')+'</c></row>';
           rows.push(r);
         });
+        // TOTAL row â€” green (#16A34A), border (s=4)
         var trn=3+dates.length, gt=ct.reduce(function(s,v){return s+v;},0);
-        var rTot='<row r="'+trn+'" ht="18" customHeight="1"><c r="A'+trn+'" s="3" t="inlineStr"><is><t>TOTAL</t></is></c>';
-        ct.forEach(function(v,ci){ rTot+='<c r="'+_cL(1+ci)+trn+'" s="3">'+(v>0?'<v>'+v+'</v>':'')+'</c>'; });
-        rTot+='<c r="'+_cL(tC)+trn+'" s="3">'+(gt>0?'<v>'+gt+'</v>':'')+'</c></row>';
+        var rTot='<row r="'+trn+'" ht="20" customHeight="1"><c r="A'+trn+'" s="4" t="inlineStr"><is><t>TOTAL</t></is></c>';
+        ct.forEach(function(v,ci){ rTot+='<c r="'+_cL(1+ci)+trn+'" s="4">'+(v>0?'<v>'+v+'</v>':'')+'</c>'; });
+        rTot+='<c r="'+_cL(tC)+trn+'" s="4">'+(gt>0?'<v>'+gt+'</v>':'')+'</c></row>';
         rows.push(rTot);
-        var cw='<cols><col min="1" max="1" width="11" customWidth="1"/>';
-        for(var c=0;c<tC;c++) cw+='<col min="'+(2+c)+'" max="'+(2+c)+'" width="16" customWidth="1"/>';
+        var cw='<cols><col min="1" max="1" width="13" customWidth="1"/>';
+        for(var c=0;c<nC;c++) cw+='<col min="'+(2+c)+'" max="'+(2+c)+'" width="18" customWidth="1"/>';
+        cw+='<col min="'+(2+nC)+'" max="'+(2+nC)+'" width="14" customWidth="1"/>';
         cw+='</cols>';
         var merge='<mergeCells count="1"><mergeCell ref="A1:'+_cL(tC)+'1"/></mergeCells>';
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
-'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
-cw+'<sheetData>'+rows.join('')+'</sheetData>'+merge+'</worksheet>';
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+cw+'<sheetData>'+rows.join('')+'</sheetData>'+merge+'</worksheet>';
       }
 
       function _makeDashboard(summaries, mlabel){
@@ -13110,8 +13133,7 @@ cw+'<sheetData>'+rows.join('')+'</sheetData>'+merge+'</worksheet>';
         _dashSum.push({name:oem,total:tot,value:val}); _si++;
       });
 
-      _sFiles['xl/worksheets/sheet'+_si+'.xml']=_makeDashboard(_dashSum,APRIL_DATES[0].substring(0,7));
-      _sheets.push({name:'DASHBOARD',idx:_si}); _si++;
+      // Dashboard sheet intentionally omitted from export
 
       // ── Boilerplate XML ───────────────────────────────────────────
       var _wbSheets=_sheets.map(function(s){ return '<sheet name="'+_escX(s.name)+'" sheetId="'+s.idx+'" r:id="rId'+s.idx+'"/>'; }).join('');

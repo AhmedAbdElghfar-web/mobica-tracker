@@ -102,27 +102,124 @@ body.loc-integrated #loc-banner{border-bottom-color:#bbf7d0;}
 }
 .brand-sub{font-size:11px;letter-spacing:4px;color:rgba(255,255,255,0.6);font-family:var(--font);}
 .brand{font-size:22px;font-weight:800;letter-spacing:1px;color:#ffffff;font-family:var(--font);}
-#header-right{display:flex;align-items:center;gap:8px;}
+#header-right{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;}
+
+/* ── ENTRY COUNT CHIP ── */
 #entry-count{
-  background:var(--bg3);border:1px solid var(--border);border-radius:8px;
-  padding:6px 12px;font-size:13px;font-weight:600;color:var(--sub);font-family:var(--font);
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;
+  padding:5px 10px 5px 8px;
+  font-family:var(--font);
+  backdrop-filter:blur(8px);
 }
-#entry-count span{color:var(--dim);}
-#entry-count .adv-count{color:#0d8de6;}
-#entry-count .int-count{color:#34d399;}
-#entry-count .divider{color:var(--border);margin:0 4px;}
+#entry-count .ec-icon{font-size:13px;opacity:0.7;}
+#entry-count .ec-block{display:flex;flex-direction:column;align-items:center;line-height:1.1;}
+#entry-count .ec-num{font-size:14px;font-weight:800;letter-spacing:-0.5px;}
+#entry-count .ec-label{font-size:7px;font-weight:700;letter-spacing:1.5px;opacity:0.6;}
+#entry-count .adv-count{color:#4fc3f7;}
+#entry-count .int-count{color:#4ade80;}
+#entry-count .divider{width:1px;height:24px;background:rgba(255,255,255,0.15);margin:0 4px;}
+#entry-count span.legacy{display:none;} /* hide old spans */
+
+/* ── REALTIME DOT ── */
+#rt-dot-wrap{
+  display:flex;align-items:center;gap:4px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  padding:5px 8px;
+  font-size:8px;font-weight:700;letter-spacing:1px;
+  color:rgba(255,255,255,0.4);font-family:var(--font);
+  white-space:nowrap;
+}
+
+/* ── TOOLBAR SEPARATOR ── */
+.hbar-sep{
+  width:1px;height:28px;
+  background:rgba(255,255,255,0.1);
+  margin:0 2px;
+  flex-shrink:0;
+}
+
+/* ── HEADER BUTTONS (hbtn) ── */
 .hbtn{
-  font-family:var(--font);font-weight:700;font-size:12px;letter-spacing:1px;
-  padding:8px 12px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;
+  font-family:var(--font);font-weight:700;font-size:11px;letter-spacing:0.8px;
+  padding:7px 11px;border-radius:9px;border:none;cursor:pointer;
+  transition:background .15s ease, box-shadow .15s ease, transform .1s ease;
+  display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
 }
-#btn-csv{background:var(--bg3);border:2px solid var(--border);color:var(--accent);}
-#btn-eod{background:#dcfce7;border:2px solid var(--green);color:var(--green);}
-#btn-eod:active{background:#166534;}
-#btn-more{background:var(--bg3);border:1px solid var(--border);color:var(--sub);font-size:18px;letter-spacing:2px;padding:6px 12px;}
-#btn-more:hover{background:var(--border);}
-.more-item{padding:13px 18px;font-size:14px;font-family:var(--font);font-weight:600;color:var(--text);cursor:pointer;transition:background .12s;white-space:nowrap;}
-.more-item:hover{background:var(--border);}
-.more-sep{height:1px;background:var(--border);margin:2px 0;}
+.hbtn:hover{transform:translateY(-1px);}
+.hbtn:active{transform:translateY(0px);}
+
+/* Year View */
+#btn-yearview{
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.12);
+  color:rgba(255,255,255,0.75);
+  font-size:15px;
+  padding:6px 9px;
+  border-radius:9px;
+}
+#btn-yearview:hover{background:rgba(255,255,255,0.13);color:#fff;}
+
+/* CSV */
+#btn-csv{
+  background:rgba(100,116,139,0.18);
+  border:1px solid rgba(100,116,139,0.35);
+  color:#94a3b8;
+}
+#btn-csv:hover{background:rgba(100,116,139,0.3);color:#cbd5e1;box-shadow:0 0 12px rgba(100,116,139,0.2);}
+
+/* Month selector */
+#export-month-sel{
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.13);
+  color:#e2e8f0;
+  padding:7px 10px;
+  border-radius:9px;
+  font-family:var(--font);
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  outline:none;
+  -webkit-appearance:none;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 8px center;
+  padding-right:26px;
+  transition:border-color .15s;
+}
+#export-month-sel:hover{border-color:rgba(13,141,230,0.5);}
+#export-month-sel:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(13,141,230,0.2);}
+#export-month-sel option{background:#1e293b;color:#e2e8f0;}
+
+/* Excel */
+#btn-eod{
+  background:linear-gradient(135deg,#16a34a 0%,#15803d 100%);
+  border:1px solid rgba(22,163,74,0.5);
+  color:#ffffff;
+  box-shadow:0 2px 8px rgba(22,163,74,0.25);
+  letter-spacing:0.5px;
+}
+#btn-eod:hover{background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);box-shadow:0 4px 16px rgba(34,197,94,0.35);}
+#btn-eod:active{transform:none;}
+
+/* More (⋯) */
+#btn-more{
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.12);
+  color:rgba(255,255,255,0.7);
+  font-size:18px;
+  letter-spacing:2px;
+  padding:5px 10px;
+}
+#btn-more:hover{background:rgba(255,255,255,0.13);color:#fff;}
+.more-item{padding:12px 18px;font-size:13px;font-family:var(--font);font-weight:600;color:var(--text);cursor:pointer;transition:background .12s;white-space:nowrap;display:flex;align-items:center;gap:8px;}
+.more-item:hover{background:rgba(255,255,255,0.06);}
+.more-sep{height:1px;background:rgba(255,255,255,0.07);margin:2px 0;}
 
 /* ── TABS ── */
 #tabs{
@@ -480,20 +577,61 @@ body.loc-integrated .brand{color:#ffffff;}
     <div style="font-size:9px;letter-spacing:2px;color:var(--dim);font-family:var(--font);margin-top:2px;">APR 2026 · v1.0</div>
   </div>
   <div id="header-right">
-    <div id="entry-count"><span class="adv-count">1293</span><span> ADV</span><span class="divider">·</span><span class="int-count">74</span><span> INT</span></div>
+    <!-- Stats chip -->
+    <div id="entry-count">
+      <span class="ec-icon">📦</span>
+      <div class="ec-block">
+        <span class="ec-num adv-count">—</span>
+        <span class="ec-label">ADV</span>
+      </div>
+      <div class="divider"></div>
+      <div class="ec-block">
+        <span class="ec-num int-count">—</span>
+        <span class="ec-label">INT</span>
+      </div>
+    </div>
 
-    <span id="rt-dot" title="Realtime: connecting..."></span>
+    <!-- Realtime dot -->
+    <div id="rt-dot-wrap">
+      <span id="rt-dot" title="Realtime: connecting..."></span>
+      LIVE
+    </div>
+
+    <div class="hbar-sep"></div>
+
+    <!-- Year view -->
     <button class="hbtn" id="btn-yearview" onclick="openYearView()" title="Year View">📅</button>
+
+    <!-- CSV -->
     <button class="hbtn" id="btn-csv" onclick="downloadCSV()">CSV ↓</button>
-    <select id="export-month-sel" title="Select month to export" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;"><option value="2026-01">Jan 26</option><option value="2026-02">Feb 26</option><option value="2026-03">Mar 26</option><option value="2026-04">Apr 26</option><option value="2026-05" selected>May 26</option><option value="2026-06">Jun 26</option><option value="2026-07">Jul 26</option><option value="2026-08">Aug 26</option><option value="2026-09">Sep 26</option><option value="2026-10">Oct 26</option><option value="2026-11">Nov 26</option><option value="2026-12">Dec 26</option></select>
-    <button class="hbtn" id="btn-eod" onclick="exportExcel()">EXCEL ↓</button>
+
+    <!-- Month selector -->
+    <select id="export-month-sel" title="Select month to export">
+      <option value="2026-01">Jan 26</option>
+      <option value="2026-02">Feb 26</option>
+      <option value="2026-03">Mar 26</option>
+      <option value="2026-04">Apr 26</option>
+      <option value="2026-05" selected>May 26</option>
+      <option value="2026-06">Jun 26</option>
+      <option value="2026-07">Jul 26</option>
+      <option value="2026-08">Aug 26</option>
+      <option value="2026-09">Sep 26</option>
+      <option value="2026-10">Oct 26</option>
+      <option value="2026-11">Nov 26</option>
+      <option value="2026-12">Dec 26</option>
+    </select>
+
+    <!-- Excel -->
+    <button class="hbtn" id="btn-eod" onclick="exportExcel()">⬇ EXCEL</button>
+
+    <!-- More menu -->
     <div id="more-wrap" style="position:relative;">
       <button class="hbtn" id="btn-more" onclick="toggleMoreMenu()" title="More options">&#8943;</button>
-      <div id="more-menu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--bg2);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.35);min-width:190px;z-index:999;overflow:hidden;">
-        <div class="more-item" onclick="sbSync();closeMoreMenu()">☁️&#160;&#160;Manual Sync</div>
-        <div class="more-item" onclick="backupRestore();closeMoreMenu()">💾&#160;&#160;Backup / Restore</div>
+      <div id="more-menu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:rgba(15,23,42,0.97);border:1px solid rgba(255,255,255,0.1);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.04);min-width:200px;z-index:999;overflow:hidden;backdrop-filter:blur(20px);">
+        <div class="more-item" onclick="sbSync();closeMoreMenu()">☁️ Manual Sync</div>
+        <div class="more-item" onclick="backupRestore();closeMoreMenu()">💾 Backup / Restore</div>
         <div class="more-sep"></div>
-        <div class="more-item" id="more-theme" onclick="toggleTheme();updateMoreThemeLabel();closeMoreMenu()">🌙&#160;&#160;Dark Mode</div>
+        <div class="more-item" id="more-theme" onclick="toggleTheme();updateMoreThemeLabel();closeMoreMenu()">🌙 Dark Mode</div>
       </div>
     </div>
   </div>
@@ -12685,15 +12823,11 @@ function updateEntryCount() {
     return (e.location==='integrated')||(e.location===undefined&&intOems.indexOf(e.oem)>=0);
   }).length;
   var advCount=entries.length-intCount;
-  var el=document.getElementById("entry-count");
-  if(!entries.length){
-    el.innerHTML='0 <span>entries</span>';
-  } else {
-    el.innerHTML=
-      '<span class="adv-count">'+advCount+'</span><span> ADV</span>'+
-      '<span class="divider">·</span>'+
-      '<span class="int-count">'+intCount+'</span><span> INT</span>';
-  }
+  // Update the new chip structure (ec-num spans)
+  var advEl=document.querySelector("#entry-count .adv-count");
+  var intEl=document.querySelector("#entry-count .int-count");
+  if(advEl) advEl.textContent=advCount;
+  if(intEl) intEl.textContent=intCount;
 }
 
 // ── TOAST ─────────────────────────────────────────────

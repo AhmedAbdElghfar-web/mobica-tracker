@@ -124,17 +124,91 @@ body.loc-integrated #loc-banner{border-bottom-color:#bbf7d0;}
 .more-item:hover{background:var(--border);}
 .more-sep{height:1px;background:var(--border);margin:2px 0;}
 
-/* TABS */
-#tabs{display:flex;background:rgba(20,20,32,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:10px 10px 14px 10px;gap:8px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,0.06);}
-.tab-btn{
-  flex:1;padding:12px 10px;font-size:11px;font-weight:800;letter-spacing:1px;
-  border:none;background:var(--bg3);color:var(--dim);transition:all .2s;font-family:var(--font);
-  border-radius:10px;box-shadow:0 4px 0 var(--border);transform:translateY(0);cursor:pointer;
-  white-space:nowrap;
+/* ── TABS ── */
+#tabs{
+  display:flex;
+  background:linear-gradient(180deg,rgba(15,28,55,0.92) 0%,rgba(10,20,40,0.85) 100%);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  padding:0 8px;
+  gap:2px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  border-bottom:1px solid rgba(13,141,230,0.18);
+  scrollbar-width:none;
+  position:relative;
 }
-.tab-btn:hover{background:var(--border);color:var(--sub);}
-.tab-btn:active{box-shadow:0 0 0 var(--border);transform:translateY(4px);}
-.tab-btn.active{background:var(--primary,#1a4a7a);color:#ffffff;box-shadow:0 4px 0 rgba(0,0,0,0.2),0 0 12px var(--glow);}
+#tabs::-webkit-scrollbar{display:none;}
+/* subtle top highlight line */
+#tabs::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.07),transparent);
+}
+.tab-btn{
+  flex:1;
+  min-width:56px;
+  padding:14px 6px 12px;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  border:none;
+  background:transparent;
+  color:rgba(148,163,184,0.75);
+  transition:color .22s ease, background .22s ease;
+  font-family:var(--font);
+  border-radius:0;
+  cursor:pointer;
+  white-space:nowrap;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  position:relative;
+  /* bottom accent line */
+  border-bottom:2px solid transparent;
+  transform:none;
+  box-shadow:none;
+}
+.tab-btn .tab-icon{
+  font-size:17px;
+  line-height:1;
+  transition:transform .22s ease, filter .22s ease;
+  filter:grayscale(0.5) opacity(0.7);
+}
+.tab-btn:hover{
+  color:rgba(203,213,225,0.95);
+  background:rgba(255,255,255,0.04);
+}
+.tab-btn:hover .tab-icon{
+  filter:grayscale(0) opacity(1);
+  transform:translateY(-1px);
+}
+.tab-btn:active{
+  background:rgba(255,255,255,0.06);
+  transform:none;
+  box-shadow:none;
+}
+.tab-btn.active{
+  color:#ffffff;
+  background:rgba(13,141,230,0.1);
+  border-bottom:2px solid var(--accent,#0d8de6);
+  box-shadow:none;
+}
+.tab-btn.active .tab-icon{
+  filter:grayscale(0) opacity(1);
+  transform:translateY(-1px);
+}
+/* Glowing dot on active tab */
+.tab-btn.active::after{
+  content:'';
+  position:absolute;
+  bottom:-1px;left:50%;transform:translateX(-50%);
+  width:60%;height:2px;
+  background:radial-gradient(ellipse at center,rgba(13,141,230,0.9) 0%,transparent 70%);
+  border-radius:2px;
+  filter:blur(2px);
+}
 /* CONTENT */
 #content{max-width:480px;margin:0 auto;padding:20px 16px 60px;}
 
@@ -441,11 +515,26 @@ body.loc-integrated .brand{color:#ffffff;}
 
 <!-- TABS -->
 <div id="tabs">
-  <button class="tab-btn active" onclick="switchTab(&#39;form&#39;,this)">ENTRY</button>
-  <button class="tab-btn" onclick="switchTab(&#39;analysis&#39;,this)">ANALYSIS</button>
-  <button class="tab-btn" onclick="switchTab(&#39;dashboard&#39;,this)">DASHBOARD</button>
-  <button class="tab-btn" onclick="switchTab(&#39;log&#39;,this)">LOG</button>
-  <button class="tab-btn" onclick="switchTab(&#39;plan&#39;,this)">PLAN</button>
+  <button class="tab-btn active" onclick="switchTab(&#39;form&#39;,this)">
+    <span class="tab-icon">✏️</span>
+    ENTRY
+  </button>
+  <button class="tab-btn" onclick="switchTab(&#39;analysis&#39;,this)">
+    <span class="tab-icon">📊</span>
+    ANALYSIS
+  </button>
+  <button class="tab-btn" onclick="switchTab(&#39;dashboard&#39;,this)">
+    <span class="tab-icon">🖥️</span>
+    DASHBOARD
+  </button>
+  <button class="tab-btn" onclick="switchTab(&#39;log&#39;,this)">
+    <span class="tab-icon">📋</span>
+    LOG
+  </button>
+  <button class="tab-btn" onclick="switchTab(&#39;plan&#39;,this)">
+    <span class="tab-icon">🎯</span>
+    PLAN
+  </button>
 </div>
 
 <!-- CONTENT -->

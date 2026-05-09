@@ -399,7 +399,7 @@ body.loc-integrated .brand{color:#ffffff;}
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style id="rd-override">
-/* ── MOBICA REDESIGN v2 — embedded ── */
+/* MOBICA Redesign v3 — embedded */
 /* ============================================================
    MOBICA · Warehouse OS Redesign — drop-in override
    Paste this AFTER your existing <style> block, or load via
@@ -964,8 +964,11 @@ body.loc-integrated #dash-grand-container { border-left-color: var(--r-int) !imp
 }
 
 
-/* ══ NUCLEAR TAB OVERRIDE — defeats border-radius + box-shadow ══ */
-div#tabs {
+/* ══════════════════════════════════════════════════
+   TABS — nuclear override (defeats border-radius+shadow)
+══════════════════════════════════════════════════ */
+div#tabs,
+#tabs {
   display: flex !important;
   background: #16181D !important;
   backdrop-filter: none !important;
@@ -976,14 +979,17 @@ div#tabs {
   overflow-x: auto !important;
 }
 div#tabs button.tab-btn,
-#tabs .tab-btn,
-.tab-btn {
+#tabs button.tab-btn,
+button.tab-btn {
   flex: 1 !important;
   padding: 14px 6px !important;
   font-size: 10px !important;
   font-weight: 600 !important;
   letter-spacing: 2px !important;
   border: none !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
   border-bottom: 2px solid transparent !important;
   border-radius: 0 !important;
   background: transparent !important;
@@ -995,15 +1001,16 @@ div#tabs button.tab-btn,
   white-space: nowrap !important;
 }
 div#tabs button.tab-btn:hover,
-#tabs .tab-btn:hover {
+#tabs button.tab-btn:hover,
+button.tab-btn:hover {
   background: #1D2026 !important;
   color: #B8BBC2 !important;
   box-shadow: none !important;
   transform: none !important;
 }
 div#tabs button.tab-btn.active,
-#tabs .tab-btn.active,
-.tab-btn.active {
+#tabs button.tab-btn.active,
+button.tab-btn.active {
   background: #0E0F12 !important;
   color: #EDEEF0 !important;
   border-bottom: 2px solid #FF7A1A !important;
@@ -1011,11 +1018,14 @@ div#tabs button.tab-btn.active,
   transform: none !important;
 }
 body.loc-integrated div#tabs button.tab-btn.active,
-body.loc-integrated .tab-btn.active {
+body.loc-integrated #tabs button.tab-btn.active,
+body.loc-integrated button.tab-btn.active {
   border-bottom-color: #9FE800 !important;
 }
 
-/* ══ DASHBOARD HERO BOX ══ */
+/* ══════════════════════════════════════════════════
+   DASHBOARD HERO BOX
+══════════════════════════════════════════════════ */
 #dash-grand-container {
   background: #16181D !important;
   border: 1px solid #272A31 !important;
@@ -1023,12 +1033,17 @@ body.loc-integrated .tab-btn.active {
   border-radius: 4px !important;
   box-shadow: none !important;
   text-align: left !important;
+  padding: 14px 16px !important;
 }
-#dash-grand-container span:first-child {
+body.loc-integrated #dash-grand-container {
+  border-left-color: #9FE800 !important;
+}
+#dash-grand-container > span:first-child {
   color: #7C8089 !important;
   font-family: 'JetBrains Mono', monospace !important;
   font-size: 10px !important;
   letter-spacing: 1.4px !important;
+  font-weight: 500 !important;
 }
 #dash-grand-val {
   color: #EDEEF0 !important;
@@ -1037,66 +1052,60 @@ body.loc-integrated .tab-btn.active {
   font-weight: 700 !important;
 }
 
-/* ══ DASHBOARD TABLE — overrides inline color styles ══ */
-#dash-table {
+/* ══════════════════════════════════════════════════
+   DASHBOARD TABLE  — overrides inline #4FC3F7 styles
+   (!important beats inline style="")
+══════════════════════════════════════════════════ */
+table#dash-table {
   font-family: 'JetBrains Mono', monospace !important;
   font-size: 12px !important;
-  border: 1px solid #272A31 !important;
   border-collapse: collapse !important;
 }
-#dash-table thead tr {
+table#dash-table thead tr,
+table#dash-table thead tr th {
   background: #1D2026 !important;
   color: #7C8089 !important;
-}
-#dash-table thead tr th {
-  background: #1D2026 !important;
-  color: #7C8089 !important;
-  border: 1px solid #272A31 !important;
-  letter-spacing: 1.4px !important;
+  border-color: #272A31 !important;
   font-size: 10px !important;
-  padding: 10px !important;
+  letter-spacing: 1.4px !important;
 }
-#dash-table tbody tr {
-  background: #16181D !important;
-}
-#dash-table tbody tr td {
+table#dash-table tbody tr,
+table#dash-table tbody tr td {
   background: #16181D !important;
   color: #EDEEF0 !important;
-  border: 1px solid #272A31 !important;
-  padding: 10px !important;
+  border-color: #272A31 !important;
 }
-#dash-table tfoot tr {
-  background: #1D2026 !important;
-}
-#dash-table tfoot tr td {
+table#dash-table tfoot tr,
+table#dash-table tfoot tr td {
   background: #1D2026 !important;
   color: #EDEEF0 !important;
-  border: 1px solid #272A31 !important;
+  border-color: #272A31 !important;
   font-weight: 700 !important;
 }
 
-/* ══ DASHBOARD BAR CHART ══ */
+/* ══════════════════════════════════════════════════
+   BAR CHART labels — dim the OEM name below bar
+   (keep bar colors as-is — colorful is better)
+══════════════════════════════════════════════════ */
 #dash-bar-chart {
   border-bottom: 1px solid #272A31 !important;
-  background: transparent !important;
 }
 #dash-bar-chart > div > span:last-child {
   color: #7C8089 !important;
   font-family: 'JetBrains Mono', monospace !important;
   font-size: 9px !important;
-  letter-spacing: 1px !important;
+  letter-spacing: 0.5px !important;
+  font-weight: 600 !important;
 }
 #dash-bar-chart > div > span:first-child {
   color: #B8BBC2 !important;
   font-family: 'JetBrains Mono', monospace !important;
   font-size: 10px !important;
 }
-#dash-bar-chart > div > div {
-  border-radius: 2px 2px 0 0 !important;
-}
 
-/* ══ MONTH SELECT (dashboard) ══ */
-#dashboard-month-sel, #export-month-sel {
+/* Month selects */
+select#dashboard-month-sel,
+select#export-month-sel {
   background: #16181D !important;
   border: 1px solid #272A31 !important;
   border-radius: 3px !important;
@@ -14468,265 +14477,57 @@ function renderPlan() {
       }
     </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration>
 <script id="rd-js">
-/* ── MOBICA REDESIGN JS — embedded ── */
-/* ============================================================
-   MOBICA · Warehouse OS Redesign — stronger overlay (v2)
-   Replace your old redesign.js with this file.
-   ============================================================ */
-(function () {
-  if (window.__mobicaRedesignV2) return;
-  window.__mobicaRedesignV2 = true;
+/* MOBICA Redesign JS v3 — minimal + surgical */
 
-  /* ---------- 1. THEME TOGGLE (sun / moon in header) ---------- */
+(function() {
+  'use strict';
+
+  /* 1. Apply saved theme */
   var KEY = 'mobica-theme';
-  var saved = localStorage.getItem(KEY);
-  if (saved === 'light')      document.body.classList.add('light-mode');
-  else if (saved === 'dark')  document.body.classList.remove('light-mode');
+  if (localStorage.getItem(KEY) === 'light') document.body.classList.add('light-mode');
 
+  /* 2. Abbreviate tab labels once */
+  var TAB_LABELS = {
+    'ENTRY':'ENTRY', 'ANALYSIS':'ANLYS',
+    'DASHBOARD':'DASH', 'LOG':'LOG', 'PLAN':'PLAN'
+  };
+  function fixTabs() {
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      var t = btn.textContent.trim();
+      if (TAB_LABELS[t]) btn.textContent = TAB_LABELS[t];
+    });
+  }
+
+  /* 3. Theme toggle button */
   function injectThemeBtn() {
     var hdr = document.getElementById('header-right');
-    if (!hdr || document.getElementById('rd-theme-toggle')) return;
+    if (!hdr || document.getElementById('rd-theme-btn')) return;
     var b = document.createElement('button');
-    b.id = 'rd-theme-toggle';
+    b.id = 'rd-theme-btn';
     b.className = 'hbtn';
-    b.title = 'Toggle theme';
-    b.style.cssText = 'min-width:32px;text-align:center;font-size:14px;';
-    function r(){ b.textContent = document.body.classList.contains('light-mode') ? '\u263E' : '\u263C'; }
-    r();
-    b.addEventListener('click', function(){
+    b.style.cssText = 'min-width:32px;font-size:14px;';
+    function refresh() { b.textContent = document.body.classList.contains('light-mode') ? '\u263E' : '\u263C'; }
+    refresh();
+    b.addEventListener('click', function() {
       document.body.classList.toggle('light-mode');
       localStorage.setItem(KEY, document.body.classList.contains('light-mode') ? 'light' : 'dark');
-      r();
+      refresh();
     });
     hdr.insertBefore(b, hdr.firstChild);
   }
 
-  /* ---------- 2. STRIP INLINE OEM COLORS + RECOLOR BARS ---------- */
-  // Re-themes anything that uses inline color/background styles set by render JS.
-  function stripOEMColors(root) {
-    if (!root) return;
-
-    // OEM card name + total → plain text color
-    root.querySelectorAll('.oem-card').forEach(function (card) {
-      card.style.borderColor = '';
-      card.style.borderLeft = '';
-      var hdr = card.querySelector('.oem-card-header');
-      if (hdr) { hdr.style.background = ''; hdr.style.borderBottom = ''; }
-      card.querySelectorAll('.oem-card-name, .oem-card-total').forEach(function (n) {
-        n.style.color = '';
-      });
-    });
-
-    // Plan blocks have similar inline coloring
-    root.querySelectorAll('.plan-oem-block, .plan-oem-header').forEach(function (n) {
-      n.style.background = '';
-      n.style.borderColor = '';
-      n.style.color = '';
-    });
-
-    // Dashboard chart bars — #dash-bar-chart > div > div (the actual bar)
-    var loc = document.body.classList.contains('loc-integrated');
-    var accent = loc ? '#9FE800' : '#FF7A1A';
-    var chart = document.getElementById('dash-bar-chart');
-    if (chart) {
-      chart.querySelectorAll('div > div').forEach(function (bar) {
-        var s = bar.getAttribute('style') || '';
-        if (/height\s*:\s*[\d.]+%/i.test(s)) {
-          bar.style.background = accent;
-          bar.style.backgroundColor = accent;
-          bar.style.borderRadius = '2px 2px 0 0';
-        }
-      });
-      // Bar labels (OEM name + value) inside chart → plain text
-      chart.querySelectorAll('span').forEach(function (s) {
-        s.style.color = '';
-        s.style.removeProperty('color');
-        s.style.setProperty('color', 'var(--r-text)', 'important');
-      });
-    }
-
-    // Dashboard table — overwrite all per-cell inline colors
-    var dt = document.getElementById('dash-table');
-    if (dt) {
-      dt.querySelectorAll('tr').forEach(function (tr) {
-        tr.style.border = '';
-        tr.style.background = '';
-      });
-      dt.querySelectorAll('td').forEach(function (td) {
-        td.style.removeProperty('color');
-        td.style.removeProperty('border');
-        td.style.removeProperty('background');
-        td.style.setProperty('color', 'var(--r-text)', 'important');
-      });
-    }
-
-    // Dashboard table — OEM-name cells in first column → plain text
-    root.querySelectorAll('#dash-table td:first-child, #dash-table th:first-child').forEach(function (td) {
-      td.style.color = '';
-      td.querySelectorAll('*').forEach(function (n){ n.style.color = ''; });
-    });
-    // Numeric cells → plain mono white
-    root.querySelectorAll('#dash-table td').forEach(function (td) {
-      // Drop inline rainbow colors on numeric content
-      var t = td.textContent.trim();
-      if (/^[\d,.\sM%K]+$/.test(t)) {
-        td.style.color = '';
-        td.querySelectorAll('*').forEach(function (n){ n.style.color = ''; });
-      }
-    });
-
-    // Bar labels above chart (e.g. "5.4M", "EXCEED") — strip inline colors
-    root.querySelectorAll('.bar-label, .bar-name, .chart-label, [class*="chart"] span').forEach(function (n) {
-      n.style.color = '';
-    });
-  }
-
-  /* ---------- 3. COMPRESS HEADER BRANDING ---------- */
-  function compressHeader() {
-    var brand = document.querySelector('.brand');
-    if (brand && !brand.dataset.rdDone) {
-      // "DELIVERY TRACKER" → "DELIVERY OS"
-      // Original markup: <div class="brand">DELIVERY TRACKER</div>
-      brand.textContent = 'MOBICA \u00B7 DELIVERY OS';
-      brand.dataset.rdDone = '1';
-    }
-    // Hide the small "MOBICA" eyebrow + version line, since brand now contains MOBICA
-    var sub = document.querySelector('.brand-sub');
-    if (sub) sub.style.display = 'none';
-    var top = document.querySelector('.brand-top, .brand-eyebrow');
-    if (top) top.style.display = 'none';
-    // Generic: any sibling small text inside the brand block reading "MOBICA"
-    document.querySelectorAll('#header div, #header span').forEach(function (el) {
-      if (el === brand) return;
-      var t = (el.textContent || '').trim();
-      if (t === 'MOBICA' || /APR\s*20\d\d\s*\u00B7\s*v/i.test(t)) {
-        el.style.display = 'none';
-      }
-    });
-  }
-
-  /* ---------- 4. FORCE KEYPAD VISIBLE ON ENTRY ---------- */
-  function openKeypad() {
-    var kp = document.getElementById('keypad');
-    if (kp) {
-      kp.classList.add('open');
-      kp.style.maxHeight = 'none';
-      kp.style.opacity = '1';
-      kp.style.marginBottom = '20px';
-      kp.style.overflow = 'visible';
-    }
-    var qd = document.getElementById('qty-display');
-    if (qd) {
-      qd.classList.add('active');
-      // Drop the "▼" hint arrow since keypad is always open
-      var arrow = qd.querySelector('span');
-      if (arrow) arrow.style.display = 'none';
-    }
-  }
-
-  /* ---------- 5. RUN HOOKS ---------- */
-  function runAll() {
-    compressHeader();
-    openKeypad();
-    stripOEMColors(document.body);
-  }
-
-  // Initial pass
+  /* 4. Run */
+  function init() { fixTabs(); injectThemeBtn(); }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      injectThemeBtn();
-      runAll();
-    });
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    injectThemeBtn();
-    runAll();
+    init();
   }
 
-  // Re-run after every DOM change in #content (renderAnalysis/Dashboard/Plan rebuild it)
-  var content = document.getElementById('content') || document.body;
-  var pending = false;
-  var mo = new MutationObserver(function () {
-    if (pending) return;
-    pending = true;
-    requestAnimationFrame(function () {
-      pending = false;
-      runAll();
-    });
-  });
-  mo.observe(content, { childList: true, subtree: true, attributes: true,
-                        attributeFilter: ['style', 'class'] });
-
-  // Re-run on tab clicks (catches cases where renderers fire after click)
-  document.addEventListener('click', function (e) {
-    if (e.target.closest('.tab-btn, .loc-banner-btn')) {
-      setTimeout(runAll, 50);
-      setTimeout(runAll, 250);
-    }
-  }, true);
-})();
-
-</script>
-<script id="rd-extra-js">
-/* ── MOBICA REDESIGN EXTRA JS — tab labels + table strip ── */
-
-(function() {
-  // Abbreviate tab labels to match design preview
-  var tabMap = {
-    'ENTRY':     'ENTRY',
-    'ANALYSIS':  'ANLYS',
-    'DASHBOARD': 'DASH',
-    'LOG':       'LOG',
-    'PLAN':      'PLAN'
-  };
-  function fixTabLabels() {
-    document.querySelectorAll('.tab-btn').forEach(function(btn) {
-      var t = btn.textContent.trim();
-      if (tabMap[t] && btn.textContent !== tabMap[t]) {
-        btn.textContent = tabMap[t];
-      }
-    });
-  }
-
-  // Strip inline styles from dashboard table rows/cells
-  function fixDashTable() {
-    var dt = document.getElementById('dash-table');
-    if (!dt) return;
-    dt.querySelectorAll('tr, th, td').forEach(function(el) {
-      el.removeAttribute('style');
-    });
-  }
-
-  // Strip inline styles from dash-grand-container children
-  function fixDashHero() {
-    var c = document.getElementById('dash-grand-container');
-    if (!c) return;
-    c.removeAttribute('style');
-    c.querySelectorAll('*').forEach(function(el) { el.removeAttribute('style'); });
-    // Keep display visible
-    c.style.display = 'block';
-  }
-
-  function runAll() {
-    fixTabLabels();
-    fixDashTable();
-    fixDashHero();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', runAll);
-  } else {
-    runAll();
-  }
-
-  // Re-run after any DOM mutation (renderDashboard rebuilds the table)
-  var mo = new MutationObserver(function() { setTimeout(runAll, 10); });
-  mo.observe(document.body, { childList: true, subtree: true });
-
-  // Also run on tab clicks
+  /* Re-run tab fix after tab switches (labels may be reset by JS) */
   document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('tab-btn')) {
-      setTimeout(runAll, 50);
-      setTimeout(runAll, 300);
+    if (e.target.classList && e.target.classList.contains('tab-btn')) {
+      setTimeout(fixTabs, 20);
     }
   }, true);
 })();

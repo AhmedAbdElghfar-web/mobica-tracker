@@ -12987,7 +12987,16 @@ function migrateRT50(list) {
   });
   return changed;
 }
-
+function migrateGhabour(list) {
+  let changed = false;
+  if (!list) return changed;
+  list.forEach(e => {
+    if (e.oem !== 'Ghabour') return;
+    if (e.model === 'T7BL') { e.model = 'T7BL (قماش)'; changed = true; }
+    if (e.model === 'T7HL') { e.model = 'T7HL (جلد)';  changed = true; }
+  });
+  return changed;
+}
 function loadData(){ 
   try { 
     entries = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; 
@@ -14389,6 +14398,8 @@ function renderPlan() {
     var planRows = Array.isArray(results[0]) ? results[0] : [];
     migrateRT50(planRows);
     migrateRT50(actualRows);
+    migrateGhabour(planRows);    // ← ADD
+    migrateGhabour(actualRows);  // ← ADD (harmless on actuals, consistent)
 
     var units = buildPlanTrackingUnits(planRows, actualRows);
 

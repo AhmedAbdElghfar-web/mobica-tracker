@@ -53,19 +53,41 @@
       n.style.color = '';
     });
 
-    // Dashboard chart bars — find bars and force amber/lime
+    // Dashboard chart bars — #dash-bar-chart > div > div (the actual bar)
     var loc = document.body.classList.contains('loc-integrated');
     var accent = loc ? '#9FE800' : '#FF7A1A';
-    root.querySelectorAll('[id*="bar"], [class*="bar"]').forEach(function (bar) {
-      var s = bar.getAttribute('style') || '';
-      // Only touch elements that look like rendered chart bars (have a height + background)
-      if (/background/i.test(s) && /(height|width)/i.test(s)) {
-        bar.style.background = accent;
-        bar.style.backgroundColor = accent;
-        bar.style.boxShadow = 'none';
-        bar.style.borderRadius = '2px';
-      }
-    });
+    var chart = document.getElementById('dash-bar-chart');
+    if (chart) {
+      chart.querySelectorAll('div > div').forEach(function (bar) {
+        var s = bar.getAttribute('style') || '';
+        if (/height\s*:\s*[\d.]+%/i.test(s)) {
+          bar.style.background = accent;
+          bar.style.backgroundColor = accent;
+          bar.style.borderRadius = '2px 2px 0 0';
+        }
+      });
+      // Bar labels (OEM name + value) inside chart → plain text
+      chart.querySelectorAll('span').forEach(function (s) {
+        s.style.color = '';
+        s.style.removeProperty('color');
+        s.style.setProperty('color', 'var(--r-text)', 'important');
+      });
+    }
+
+    // Dashboard table — overwrite all per-cell inline colors
+    var dt = document.getElementById('dash-table');
+    if (dt) {
+      dt.querySelectorAll('tr').forEach(function (tr) {
+        tr.style.border = '';
+        tr.style.background = '';
+      });
+      dt.querySelectorAll('td').forEach(function (td) {
+        td.style.removeProperty('color');
+        td.style.removeProperty('border');
+        td.style.removeProperty('background');
+        td.style.setProperty('color', 'var(--r-text)', 'important');
+      });
+    }
 
     // Dashboard table — OEM-name cells in first column → plain text
     root.querySelectorAll('#dash-table td:first-child, #dash-table th:first-child').forEach(function (td) {

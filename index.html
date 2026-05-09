@@ -102,210 +102,39 @@ body.loc-integrated #loc-banner{border-bottom-color:#bbf7d0;}
 }
 .brand-sub{font-size:11px;letter-spacing:4px;color:rgba(255,255,255,0.6);font-family:var(--font);}
 .brand{font-size:22px;font-weight:800;letter-spacing:1px;color:#ffffff;font-family:var(--font);}
-#header-right{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;}
-
-/* ── ENTRY COUNT CHIP ── */
+#header-right{display:flex;align-items:center;gap:8px;}
 #entry-count{
-  display:flex;align-items:center;gap:6px;
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:10px;
-  padding:5px 10px 5px 8px;
-  font-family:var(--font);
-  backdrop-filter:blur(8px);
+  background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:6px 12px;font-size:13px;font-weight:600;color:var(--sub);font-family:var(--font);
 }
-#entry-count .ec-icon{font-size:13px;opacity:0.7;}
-#entry-count .ec-block{display:flex;flex-direction:column;align-items:center;line-height:1.1;}
-#entry-count .ec-num{font-size:14px;font-weight:800;letter-spacing:-0.5px;}
-#entry-count .ec-label{font-size:7px;font-weight:700;letter-spacing:1.5px;opacity:0.6;}
-#entry-count .adv-count{color:#4fc3f7;}
-#entry-count .int-count{color:#4ade80;}
-#entry-count .divider{width:1px;height:24px;background:rgba(255,255,255,0.15);margin:0 4px;}
-#entry-count span.legacy{display:none;} /* hide old spans */
-
-/* ── REALTIME DOT ── */
-#rt-dot-wrap{
-  display:flex;align-items:center;gap:4px;
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:8px;
-  padding:5px 8px;
-  font-size:8px;font-weight:700;letter-spacing:1px;
-  color:rgba(255,255,255,0.4);font-family:var(--font);
-  white-space:nowrap;
-}
-
-/* ── TOOLBAR SEPARATOR ── */
-.hbar-sep{
-  width:1px;height:28px;
-  background:rgba(255,255,255,0.1);
-  margin:0 2px;
-  flex-shrink:0;
-}
-
-/* ── HEADER BUTTONS (hbtn) ── */
+#entry-count span{color:var(--dim);}
+#entry-count .adv-count{color:#0d8de6;}
+#entry-count .int-count{color:#34d399;}
+#entry-count .divider{color:var(--border);margin:0 4px;}
 .hbtn{
-  font-family:var(--font);font-weight:700;font-size:11px;letter-spacing:0.8px;
-  padding:7px 11px;border-radius:9px;border:none;cursor:pointer;
-  transition:background .15s ease, box-shadow .15s ease, transform .1s ease;
-  display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
+  font-family:var(--font);font-weight:700;font-size:12px;letter-spacing:1px;
+  padding:8px 12px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;
 }
-.hbtn:hover{transform:translateY(-1px);}
-.hbtn:active{transform:translateY(0px);}
+#btn-csv{background:var(--bg3);border:2px solid var(--border);color:var(--accent);}
+#btn-eod{background:#dcfce7;border:2px solid var(--green);color:var(--green);}
+#btn-eod:active{background:#166534;}
+#btn-more{background:var(--bg3);border:1px solid var(--border);color:var(--sub);font-size:18px;letter-spacing:2px;padding:6px 12px;}
+#btn-more:hover{background:var(--border);}
+.more-item{padding:13px 18px;font-size:14px;font-family:var(--font);font-weight:600;color:var(--text);cursor:pointer;transition:background .12s;white-space:nowrap;}
+.more-item:hover{background:var(--border);}
+.more-sep{height:1px;background:var(--border);margin:2px 0;}
 
-/* Year View */
-#btn-yearview{
-  background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.12);
-  color:rgba(255,255,255,0.75);
-  font-size:15px;
-  padding:6px 9px;
-  border-radius:9px;
-}
-#btn-yearview:hover{background:rgba(255,255,255,0.13);color:#fff;}
-
-/* CSV */
-#btn-csv{
-  background:rgba(100,116,139,0.18);
-  border:1px solid rgba(100,116,139,0.35);
-  color:#94a3b8;
-}
-#btn-csv:hover{background:rgba(100,116,139,0.3);color:#cbd5e1;box-shadow:0 0 12px rgba(100,116,139,0.2);}
-
-/* Month selector */
-#export-month-sel{
-  background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.13);
-  color:#e2e8f0;
-  padding:7px 10px;
-  border-radius:9px;
-  font-family:var(--font);
-  font-size:12px;
-  font-weight:700;
-  cursor:pointer;
-  outline:none;
-  -webkit-appearance:none;
-  appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;
-  background-position:right 8px center;
-  padding-right:26px;
-  transition:border-color .15s;
-}
-#export-month-sel:hover{border-color:rgba(13,141,230,0.5);}
-#export-month-sel:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(13,141,230,0.2);}
-#export-month-sel option{background:#1e293b;color:#e2e8f0;}
-
-/* Excel */
-#btn-eod{
-  background:linear-gradient(135deg,#16a34a 0%,#15803d 100%);
-  border:1px solid rgba(22,163,74,0.5);
-  color:#ffffff;
-  box-shadow:0 2px 8px rgba(22,163,74,0.25);
-  letter-spacing:0.5px;
-}
-#btn-eod:hover{background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);box-shadow:0 4px 16px rgba(34,197,94,0.35);}
-#btn-eod:active{transform:none;}
-
-/* More (⋯) */
-#btn-more{
-  background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.12);
-  color:rgba(255,255,255,0.7);
-  font-size:18px;
-  letter-spacing:2px;
-  padding:5px 10px;
-}
-#btn-more:hover{background:rgba(255,255,255,0.13);color:#fff;}
-.more-item{padding:12px 18px;font-size:13px;font-family:var(--font);font-weight:600;color:var(--text);cursor:pointer;transition:background .12s;white-space:nowrap;display:flex;align-items:center;gap:8px;}
-.more-item:hover{background:rgba(255,255,255,0.06);}
-.more-sep{height:1px;background:rgba(255,255,255,0.07);margin:2px 0;}
-
-/* ── TABS ── */
-#tabs{
-  display:flex;
-  background:linear-gradient(180deg,rgba(15,28,55,0.92) 0%,rgba(10,20,40,0.85) 100%);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  padding:0 8px;
-  gap:2px;
-  overflow-x:auto;
-  overflow-y:hidden;
-  border-bottom:1px solid rgba(13,141,230,0.18);
-  scrollbar-width:none;
-  position:relative;
-}
-#tabs::-webkit-scrollbar{display:none;}
-/* subtle top highlight line */
-#tabs::before{
-  content:'';
-  position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.07),transparent);
-}
+/* TABS */
+#tabs{display:flex;background:rgba(20,20,32,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:10px 10px 14px 10px;gap:8px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,0.06);}
 .tab-btn{
-  flex:1;
-  min-width:56px;
-  padding:14px 6px 12px;
-  font-size:9px;
-  font-weight:800;
-  letter-spacing:1.2px;
-  text-transform:uppercase;
-  border:none;
-  background:transparent;
-  color:rgba(148,163,184,0.75);
-  transition:color .22s ease, background .22s ease;
-  font-family:var(--font);
-  border-radius:0;
-  cursor:pointer;
+  flex:1;padding:12px 10px;font-size:11px;font-weight:800;letter-spacing:1px;
+  border:none;background:var(--bg3);color:var(--dim);transition:all .2s;font-family:var(--font);
+  border-radius:10px;box-shadow:0 4px 0 var(--border);transform:translateY(0);cursor:pointer;
   white-space:nowrap;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:5px;
-  position:relative;
-  /* bottom accent line */
-  border-bottom:2px solid transparent;
-  transform:none;
-  box-shadow:none;
 }
-.tab-btn .tab-icon{
-  font-size:17px;
-  line-height:1;
-  transition:transform .22s ease, filter .22s ease;
-  filter:grayscale(0.5) opacity(0.7);
-}
-.tab-btn:hover{
-  color:rgba(203,213,225,0.95);
-  background:rgba(255,255,255,0.04);
-}
-.tab-btn:hover .tab-icon{
-  filter:grayscale(0) opacity(1);
-  transform:translateY(-1px);
-}
-.tab-btn:active{
-  background:rgba(255,255,255,0.06);
-  transform:none;
-  box-shadow:none;
-}
-.tab-btn.active{
-  color:#ffffff;
-  background:rgba(13,141,230,0.1);
-  border-bottom:2px solid var(--accent,#0d8de6);
-  box-shadow:none;
-}
-.tab-btn.active .tab-icon{
-  filter:grayscale(0) opacity(1);
-  transform:translateY(-1px);
-}
-/* Glowing dot on active tab */
-.tab-btn.active::after{
-  content:'';
-  position:absolute;
-  bottom:-1px;left:50%;transform:translateX(-50%);
-  width:60%;height:2px;
-  background:radial-gradient(ellipse at center,rgba(13,141,230,0.9) 0%,transparent 70%);
-  border-radius:2px;
-  filter:blur(2px);
-}
+.tab-btn:hover{background:var(--border);color:var(--sub);}
+.tab-btn:active{box-shadow:0 0 0 var(--border);transform:translateY(4px);}
+.tab-btn.active{background:var(--primary,#1a4a7a);color:#ffffff;box-shadow:0 4px 0 rgba(0,0,0,0.2),0 0 12px var(--glow);}
 /* CONTENT */
 #content{max-width:480px;margin:0 auto;padding:20px 16px 60px;}
 
@@ -566,6 +395,718 @@ body.loc-integrated .brand{color:#ffffff;}
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style id="rd-override">
+/* ── MOBICA REDESIGN v2 — embedded ── */
+/* ============================================================
+   MOBICA · Warehouse OS Redesign — drop-in override
+   Paste this AFTER your existing <style> block, or load via
+   <link rel="stylesheet" href="redesign.css"> just before </head>.
+   ============================================================ */
+
+:root {
+  /* DARK theme tokens (default) */
+  --r-bg:        #0E0F12;
+  --r-surface:   #16181D;
+  --r-surface2:  #1D2026;
+  --r-border:    #272A31;
+  --r-border-strong: #373B44;
+  --r-border-faint:  #1F2228;
+  --r-text:      #EDEEF0;
+  --r-text2:     #B8BBC2;
+  --r-dim:       #7C8089;
+  --r-faint:     #3A3D44;
+  --r-adv:       #FF7A1A;   /* signal amber */
+  --r-int:       #9FE800;   /* signal lime */
+  --r-ok:        #9FE800;
+  --r-warn:      #FFB74D;
+  --r-bad:       #FB7185;
+
+  --r-sans: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
+  --r-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+/* LIGHT theme — opt-in via <body class="light-mode"> (your existing toggle keeps working) */
+body.light-mode, body.light {
+  --r-bg:        #F2F0EA;
+  --r-surface:   #FBFAF6;
+  --r-surface2:  #EAE7DE;
+  --r-border:    #D9D5C9;
+  --r-border-strong: #BAB4A4;
+  --r-border-faint:  #E5E2D8;
+  --r-text:      #15171B;
+  --r-text2:     #3D414A;
+  --r-dim:       #7C7868;
+  --r-faint:     #C9C5B8;
+  --r-adv:       #E8540A;
+  --r-int:       #5C8B00;
+  --r-ok:        #5C8B00;
+}
+
+/* Map your existing legacy vars onto the new palette so EVERY existing rule inherits the new look */
+:root, body, body.light-mode {
+  --bg:    var(--r-bg)        !important;
+  --bg2:   var(--r-surface)   !important;
+  --bg3:   var(--r-surface2)  !important;
+  --border:var(--r-border)    !important;
+  --text:  var(--r-text)      !important;
+  --sub:   var(--r-text2)     !important;
+  --muted: var(--r-dim)       !important;
+  --dim:   var(--r-dim)       !important;
+  --accent:var(--r-adv)       !important;
+  --green: var(--r-int)       !important;
+  --yellow:var(--r-warn)      !important;
+  --primary:       var(--r-adv) !important;
+  --primary-light: var(--r-adv) !important;
+  --glow: rgba(255,122,26,0.12) !important;
+  --font: var(--r-sans)         !important;
+}
+body.loc-integrated {
+  --accent:var(--r-int)       !important;
+  --primary:       var(--r-int) !important;
+  --primary-light: var(--r-int) !important;
+  --glow: rgba(159,232,0,0.12) !important;
+}
+
+html, body {
+  background: var(--r-bg) !important;
+  color: var(--r-text) !important;
+  font-family: var(--r-sans) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+#header {
+  background: var(--r-surface) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: 1px solid var(--r-border) !important;
+  padding: 10px 16px !important;
+}
+body.loc-integrated #header { background: var(--r-surface) !important; }
+.brand    { color: var(--r-text) !important; font-family: var(--r-mono) !important;
+            font-weight: 700 !important; letter-spacing: 2.5px !important; font-size: 18px !important; }
+.brand-sub{ color: var(--r-dim) !important; font-family: var(--r-mono) !important;
+            letter-spacing: 2px !important; font-size: 10px !important; }
+#entry-count {
+  background: transparent !important;
+  border: 1px solid var(--r-border) !important;
+  border-radius: 3px !important;
+  font-family: var(--r-mono) !important;
+  font-size: 10px !important;
+  letter-spacing: 1.4px !important;
+  color: var(--r-dim) !important;
+  padding: 4px 8px !important;
+}
+#entry-count .adv-count { color: var(--r-adv) !important; font-weight: 700 !important; }
+#entry-count .int-count { color: var(--r-int) !important; font-weight: 700 !important; }
+.hbtn, #btn-yearview, #btn-csv, #btn-eod, #btn-more {
+  background: transparent !important;
+  border: 1px solid var(--r-border) !important;
+  border-radius: 3px !important;
+  color: var(--r-text) !important;
+  font-family: var(--r-mono) !important;
+  font-size: 11px !important;
+  letter-spacing: 1.2px !important;
+  padding: 6px 10px !important;
+}
+.hbtn:hover { background: var(--r-surface2) !important; border-color: var(--r-border-strong) !important; }
+#rt-dot { box-shadow: 0 0 6px var(--r-ok) !important; }
+
+/* ── LOCATION BANNER (ADV / INT) ────────────────────────── */
+#loc-banner {
+  background: var(--r-surface) !important;
+  border-bottom: 1px solid var(--r-border) !important;
+}
+.loc-banner-btn {
+  font-family: var(--r-mono) !important;
+  color: var(--r-dim) !important;
+  border-bottom: 2px solid transparent !important;
+  padding: 10px 8px !important;
+}
+.loc-banner-btn .loc-icon { display: none !important; }
+.loc-banner-btn .loc-label    { font-family: var(--r-mono) !important; font-weight: 700 !important;
+                                 font-size: 14px !important; letter-spacing: 2px !important; }
+.loc-banner-btn .loc-sublabel { font-family: var(--r-mono) !important; font-size: 9px !important;
+                                 letter-spacing: 1.4px !important; opacity: .7; }
+.loc-banner-btn.active-adv {
+  background: var(--r-bg) !important;
+  color: var(--r-adv) !important;
+  border-bottom-color: var(--r-adv) !important;
+}
+.loc-banner-btn.active-int {
+  background: var(--r-bg) !important;
+  color: var(--r-int) !important;
+  border-bottom-color: var(--r-int) !important;
+}
+
+/* ── TABS (top) ─────────────────────────────────────────── */
+#tabs {
+  background: var(--r-surface) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: 1px solid var(--r-border) !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+.tab-btn {
+  background: transparent !important;
+  color: var(--r-dim) !important;
+  font-family: var(--r-mono) !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  letter-spacing: 2px !important;
+  border-radius: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  box-shadow: none !important;
+  padding: 14px 8px !important;
+  transition: color .12s, border-color .12s !important;
+}
+.tab-btn:hover { background: var(--r-surface2) !important; color: var(--r-text2) !important; }
+.tab-btn.active {
+  background: var(--r-bg) !important;
+  color: var(--r-text) !important;
+  border-bottom-color: var(--r-adv) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+body.loc-integrated .tab-btn.active { border-bottom-color: var(--r-int) !important; }
+
+/* ── CONTENT WRAPPER ────────────────────────────────────── */
+#content { background: var(--r-bg) !important; padding: 16px !important; }
+
+/* ── FORM FIELDS ────────────────────────────────────────── */
+.field-label {
+  font-family: var(--r-mono) !important;
+  font-size: 10px !important;
+  letter-spacing: 1.4px !important;
+  color: var(--r-dim) !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
+}
+.field-label::before { content: '['; color: var(--r-faint); }
+.field-label::after  { content: ']'; color: var(--r-faint); }
+
+input[type=text], input[type=date], input[type=number], select, textarea {
+  background: var(--r-surface) !important;
+  border: 1px solid var(--r-border) !important;
+  border-radius: 4px !important;
+  color: var(--r-text) !important;
+  font-family: var(--r-mono) !important;
+  font-size: 14px !important;
+  padding: 10px 12px !important;
+  letter-spacing: 0.3px !important;
+  outline: none !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--r-adv) !important;
+  box-shadow: 0 0 0 1px var(--r-adv) !important;
+}
+body.loc-integrated input:focus, body.loc-integrated select:focus {
+  border-color: var(--r-int) !important; box-shadow: 0 0 0 1px var(--r-int) !important;
+}
+
+/* Variant chips */
+#variant-chips > * , .variant-chip {
+  background: var(--r-surface) !important;
+  border: 1px solid var(--r-border) !important;
+  border-radius: 3px !important;
+  font-family: var(--r-mono) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.3px !important;
+  color: var(--r-text) !important;
+  padding: 6px 10px !important;
+}
+#variant-chips > .active, .variant-chip.active {
+  background: var(--r-adv) !important;
+  color: #0A0A0A !important;
+  border-color: var(--r-adv) !important;
+  font-weight: 700 !important;
+}
+body.loc-integrated #variant-chips > .active,
+body.loc-integrated .variant-chip.active {
+  background: var(--r-int) !important; border-color: var(--r-int) !important;
+}
+
+/* ── QTY DISPLAY ────────────────────────────────────────── */
+#qty-display {
+  background: var(--r-surface) !important;
+  border: 1px solid var(--r-border) !important;
+  border-left: 3px solid var(--r-adv) !important;
+  border-radius: 4px !important;
+  font-family: var(--r-mono) !important;
+  font-weight: 700 !important;
+  font-size: 48px !important;
+  font-variant-numeric: tabular-nums !important;
+  color: var(--r-text) !important;
+  letter-spacing: -1px !important;
+  padding: 14px 16px !important;
+  box-shadow: none !important;
+}
+body.loc-integrated #qty-display { border-left-color: var(--r-int) !important; }
+#qty-display.empty { color: var(--r-faint) !important; }
+#qty-display.active { box-shadow: none !important; }
+
+/* ── KEYPAD ─────────────────────────────────────────────── */
+#keypad { gap: 6px !important; }
+.key, .vk {
+  background: var(--r-surface) !important;
+  color: var(--r-text) !important;
+  border: 1px solid var(--r-border) !important;
+  border-bottom: 2px solid var(--r-border-strong) !important;
+  border-radius: 4px !important;
+  font-family: var(--r-mono) !important;
+  font-weight: 700 !important;
+  font-size: 22px !important;
+  letter-spacing: 0 !important;
+  box-shadow: none !important;
+  transition: background .08s, transform .05s !important;
+}
+.key:active, .vk:active { transform: translateY(1px) !important; background: var(--r-surface2) !important; }
+.vk-clear { color: var(--r-bad) !important; font-size: 12px !important; letter-spacing: 1.5px !important; font-weight: 600 !important; }
+.vk-back  { color: var(--r-dim) !important; font-size: 12px !important; letter-spacing: 1.5px !important; font-weight: 600 !important; }
+
+/* ── VERIFY / COMMIT BUTTON ─────────────────────────────── */
+#btn-verify {
+  background: var(--r-adv) !important;
+  color: #0A0A0A !important;
+  border: 1px solid var(--r-adv) !important;
+  border-radius: 4px !important;
+  font-family: var(--r-mono) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  padding: 16px 20px !important;
+  box-shadow: none !important;
+  text-transform: uppercase !important;
+}
+body.loc-integrated #btn-verify { background: var(--r-int) !important; border-color: var(--r-int) !important; }
+#btn-verify:disabled {
+  background: var(--r-surface) !important;
+  color: var(--r-dim) !important;
+  border-color: var(--r-border) !important;
+  box-shadow: none !important;
+}
+#btn-verify:not(:disabled):hover { filter: brightness(1.1) !important; box-shadow: none !important; }
+
+#success-bar {
+  background: var(--r-surface) !important;
+  border: 1px solid var(--r-ok) !important;
+  border-left: 3px solid var(--r-ok) !important;
+  color: var(--r-ok) !important;
+  font-family: var(--r-mono) !important;
+  letter-spacing: 1.4px !important;
+  border-radius: 4px !important;
+}
+
+/* ── ANALYSIS / DASHBOARD CARDS ─────────────────────────── */
+#grand-total {
+  background: var(--r-surface) !important;
+  border: 1px solid var(--r-border) !important;
+  border-left: 3px solid var(--r-adv) !important;
+  border-radius: 4px !important;
+  padding: 14px 16px !important;
+  text-align: left !important;
+}
+body.loc-integrated #grand-total { border-left-color: var(--r-int) !important; }
+#grand-total .label {
+  font-family: var(--r-mono) !important;
+  font-size: 10px !important;
+  letter-spacing: 1.4px !important;
+  color: var(--r-dim) !important;
+}
+#grand-total .value {
+  font-family: var(--r-mono) !important;
+  font-weight: 700 !important;
+  font-size: 38px !important;
+  font-variant-numeric: tabular-nums !important;
+  color: var(--r-text) !important;
+  letter-spacing: -0.5px !important;
+}
+
+.oem-card {
+  background: var(--r-surface) !important;
+  border: 1px solid var(--r-border) !important;
+  border-radius: 4px !important;
+  margin-bottom: 8px !important;
+  overflow: hidden !important;
+}
+.oem-card-header {
+  padding: 12px 14px !important;
+  border-bottom: 1px dashed var(--r-border) !important;
+  background: transparent !important;
+}
+.oem-card-name {
+  font-family: var(--r-mono) !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  letter-spacing: 1.2px !important;
+}
+.oem-card-total {
+  font-family: var(--r-mono) !important;
+  font-weight: 700 !important;
+  font-size: 22px !important;
+  font-variant-numeric: tabular-nums !important;
+}
+.oem-row {
+  padding: 8px 14px !important;
+  border-bottom: 1px solid var(--r-border-faint) !important;
+}
+.oem-row-name {
+  font-family: var(--r-sans) !important;
+  font-size: 13px !important;
+  color: var(--r-text2) !important;
+}
+.oem-row-qty {
+  font-family: var(--r-mono) !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  font-variant-numeric: tabular-nums !important;
+  color: var(--r-text) !important;
+}
+
+/* ── DASH TABLE ─────────────────────────────────────────── */
+#dash-table {
+  font-family: var(--r-mono) !important;
+  font-size: 12px !important;
+  font-variant-numeric: tabular-nums !important;
+  border: 1px solid var(--r-border) !important;
+}
+#dash-table th, #dash-table td {
+  border: 1px solid var(--r-border-faint) !important;
+  padding: 10px !important;
+}
+#dash-table thead tr {
+  background: var(--r-surface2) !important;
+  color: var(--r-dim) !important;
+  letter-spacing: 1.4px !important;
+}
+#dash-table tbody tr { background: var(--r-surface) !important; }
+#dash-table tfoot tr { background: var(--r-surface2) !important; color: var(--r-text) !important; font-weight: 700 !important; }
+
+/* Dash hero (revenue) */
+#dash-grand-container {
+  background: var(--r-surface) !important;
+  border: 1px solid var(--r-border) !important;
+  border-left: 3px solid var(--r-adv) !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  text-align: left !important;
+}
+body.loc-integrated #dash-grand-container { border-left-color: var(--r-int) !important; }
+#dash-grand-val {
+  font-family: var(--r-mono) !important;
+  font-weight: 700 !important;
+  font-size: 36px !important;
+  color: var(--r-text) !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.5px !important;
+}
+
+/* ── LOG ────────────────────────────────────────────────── */
+#log-filters {
+  background: var(--r-surface) !important;
+  border: 1px solid var(--r-border) !important;
+  border-radius: 4px !important;
+  padding: 10px !important;
+}
+#log-table {
+  font-family: var(--r-mono) !important;
+  font-size: 12px !important;
+  font-variant-numeric: tabular-nums !important;
+}
+#log-table thead th {
+  background: var(--r-surface2) !important;
+  color: var(--r-dim) !important;
+  font-family: var(--r-mono) !important;
+  font-weight: 600 !important;
+  letter-spacing: 1.4px !important;
+  font-size: 10px !important;
+  border-bottom: 1px solid var(--r-border) !important;
+  padding: 8px !important;
+  text-transform: uppercase;
+}
+#log-table tbody td {
+  background: var(--r-surface) !important;
+  color: var(--r-text) !important;
+  border-bottom: 1px solid var(--r-border-faint) !important;
+  padding: 8px !important;
+}
+.loc-badge {
+  font-family: var(--r-mono) !important;
+  font-size: 9px !important;
+  letter-spacing: 1.4px !important;
+  font-weight: 700 !important;
+  padding: 2px 6px !important;
+  border-radius: 2px !important;
+}
+.loc-badge.adv { background: rgba(255,122,26,.15) !important; color: var(--r-adv) !important;
+                 border: 1px solid var(--r-adv) !important; }
+.loc-badge.int { background: rgba(159,232,0,.15) !important; color: var(--r-int) !important;
+                 border: 1px solid var(--r-int) !important; }
+.qty-cell {
+  font-family: var(--r-mono) !important;
+  font-weight: 700 !important;
+  color: var(--r-text) !important;
+}
+.del-btn {
+  color: var(--r-dim) !important;
+  font-family: var(--r-mono) !important;
+  border-radius: 3px !important;
+}
+.del-btn:hover { color: var(--r-bad) !important; background: var(--r-surface2) !important; }
+
+#btn-clear-all {
+  background: transparent !important;
+  border: 1px solid var(--r-bad) !important;
+  color: var(--r-bad) !important;
+  border-radius: 3px !important;
+  font-family: var(--r-mono) !important;
+  letter-spacing: 1.4px !important;
+  padding: 8px 14px !important;
+}
+
+/* ── PLAN VS ACTUAL ─────────────────────────────────────── */
+.plan-summary {
+  background: var(--r-surface) !important;
+  border: 1px solid var(--r-border) !important;
+  border-radius: 4px !important;
+  padding: 14px !important;
+}
+.plan-summary-item .label {
+  font-family: var(--r-mono) !important;
+  font-size: 10px !important;
+  letter-spacing: 1.4px !important;
+  color: var(--r-dim) !important;
+}
+.plan-summary-item .val {
+  font-family: var(--r-mono) !important;
+  font-weight: 700 !important;
+  font-size: 28px !important;
+  font-variant-numeric: tabular-nums !important;
+  color: var(--r-text) !important;
+}
+.plan-oem-block {
+  background: var(--r-surface) !important;
+  border: 1px solid var(--r-border) !important;
+  border-radius: 4px !important;
+  margin-bottom: 8px !important;
+  overflow: hidden !important;
+}
+.plan-oem-header {
+  padding: 10px 14px !important;
+  font-family: var(--r-mono) !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  letter-spacing: 1.2px !important;
+  border-bottom: 1px dashed var(--r-border) !important;
+}
+.plan-row, .plan-hdr {
+  padding: 8px 14px !important;
+  font-family: var(--r-mono) !important;
+  font-variant-numeric: tabular-nums !important;
+  font-size: 12px !important;
+  border-bottom: 1px solid var(--r-border-faint) !important;
+}
+.plan-hdr {
+  font-size: 9px !important;
+  letter-spacing: 1.4px !important;
+  color: var(--r-dim) !important;
+  background: var(--r-surface2) !important;
+}
+.plan-row-model {
+  font-family: var(--r-sans) !important;
+  font-size: 13px !important;
+  color: var(--r-text) !important;
+  font-weight: 600 !important;
+}
+.plan-num, .plan-pct { color: var(--r-text) !important; font-weight: 600 !important; }
+.plan-badge {
+  font-family: var(--r-mono) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  border-radius: 2px !important;
+  padding: 2px 6px !important;
+}
+
+/* ── MORE MENU + MODALS ─────────────────────────────────── */
+#more-menu, .modal, .modal-content {
+  background: var(--r-surface) !important;
+  border: 1px solid var(--r-border) !important;
+  border-radius: 4px !important;
+  font-family: var(--r-sans) !important;
+  color: var(--r-text) !important;
+}
+.more-item {
+  font-family: var(--r-mono) !important;
+  font-size: 12px !important;
+  letter-spacing: 1px !important;
+  color: var(--r-text) !important;
+}
+.more-item:hover { background: var(--r-surface2) !important; }
+.more-sep { background: var(--r-border) !important; }
+
+/* ── SCROLLBARS ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: var(--r-border-strong); border-radius: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ── NO-DATA ────────────────────────────────────────────── */
+#no-data, #no-log, #dash-no-data, #plan-status {
+  font-family: var(--r-mono) !important;
+  letter-spacing: 2px !important;
+  color: var(--r-dim) !important;
+}
+
+
+/* ══ NUCLEAR TAB OVERRIDE — defeats border-radius + box-shadow ══ */
+div#tabs {
+  display: flex !important;
+  background: #16181D !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  border-bottom: 1px solid #272A31 !important;
+  overflow-x: auto !important;
+}
+div#tabs button.tab-btn,
+#tabs .tab-btn,
+.tab-btn {
+  flex: 1 !important;
+  padding: 14px 6px !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 2px !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #7C8089 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: color .12s, border-color .12s !important;
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  white-space: nowrap !important;
+}
+div#tabs button.tab-btn:hover,
+#tabs .tab-btn:hover {
+  background: #1D2026 !important;
+  color: #B8BBC2 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+div#tabs button.tab-btn.active,
+#tabs .tab-btn.active,
+.tab-btn.active {
+  background: #0E0F12 !important;
+  color: #EDEEF0 !important;
+  border-bottom: 2px solid #FF7A1A !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+body.loc-integrated div#tabs button.tab-btn.active,
+body.loc-integrated .tab-btn.active {
+  border-bottom-color: #9FE800 !important;
+}
+
+/* ══ DASHBOARD HERO BOX ══ */
+#dash-grand-container {
+  background: #16181D !important;
+  border: 1px solid #272A31 !important;
+  border-left: 3px solid #FF7A1A !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  text-align: left !important;
+}
+#dash-grand-container span:first-child {
+  color: #7C8089 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 1.4px !important;
+}
+#dash-grand-val {
+  color: #EDEEF0 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 36px !important;
+  font-weight: 700 !important;
+}
+
+/* ══ DASHBOARD TABLE — overrides inline color styles ══ */
+#dash-table {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12px !important;
+  border: 1px solid #272A31 !important;
+  border-collapse: collapse !important;
+}
+#dash-table thead tr {
+  background: #1D2026 !important;
+  color: #7C8089 !important;
+}
+#dash-table thead tr th {
+  background: #1D2026 !important;
+  color: #7C8089 !important;
+  border: 1px solid #272A31 !important;
+  letter-spacing: 1.4px !important;
+  font-size: 10px !important;
+  padding: 10px !important;
+}
+#dash-table tbody tr {
+  background: #16181D !important;
+}
+#dash-table tbody tr td {
+  background: #16181D !important;
+  color: #EDEEF0 !important;
+  border: 1px solid #272A31 !important;
+  padding: 10px !important;
+}
+#dash-table tfoot tr {
+  background: #1D2026 !important;
+}
+#dash-table tfoot tr td {
+  background: #1D2026 !important;
+  color: #EDEEF0 !important;
+  border: 1px solid #272A31 !important;
+  font-weight: 700 !important;
+}
+
+/* ══ DASHBOARD BAR CHART ══ */
+#dash-bar-chart {
+  border-bottom: 1px solid #272A31 !important;
+  background: transparent !important;
+}
+#dash-bar-chart > div > span:last-child {
+  color: #7C8089 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  letter-spacing: 1px !important;
+}
+#dash-bar-chart > div > span:first-child {
+  color: #B8BBC2 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+}
+#dash-bar-chart > div > div {
+  border-radius: 2px 2px 0 0 !important;
+}
+
+/* ══ MONTH SELECT (dashboard) ══ */
+#dashboard-month-sel, #export-month-sel {
+  background: #16181D !important;
+  border: 1px solid #272A31 !important;
+  border-radius: 3px !important;
+  color: #EDEEF0 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12px !important;
+  padding: 8px 10px !important;
+}
+
+</style>
 </head>
 <body data-new-gr-c-s-check-loaded="14.1286.0" data-gr-ext-installed="">
 
@@ -577,61 +1118,20 @@ body.loc-integrated .brand{color:#ffffff;}
     <div style="font-size:9px;letter-spacing:2px;color:var(--dim);font-family:var(--font);margin-top:2px;">APR 2026 · v1.0</div>
   </div>
   <div id="header-right">
-    <!-- Stats chip -->
-    <div id="entry-count">
-      <span class="ec-icon">📦</span>
-      <div class="ec-block">
-        <span class="ec-num adv-count">—</span>
-        <span class="ec-label">ADV</span>
-      </div>
-      <div class="divider"></div>
-      <div class="ec-block">
-        <span class="ec-num int-count">—</span>
-        <span class="ec-label">INT</span>
-      </div>
-    </div>
+    <div id="entry-count"><span class="adv-count">1293</span><span> ADV</span><span class="divider">·</span><span class="int-count">74</span><span> INT</span></div>
 
-    <!-- Realtime dot -->
-    <div id="rt-dot-wrap">
-      <span id="rt-dot" title="Realtime: connecting..."></span>
-      LIVE
-    </div>
-
-    <div class="hbar-sep"></div>
-
-    <!-- Year view -->
+    <span id="rt-dot" title="Realtime: connecting..."></span>
     <button class="hbtn" id="btn-yearview" onclick="openYearView()" title="Year View">📅</button>
-
-    <!-- CSV -->
     <button class="hbtn" id="btn-csv" onclick="downloadCSV()">CSV ↓</button>
-
-    <!-- Month selector -->
-    <select id="export-month-sel" title="Select month to export">
-      <option value="2026-01">Jan 26</option>
-      <option value="2026-02">Feb 26</option>
-      <option value="2026-03">Mar 26</option>
-      <option value="2026-04">Apr 26</option>
-      <option value="2026-05" selected>May 26</option>
-      <option value="2026-06">Jun 26</option>
-      <option value="2026-07">Jul 26</option>
-      <option value="2026-08">Aug 26</option>
-      <option value="2026-09">Sep 26</option>
-      <option value="2026-10">Oct 26</option>
-      <option value="2026-11">Nov 26</option>
-      <option value="2026-12">Dec 26</option>
-    </select>
-
-    <!-- Excel -->
-    <button class="hbtn" id="btn-eod" onclick="exportExcel()">⬇ EXCEL</button>
-
-    <!-- More menu -->
+    <select id="export-month-sel" title="Select month to export" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;"><option value="2026-01">Jan 26</option><option value="2026-02">Feb 26</option><option value="2026-03">Mar 26</option><option value="2026-04">Apr 26</option><option value="2026-05" selected>May 26</option><option value="2026-06">Jun 26</option><option value="2026-07">Jul 26</option><option value="2026-08">Aug 26</option><option value="2026-09">Sep 26</option><option value="2026-10">Oct 26</option><option value="2026-11">Nov 26</option><option value="2026-12">Dec 26</option></select>
+    <button class="hbtn" id="btn-eod" onclick="exportExcel()">EXCEL ↓</button>
     <div id="more-wrap" style="position:relative;">
       <button class="hbtn" id="btn-more" onclick="toggleMoreMenu()" title="More options">&#8943;</button>
-      <div id="more-menu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:rgba(15,23,42,0.97);border:1px solid rgba(255,255,255,0.1);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.04);min-width:200px;z-index:999;overflow:hidden;backdrop-filter:blur(20px);">
-        <div class="more-item" onclick="sbSync();closeMoreMenu()">☁️ Manual Sync</div>
-        <div class="more-item" onclick="backupRestore();closeMoreMenu()">💾 Backup / Restore</div>
+      <div id="more-menu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--bg2);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.35);min-width:190px;z-index:999;overflow:hidden;">
+        <div class="more-item" onclick="sbSync();closeMoreMenu()">☁️&#160;&#160;Manual Sync</div>
+        <div class="more-item" onclick="backupRestore();closeMoreMenu()">💾&#160;&#160;Backup / Restore</div>
         <div class="more-sep"></div>
-        <div class="more-item" id="more-theme" onclick="toggleTheme();updateMoreThemeLabel();closeMoreMenu()">🌙 Dark Mode</div>
+        <div class="more-item" id="more-theme" onclick="toggleTheme();updateMoreThemeLabel();closeMoreMenu()">🌙&#160;&#160;Dark Mode</div>
       </div>
     </div>
   </div>
@@ -653,26 +1153,11 @@ body.loc-integrated .brand{color:#ffffff;}
 
 <!-- TABS -->
 <div id="tabs">
-  <button class="tab-btn active" onclick="switchTab(&#39;form&#39;,this)">
-    <span class="tab-icon">✏️</span>
-    ENTRY
-  </button>
-  <button class="tab-btn" onclick="switchTab(&#39;analysis&#39;,this)">
-    <span class="tab-icon">📊</span>
-    ANALYSIS
-  </button>
-  <button class="tab-btn" onclick="switchTab(&#39;dashboard&#39;,this)">
-    <span class="tab-icon">🖥️</span>
-    DASHBOARD
-  </button>
-  <button class="tab-btn" onclick="switchTab(&#39;log&#39;,this)">
-    <span class="tab-icon">📋</span>
-    LOG
-  </button>
-  <button class="tab-btn" onclick="switchTab(&#39;plan&#39;,this)">
-    <span class="tab-icon">🎯</span>
-    PLAN
-  </button>
+  <button class="tab-btn active" onclick="switchTab(&#39;form&#39;,this)">ENTRY</button>
+  <button class="tab-btn" onclick="switchTab(&#39;analysis&#39;,this)">ANALYSIS</button>
+  <button class="tab-btn" onclick="switchTab(&#39;dashboard&#39;,this)">DASHBOARD</button>
+  <button class="tab-btn" onclick="switchTab(&#39;log&#39;,this)">LOG</button>
+  <button class="tab-btn" onclick="switchTab(&#39;plan&#39;,this)">PLAN</button>
 </div>
 
 <!-- CONTENT -->
@@ -12823,11 +13308,15 @@ function updateEntryCount() {
     return (e.location==='integrated')||(e.location===undefined&&intOems.indexOf(e.oem)>=0);
   }).length;
   var advCount=entries.length-intCount;
-  // Update the new chip structure (ec-num spans)
-  var advEl=document.querySelector("#entry-count .adv-count");
-  var intEl=document.querySelector("#entry-count .int-count");
-  if(advEl) advEl.textContent=advCount;
-  if(intEl) intEl.textContent=intCount;
+  var el=document.getElementById("entry-count");
+  if(!entries.length){
+    el.innerHTML='0 <span>entries</span>';
+  } else {
+    el.innerHTML=
+      '<span class="adv-count">'+advCount+'</span><span> ADV</span>'+
+      '<span class="divider">·</span>'+
+      '<span class="int-count">'+intCount+'</span><span> INT</span>';
+  }
 }
 
 // ── TOAST ─────────────────────────────────────────────
@@ -13136,7 +13625,7 @@ function exportExcel() {
   document.getElementById("btn-eod").style.opacity = "0.6";
   setTimeout(function() {
     try {
-      var SCHEMA = {"EXCEED": {"file": "xl/worksheets/sheet1.xml", "dateRow": 3, "totalRow": 35, "cols": [["GLE", "Black"], ["GLE", "Brown"], ["GLE", "Beige"], ["GLS", "Black"], ["GLS", "Brown"], ["GLS", "Beige"], ["AMG", "Black"], ["AMG", "Red"], ["RX", "Seat Red"], ["RX", "DP Red"], ["RX", "Flagship Seat"], ["RX", "Flagship DP"], ["VX", "Luxury Black"], ["VX", "Flagship Brown"]]}, "Kasrawy": {"file": "xl/worksheets/sheet2.xml", "dateRow": 3, "totalRow": 34, "cols": [["Golden Dragon", ""], ["Jetour", ""], ["Jack", "Seat"], ["Jack", "DP"], ["Zemex", ""]]}, "NISSAN": {"file": "xl/worksheets/sheet3.xml", "dateRow": 3, "totalRow": 48, "cols": [["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["MC15 Beige", "Seat"], ["MC15 Beige", "Door"], ["MC15 Beige", "Luxe Door"], ["MC15 Black", "Seat"], ["MC15 Black", "Door"], ["MC15 Black", "Luxe Door"], ["L12F", "Upper Seat"], ["L12F", "Upper Door"], ["L12F", "Lower Seat"], ["L12F", "Lower Door"]]}, "Suzuki": {"file": "xl/worksheets/sheet4.xml", "dateRow": 3, "totalRow": 34, "cols": [["Van", "Front"], ["Van", "Rear"]]}, "GM": {"file": "xl/worksheets/sheet5.xml", "dateRow": 3, "totalRow": 35, "cols": [["RT50 Leather", "Left(L)"], ["RT50 Leather", "Right(L)"], ["RT50 Fabric", "Left(F)"], ["RT50 Fabric", "Right(F)"], ["VL01", "LH (DR)"], ["VL01", "CDSB 1"], ["VL01", "CDSC"], ["VL20", "LH (DR)"], ["VL20", "CDSB"], ["VL20", "CDSC"], ["BRACKET", "Left"], ["BRACKET", "Right"], ["BRACKET", "Massad"], ["310vl1", "Left Seat"], ["310vl1", "Right Seat"], ["310vl1", "Cushion"], ["310vl1", "Rear back 100%"], ["310vl2", "Left Seat"], ["310vl2", "Right Seat"], ["310vl2", "Cushion 40%"], ["310vl2", "Cushion 60%"], ["310vl2", "Rear back 40%"], ["310vl2", "Rear Back 60%"],["310S Lv0","Seat"],["310S Lv2","Seat"]]}, "GEELY": {"file": "xl/worksheets/sheet6.xml", "dateRow": 4, "totalRow": 36, "cols": [["SS GS", "Seat"], ["SS GS", "DP"], ["SS GF", "Seat"], ["SS GF", "DP"], ["SS GF Black", "Seat"], ["SS GF Black", "DP"], ["SX GF", "Seat"], ["SX GF", "DP"], ["SX GK", "Seat"], ["SX GK", "DP"], ["SX GL", "Seat"], ["SX GL", "DP"]]}, "ESAF": {"file": "xl/worksheets/sheet7.xml", "dateRow": 4, "totalRow": 36, "cols": [["Proton", "Seat"], ["Proton", "DP"]]}};
+      var SCHEMA = {"EXCEED": {"file": "xl/worksheets/sheet1.xml", "dateRow": 3, "totalRow": 35, "cols": [["GLE", "Black"], ["GLE", "Brown"], ["GLE", "Beige"], ["GLS", "Black"], ["GLS", "Brown"], ["GLS", "Beige"], ["AMG", "Black"], ["AMG", "Red"], ["RX", "Seat Red"], ["RX", "DP Red"], ["RX", "Flagship Seat"], ["RX", "Flagship DP"], ["VX", "Luxury Black"], ["VX", "Flagship Brown"]]}, "Kasrawy": {"file": "xl/worksheets/sheet2.xml", "dateRow": 3, "totalRow": 34, "cols": [["Golden Dragon", ""], ["Jetour", ""], ["Jack", "Seat"], ["Jack", "DP"], ["Zemex", ""]]}, "NISSAN": {"file": "xl/worksheets/sheet3.xml", "dateRow": 3, "totalRow": 48, "cols": [["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["_",""],["MC15 Beige", "Seat"], ["MC15 Beige", "Door"], ["MC15 Beige", "Luxe Door"], ["MC15 Black", "Seat"], ["MC15 Black", "Door"], ["MC15 Black", "Luxe Door"], ["L12F", "Upper Seat"], ["L12F", "Upper Door"], ["L12F", "Lower Seat"], ["L12F", "Lower Door"]]}, "Suzuki": {"file": "xl/worksheets/sheet4.xml", "dateRow": 3, "totalRow": 34, "cols": [["Van", "Front"], ["Van", "Rear"]]}, "GM": {"file": "xl/worksheets/sheet5.xml", "dateRow": 3, "totalRow": 35, "cols": [["RT50 Leather", "Left(L)"], ["RT50 Leather", "Right(L)"], ["RT50 Fabric", "Left(F)"], ["RT50 Fabric", "Right(F)"], ["VL01", "LH (DR)"], ["VL01", "CDSB 1"], ["VL01", "CDSB2"], ["VL01", "CDSC"], ["VL20", "LH (DR)"], ["VL20", "CDSB"], ["VL20", "CDSC"], ["BRACKET", "Left"], ["BRACKET", "Right"], ["BRACKET", "Massad"], ["310vl1", "Left Seat"], ["310vl1", "Right Seat"], ["310vl1", "Cushion"], ["310vl1", "Rear back 100%"], ["310vl2", "Left Seat"], ["310vl2", "Right Seat"], ["310vl2", "Cushion 40%"], ["310vl2", "Cushion 60%"], ["310vl2", "Rear back 40%"], ["310vl2", "Rear Back 60%"],["310S Lv0","Seat"],["310S Lv2","Seat"]]}, "GEELY": {"file": "xl/worksheets/sheet6.xml", "dateRow": 4, "totalRow": 36, "cols": [["SS GS", "Seat"], ["SS GS", "DP"], ["SS GF", "Seat"], ["SS GF", "DP"], ["SS GF Black", "Seat"], ["SS GF Black", "DP"], ["SX GF", "Seat"], ["SX GF", "DP"], ["SX GK", "Seat"], ["SX GK", "DP"], ["SX GL", "Seat"], ["SX GL", "DP"]]}, "ESAF": {"file": "xl/worksheets/sheet7.xml", "dateRow": 4, "totalRow": 36, "cols": [["Proton", "Seat"], ["Proton", "DP"]]}};
       var OEM_PRICES = {"EXCEED": {"0": 363665.48, "1": 363665.48, "2": 363665.48, "3": 620123.13, "4": 625561.43, "5": 620123.13, "6": 335594.62, "7": 335594.62, "8": 133125.90, "9": 43926.20, "10": 178887.53, "11": 51277.10, "12": 159638.30, "13": 222746.20}, "Kasrawy": {"0": 35303.44, "1": 50044.83, "2": 26055.13, "3": 9444.48, "4": 27824.68}, "NISSAN": {"8": 8565.47, "9": 3287.48, "10": 3287.48, "11": 8565.47, "12": 3250.28, "13": 3250.28, "16": 41200.0, "17": 14980.0}, "Suzuki": {"0": 9857.0, "1": 8145.0, "2": 4485.0}, "GM": {"0": 8832.646237, "1": 4362.427543, "2": 8527.361929, "3": 4224.59474, "4": 2895.503032, "5": 1432.54302, "6": 1096.832862, "7": 1932.085894, "8": 2895.503032, "9": 3128.626521, "10": 1985.089397, "11": 108.08, "12": 108.08, "13": 37.18, "14": 8023.577447, "15": 8220.211947, "16": 6068.549053, "17": 3200.734773, "18": 8182.552871, "19": 8379.187371, "20": 3979.632508, "21": 2791.660261, "22": 1867.431816, "23": 1542.197505}, "GEELY": {"0": 29149.68, "1": 16771.21, "2": 36216.78, "3": 19817.36, "4": 36701.90, "5": 20411.87, "6": 51254.43, "7": 14879.46, "8": 40044.44, "9": 12310.67, "10": 34470.47, "11": 12253.05}, "ESAF": {"0": 37074.0, "1": 9998.0},
         "TOYOTA": {"0": 163278.0, "1": 13334.0, "2": 118568.0, "3": 12881.0},
         "BAMC": {"0": 382417.96, "1": 248433.96, "2": 248433.96, "3": 254061.17, "4": 153526.68, "5": 153492.72},
@@ -13193,123 +13682,100 @@ function exportExcel() {
       function _toSerial(iso){ var p=iso.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]); return Math.round((d-new Date(1899,11,30))/86400000); }
       function _cL(n){ if(n<26) return String.fromCharCode(65+n); return String.fromCharCode(64+Math.floor(n/26))+String.fromCharCode(65+(n%26)); }
 
-      // MOBICA style index map (s=):
-      //  0=default  1=date(grey,border)  2=title(primaryBlue #1A4A7A,white-bold,no-border)
-      //  3=col-hdr(accentBlue #0D8DE6,white-bold,wrap,thin-border)
-      //  4=totals(green #16A34A,white-bold,thin-border)
-      //  5=data-white(thin-border,centered)  6=data-alt-blue-tint(thin-border,centered)
-      //  7=total-col(blue-tint,primary-bold,thin-border,centered)
-      var _stylesXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
-      +'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">\n'
-      +'<numFmts count="1"><numFmt numFmtId="164" formatCode="d-mmm-yy"/></numFmts>\n'
-      +'<fonts count="6">'
-      +'<font><sz val="10"/><name val="Calibri"/></font>'
-      +'<font><b/><sz val="11"/><name val="Calibri"/><color rgb="FFFFFFFF"/></font>'
-      +'<font><b/><sz val="10"/><name val="Calibri"/></font>'
-      +'<font><sz val="10"/><name val="Calibri"/><color rgb="FF64748B"/></font>'
-      +'<font><b/><sz val="10"/><name val="Calibri"/><color rgb="FF1A4A7A"/></font>'
-      +'<font><sz val="9"/><name val="Calibri"/><color rgb="FF334155"/></font>'
-      +'</fonts>\n'
-      +'<fills count="9">'
-      +'<fill><patternFill patternType="none"/></fill>'
-      +'<fill><patternFill patternType="gray125"/></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FF1A4A7A"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FF0D8DE6"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FF16A34A"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFE8F4FC"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFD4ECF7"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFF0FDF4"/></patternFill></fill>'
-      +'</fills>\n'
-      +'<borders count="2">'
-      +'<border><left/><right/><top/><bottom/><diagonal/></border>'
-      +'<border><left style="thin"><color rgb="FFCBD5E1"/></left><right style="thin"><color rgb="FFCBD5E1"/></right><top style="thin"><color rgb="FFCBD5E1"/></top><bottom style="thin"><color rgb="FFCBD5E1"/></bottom><diagonal/></border>'
-      +'</borders>\n'
-      +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>\n'
-      +'<cellXfs count="8">\n'
-      +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>\n'
-      +'<xf numFmtId="164" fontId="3" fillId="6" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="left" vertical="center"/></xf>\n'
-      +'<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>\n'
-      +'<xf numFmtId="0" fontId="1" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>\n'
-      +'<xf numFmtId="0" fontId="1" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>\n'
-      +'<xf numFmtId="0" fontId="5" fillId="6" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>\n'
-      +'<xf numFmtId="0" fontId="5" fillId="5" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>\n'
-      +'<xf numFmtId="0" fontId="4" fillId="7" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>\n'
-      +'</cellXfs>\n'
-      +'<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>\n'
-      +'</styleSheet>';
+      var _stylesXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">\n'+
+'<numFmts count="1"><numFmt numFmtId="164" formatCode="d-mmm-yy"/></numFmts>\n'+
+'<fonts count="4"><font><sz val="10"/><name val="Calibri"/></font>'+
+'<font><b/><sz val="10"/><name val="Calibri"/><color rgb="FFFFFFFF"/></font>'+
+'<font><b/><sz val="10"/><name val="Calibri"/></font>'+
+'<font><sz val="10"/><name val="Calibri"/><color rgb="FF555555"/></font></fonts>\n'+
+'<fills count="5">'+
+'<fill><patternFill patternType="none"/></fill>'+
+'<fill><patternFill patternType="gray125"/></fill>'+
+'<fill><patternFill patternType="solid"><fgColor rgb="FF0D1B4B"/></patternFill></fill>'+
+'<fill><patternFill patternType="solid"><fgColor rgb="FFF4A800"/></patternFill></fill>'+
+'<fill><patternFill patternType="solid"><fgColor rgb="FFD6E4F7"/></patternFill></fill></fills>\n'+
+'<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>\n'+
+'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>\n'+
+'<cellXfs count="6">\n'+
+'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>\n'+
+'<xf numFmtId="164" fontId="3" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>\n'+
+'<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>\n'+
+'<xf numFmtId="0" fontId="2" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1"><alignment horizontal="center" vertical="center"/></xf>\n'+
+'<xf numFmtId="0" fontId="1" fillId="4" borderId="0" xfId="0" applyFont="1" applyFill="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>\n'+
+'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"><alignment horizontal="center"/></xf>\n'+
+'</cellXfs>\n'+
+'<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>\n'+
+'</styleSheet>';
 
       function _makeSheet(oemName, dCols, lkp, dates){
         var nC=dCols.length, tC=1+nC, rows=[], ct=new Array(nC).fill(0);
-        // Row 1: Title â€” primary blue (#1A4A7A), white bold, no border (s=2)
-        var r1='<row r="1" ht="24" customHeight="1"><c r="A1" s="2" t="inlineStr"><is><t>'+_escX(oemName)+' \u2014 '+dates[0].substring(0,7)+'</t></is></c>';
+        // Title row
+        var r1='<row r="1" ht="22" customHeight="1"><c r="A1" s="2" t="inlineStr"><is><t>'+_escX(oemName)+' \u2014 '+dates[0].substring(0,7)+'</t></is></c>';
         for(var i=1;i<=tC;i++) r1+='<c r="'+_cL(i)+'1" s="2"/>';
         rows.push(r1+'</row>');
-        // Row 2: Column headers â€” accent blue (#0D8DE6), white bold, wrap, thin border (s=3)
-        var r2='<row r="2" ht="36" customHeight="1"><c r="A2" s="3" t="inlineStr"><is><t>DATE</t></is></c>';
+        // Header row
+        var r2='<row r="2" ht="32" customHeight="1"><c r="A2" s="2" t="inlineStr"><is><t>DATE</t></is></c>';
         dCols.forEach(function(col,ci){
-          r2+='<c r="'+_cL(1+ci)+'2" s="3" t="inlineStr"><is><t>'+_escX(col.model+(col.variant?'\n'+col.variant:''))+'</t></is></c>';
+          r2+='<c r="'+_cL(1+ci)+'2" s="2" t="inlineStr"><is><t>'+_escX(col.model+(col.variant?'\n'+col.variant:''))+'</t></is></c>';
         });
-        r2+='<c r="'+_cL(tC)+'2" s="3" t="inlineStr"><is><t>TOTAL</t></is></c></row>';
+        r2+='<c r="'+_cL(tC)+'2" s="2" t="inlineStr"><is><t>TOTAL</t></is></c></row>';
         rows.push(r2);
-        // Data rows â€” alternating white(s=5)/light-blue(s=6); total col blue-tint bold(s=7)
+        // Data rows
         dates.forEach(function(iso,di){
           var rn=3+di, dd=(lkp&&lkp[iso])||{}, rt=0;
-          var dataSty=di%2===0?'5':'6';
           var r='<row r="'+rn+'"><c r="A'+rn+'" s="1"><v>'+_toSerial(iso)+'</v></c>';
           dCols.forEach(function(col,ci){
             var v=dd[col.idx]||0; ct[ci]+=v; rt+=v;
-            r+='<c r="'+_cL(1+ci)+rn+'" s="'+dataSty+'">'+(v>0?'<v>'+v+'</v>':'')+'</c>';
+            r+='<c r="'+_cL(1+ci)+rn+'" s="5">'+(v>0?'<v>'+v+'</v>':'')+'</c>';
           });
-          r+='<c r="'+_cL(tC)+rn+'" s="7">'+(rt>0?'<v>'+rt+'</v>':'')+'</c></row>';
+          r+='<c r="'+_cL(tC)+rn+'" s="5">'+(rt>0?'<v>'+rt+'</v>':'')+'</c></row>';
           rows.push(r);
         });
-        // TOTAL row â€” green (#16A34A), white bold, border (s=4)
+        // Total row
         var trn=3+dates.length, gt=ct.reduce(function(s,v){return s+v;},0);
-        var rTot='<row r="'+trn+'" ht="20" customHeight="1"><c r="A'+trn+'" s="4" t="inlineStr"><is><t>TOTAL</t></is></c>';
-        ct.forEach(function(v,ci){ rTot+='<c r="'+_cL(1+ci)+trn+'" s="4">'+(v>0?'<v>'+v+'</v>':'')+'</c>'; });
-        rTot+='<c r="'+_cL(tC)+trn+'" s="4">'+(gt>0?'<v>'+gt+'</v>':'')+'</c></row>';
+        var rTot='<row r="'+trn+'" ht="18" customHeight="1"><c r="A'+trn+'" s="3" t="inlineStr"><is><t>TOTAL</t></is></c>';
+        ct.forEach(function(v,ci){ rTot+='<c r="'+_cL(1+ci)+trn+'" s="3">'+(v>0?'<v>'+v+'</v>':'')+'</c>'; });
+        rTot+='<c r="'+_cL(tC)+trn+'" s="3">'+(gt>0?'<v>'+gt+'</v>':'')+'</c></row>';
         rows.push(rTot);
-        var cw='<cols><col min="1" max="1" width="13" customWidth="1"/>';
-        for(var c=0;c<nC;c++) cw+='<col min="'+(2+c)+'" max="'+(2+c)+'" width="12" customWidth="1"/>';
-        cw+='<col min="'+(2+nC)+'" max="'+(2+nC)+'" width="13" customWidth="1"/>';
+        // Column widths
+        var cw='<cols><col min="1" max="1" width="11" customWidth="1"/>';
+        for(var c=0;c<tC;c++) cw+='<col min="'+(2+c)+'" max="'+(2+c)+'" width="10" customWidth="1"/>';
         cw+='</cols>';
         var merge='<mergeCells count="1"><mergeCell ref="A1:'+_cL(tC)+'1"/></mergeCells>';
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+cw+'<sheetData>'+rows.join('')+'</sheetData>'+merge+'</worksheet>';
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
+cw+'<sheetData>'+rows.join('')+'</sheetData>'+merge+'</worksheet>';
       }
 
       function _makeIntSheet(oemName, models, lkp, dates){
         var nC=models.length, tC=1+nC, rows=[], ct=new Array(nC).fill(0);
-        // Row 1: Title â€” primary blue (#1A4A7A) (s=2)
-        var r1='<row r="1" ht="24" customHeight="1"><c r="A1" s="2" t="inlineStr"><is><t>'+_escX(oemName)+' \u2014 '+dates[0].substring(0,7)+'</t></is></c>';
+        var r1='<row r="1" ht="22" customHeight="1"><c r="A1" s="2" t="inlineStr"><is><t>'+_escX(oemName)+' \u2014 '+dates[0].substring(0,7)+'</t></is></c>';
         for(var i=1;i<=tC;i++) r1+='<c r="'+_cL(i)+'1" s="2"/>';
         rows.push(r1+'</row>');
-        // Row 2: Column headers â€” accent blue (#0D8DE6), thin border (s=3)
-        var r2='<row r="2" ht="36" customHeight="1"><c r="A2" s="3" t="inlineStr"><is><t>DATE</t></is></c>';
-        models.forEach(function(m,ci){ r2+='<c r="'+_cL(1+ci)+'2" s="3" t="inlineStr"><is><t>'+_escX(m)+'</t></is></c>'; });
-        r2+='<c r="'+_cL(tC)+'2" s="3" t="inlineStr"><is><t>TOTAL</t></is></c></row>';
+        var r2='<row r="2" ht="32" customHeight="1"><c r="A2" s="2" t="inlineStr"><is><t>DATE</t></is></c>';
+        models.forEach(function(m,ci){ r2+='<c r="'+_cL(1+ci)+'2" s="2" t="inlineStr"><is><t>'+_escX(m)+'</t></is></c>'; });
+        r2+='<c r="'+_cL(tC)+'2" s="2" t="inlineStr"><is><t>TOTAL</t></is></c></row>';
         rows.push(r2);
-        // Data rows â€” alternating white(s=5)/light-blue(s=6); total col blue-tint bold(s=7)
         dates.forEach(function(iso,di){
           var rn=3+di, dd=(lkp&&lkp[iso])||{}, rt=0;
-          var dataSty=di%2===0?'5':'6';
           var r='<row r="'+rn+'"><c r="A'+rn+'" s="1"><v>'+_toSerial(iso)+'</v></c>';
-          models.forEach(function(m,ci){ var v=dd[ci]||0; ct[ci]+=v; rt+=v; r+='<c r="'+_cL(1+ci)+rn+'" s="'+dataSty+'">'+(v>0?'<v>'+v+'</v>':'')+'</c>'; });
-          r+='<c r="'+_cL(tC)+rn+'" s="7">'+(rt>0?'<v>'+rt+'</v>':'')+'</c></row>';
+          models.forEach(function(m,ci){ var v=dd[ci]||0; ct[ci]+=v; rt+=v; r+='<c r="'+_cL(1+ci)+rn+'" s="5">'+(v>0?'<v>'+v+'</v>':'')+'</c>'; });
+          r+='<c r="'+_cL(tC)+rn+'" s="5">'+(rt>0?'<v>'+rt+'</v>':'')+'</c></row>';
           rows.push(r);
         });
-        // TOTAL row â€” green (#16A34A), border (s=4)
         var trn=3+dates.length, gt=ct.reduce(function(s,v){return s+v;},0);
-        var rTot='<row r="'+trn+'" ht="20" customHeight="1"><c r="A'+trn+'" s="4" t="inlineStr"><is><t>TOTAL</t></is></c>';
-        ct.forEach(function(v,ci){ rTot+='<c r="'+_cL(1+ci)+trn+'" s="4">'+(v>0?'<v>'+v+'</v>':'')+'</c>'; });
-        rTot+='<c r="'+_cL(tC)+trn+'" s="4">'+(gt>0?'<v>'+gt+'</v>':'')+'</c></row>';
+        var rTot='<row r="'+trn+'" ht="18" customHeight="1"><c r="A'+trn+'" s="3" t="inlineStr"><is><t>TOTAL</t></is></c>';
+        ct.forEach(function(v,ci){ rTot+='<c r="'+_cL(1+ci)+trn+'" s="3">'+(v>0?'<v>'+v+'</v>':'')+'</c>'; });
+        rTot+='<c r="'+_cL(tC)+trn+'" s="3">'+(gt>0?'<v>'+gt+'</v>':'')+'</c></row>';
         rows.push(rTot);
-        var cw='<cols><col min="1" max="1" width="13" customWidth="1"/>';
-        for(var c=0;c<nC;c++) cw+='<col min="'+(2+c)+'" max="'+(2+c)+'" width="18" customWidth="1"/>';
-        cw+='<col min="'+(2+nC)+'" max="'+(2+nC)+'" width="14" customWidth="1"/>';
+        var cw='<cols><col min="1" max="1" width="11" customWidth="1"/>';
+        for(var c=0;c<tC;c++) cw+='<col min="'+(2+c)+'" max="'+(2+c)+'" width="16" customWidth="1"/>';
         cw+='</cols>';
         var merge='<mergeCells count="1"><mergeCell ref="A1:'+_cL(tC)+'1"/></mergeCells>';
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+cw+'<sheetData>'+rows.join('')+'</sheetData>'+merge+'</worksheet>';
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
+cw+'<sheetData>'+rows.join('')+'</sheetData>'+merge+'</worksheet>';
       }
 
       function _makeDashboard(summaries, mlabel){
@@ -13356,7 +13822,8 @@ function exportExcel() {
         _dashSum.push({name:oem,total:tot,value:val}); _si++;
       });
 
-      // Dashboard sheet intentionally omitted from export
+      _sFiles['xl/worksheets/sheet'+_si+'.xml']=_makeDashboard(_dashSum,APRIL_DATES[0].substring(0,7));
+      _sheets.push({name:'DASHBOARD',idx:_si}); _si++;
 
       // ── Boilerplate XML ───────────────────────────────────────────
       var _wbSheets=_sheets.map(function(s){ return '<sheet name="'+_escX(s.name)+'" sheetId="'+s.idx+'" r:id="rId'+s.idx+'"/>'; }).join('');
@@ -14000,4 +14467,269 @@ function renderPlan() {
         content: attr(data-content);
       }
     </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration>
+<script id="rd-js">
+/* ── MOBICA REDESIGN JS — embedded ── */
+/* ============================================================
+   MOBICA · Warehouse OS Redesign — stronger overlay (v2)
+   Replace your old redesign.js with this file.
+   ============================================================ */
+(function () {
+  if (window.__mobicaRedesignV2) return;
+  window.__mobicaRedesignV2 = true;
+
+  /* ---------- 1. THEME TOGGLE (sun / moon in header) ---------- */
+  var KEY = 'mobica-theme';
+  var saved = localStorage.getItem(KEY);
+  if (saved === 'light')      document.body.classList.add('light-mode');
+  else if (saved === 'dark')  document.body.classList.remove('light-mode');
+
+  function injectThemeBtn() {
+    var hdr = document.getElementById('header-right');
+    if (!hdr || document.getElementById('rd-theme-toggle')) return;
+    var b = document.createElement('button');
+    b.id = 'rd-theme-toggle';
+    b.className = 'hbtn';
+    b.title = 'Toggle theme';
+    b.style.cssText = 'min-width:32px;text-align:center;font-size:14px;';
+    function r(){ b.textContent = document.body.classList.contains('light-mode') ? '\u263E' : '\u263C'; }
+    r();
+    b.addEventListener('click', function(){
+      document.body.classList.toggle('light-mode');
+      localStorage.setItem(KEY, document.body.classList.contains('light-mode') ? 'light' : 'dark');
+      r();
+    });
+    hdr.insertBefore(b, hdr.firstChild);
+  }
+
+  /* ---------- 2. STRIP INLINE OEM COLORS + RECOLOR BARS ---------- */
+  // Re-themes anything that uses inline color/background styles set by render JS.
+  function stripOEMColors(root) {
+    if (!root) return;
+
+    // OEM card name + total → plain text color
+    root.querySelectorAll('.oem-card').forEach(function (card) {
+      card.style.borderColor = '';
+      card.style.borderLeft = '';
+      var hdr = card.querySelector('.oem-card-header');
+      if (hdr) { hdr.style.background = ''; hdr.style.borderBottom = ''; }
+      card.querySelectorAll('.oem-card-name, .oem-card-total').forEach(function (n) {
+        n.style.color = '';
+      });
+    });
+
+    // Plan blocks have similar inline coloring
+    root.querySelectorAll('.plan-oem-block, .plan-oem-header').forEach(function (n) {
+      n.style.background = '';
+      n.style.borderColor = '';
+      n.style.color = '';
+    });
+
+    // Dashboard chart bars — #dash-bar-chart > div > div (the actual bar)
+    var loc = document.body.classList.contains('loc-integrated');
+    var accent = loc ? '#9FE800' : '#FF7A1A';
+    var chart = document.getElementById('dash-bar-chart');
+    if (chart) {
+      chart.querySelectorAll('div > div').forEach(function (bar) {
+        var s = bar.getAttribute('style') || '';
+        if (/height\s*:\s*[\d.]+%/i.test(s)) {
+          bar.style.background = accent;
+          bar.style.backgroundColor = accent;
+          bar.style.borderRadius = '2px 2px 0 0';
+        }
+      });
+      // Bar labels (OEM name + value) inside chart → plain text
+      chart.querySelectorAll('span').forEach(function (s) {
+        s.style.color = '';
+        s.style.removeProperty('color');
+        s.style.setProperty('color', 'var(--r-text)', 'important');
+      });
+    }
+
+    // Dashboard table — overwrite all per-cell inline colors
+    var dt = document.getElementById('dash-table');
+    if (dt) {
+      dt.querySelectorAll('tr').forEach(function (tr) {
+        tr.style.border = '';
+        tr.style.background = '';
+      });
+      dt.querySelectorAll('td').forEach(function (td) {
+        td.style.removeProperty('color');
+        td.style.removeProperty('border');
+        td.style.removeProperty('background');
+        td.style.setProperty('color', 'var(--r-text)', 'important');
+      });
+    }
+
+    // Dashboard table — OEM-name cells in first column → plain text
+    root.querySelectorAll('#dash-table td:first-child, #dash-table th:first-child').forEach(function (td) {
+      td.style.color = '';
+      td.querySelectorAll('*').forEach(function (n){ n.style.color = ''; });
+    });
+    // Numeric cells → plain mono white
+    root.querySelectorAll('#dash-table td').forEach(function (td) {
+      // Drop inline rainbow colors on numeric content
+      var t = td.textContent.trim();
+      if (/^[\d,.\sM%K]+$/.test(t)) {
+        td.style.color = '';
+        td.querySelectorAll('*').forEach(function (n){ n.style.color = ''; });
+      }
+    });
+
+    // Bar labels above chart (e.g. "5.4M", "EXCEED") — strip inline colors
+    root.querySelectorAll('.bar-label, .bar-name, .chart-label, [class*="chart"] span').forEach(function (n) {
+      n.style.color = '';
+    });
+  }
+
+  /* ---------- 3. COMPRESS HEADER BRANDING ---------- */
+  function compressHeader() {
+    var brand = document.querySelector('.brand');
+    if (brand && !brand.dataset.rdDone) {
+      // "DELIVERY TRACKER" → "DELIVERY OS"
+      // Original markup: <div class="brand">DELIVERY TRACKER</div>
+      brand.textContent = 'MOBICA \u00B7 DELIVERY OS';
+      brand.dataset.rdDone = '1';
+    }
+    // Hide the small "MOBICA" eyebrow + version line, since brand now contains MOBICA
+    var sub = document.querySelector('.brand-sub');
+    if (sub) sub.style.display = 'none';
+    var top = document.querySelector('.brand-top, .brand-eyebrow');
+    if (top) top.style.display = 'none';
+    // Generic: any sibling small text inside the brand block reading "MOBICA"
+    document.querySelectorAll('#header div, #header span').forEach(function (el) {
+      if (el === brand) return;
+      var t = (el.textContent || '').trim();
+      if (t === 'MOBICA' || /APR\s*20\d\d\s*\u00B7\s*v/i.test(t)) {
+        el.style.display = 'none';
+      }
+    });
+  }
+
+  /* ---------- 4. FORCE KEYPAD VISIBLE ON ENTRY ---------- */
+  function openKeypad() {
+    var kp = document.getElementById('keypad');
+    if (kp) {
+      kp.classList.add('open');
+      kp.style.maxHeight = 'none';
+      kp.style.opacity = '1';
+      kp.style.marginBottom = '20px';
+      kp.style.overflow = 'visible';
+    }
+    var qd = document.getElementById('qty-display');
+    if (qd) {
+      qd.classList.add('active');
+      // Drop the "▼" hint arrow since keypad is always open
+      var arrow = qd.querySelector('span');
+      if (arrow) arrow.style.display = 'none';
+    }
+  }
+
+  /* ---------- 5. RUN HOOKS ---------- */
+  function runAll() {
+    compressHeader();
+    openKeypad();
+    stripOEMColors(document.body);
+  }
+
+  // Initial pass
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      injectThemeBtn();
+      runAll();
+    });
+  } else {
+    injectThemeBtn();
+    runAll();
+  }
+
+  // Re-run after every DOM change in #content (renderAnalysis/Dashboard/Plan rebuild it)
+  var content = document.getElementById('content') || document.body;
+  var pending = false;
+  var mo = new MutationObserver(function () {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () {
+      pending = false;
+      runAll();
+    });
+  });
+  mo.observe(content, { childList: true, subtree: true, attributes: true,
+                        attributeFilter: ['style', 'class'] });
+
+  // Re-run on tab clicks (catches cases where renderers fire after click)
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.tab-btn, .loc-banner-btn')) {
+      setTimeout(runAll, 50);
+      setTimeout(runAll, 250);
+    }
+  }, true);
+})();
+
+</script>
+<script id="rd-extra-js">
+/* ── MOBICA REDESIGN EXTRA JS — tab labels + table strip ── */
+
+(function() {
+  // Abbreviate tab labels to match design preview
+  var tabMap = {
+    'ENTRY':     'ENTRY',
+    'ANALYSIS':  'ANLYS',
+    'DASHBOARD': 'DASH',
+    'LOG':       'LOG',
+    'PLAN':      'PLAN'
+  };
+  function fixTabLabels() {
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      var t = btn.textContent.trim();
+      if (tabMap[t] && btn.textContent !== tabMap[t]) {
+        btn.textContent = tabMap[t];
+      }
+    });
+  }
+
+  // Strip inline styles from dashboard table rows/cells
+  function fixDashTable() {
+    var dt = document.getElementById('dash-table');
+    if (!dt) return;
+    dt.querySelectorAll('tr, th, td').forEach(function(el) {
+      el.removeAttribute('style');
+    });
+  }
+
+  // Strip inline styles from dash-grand-container children
+  function fixDashHero() {
+    var c = document.getElementById('dash-grand-container');
+    if (!c) return;
+    c.removeAttribute('style');
+    c.querySelectorAll('*').forEach(function(el) { el.removeAttribute('style'); });
+    // Keep display visible
+    c.style.display = 'block';
+  }
+
+  function runAll() {
+    fixTabLabels();
+    fixDashTable();
+    fixDashHero();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runAll);
+  } else {
+    runAll();
+  }
+
+  // Re-run after any DOM mutation (renderDashboard rebuilds the table)
+  var mo = new MutationObserver(function() { setTimeout(runAll, 10); });
+  mo.observe(document.body, { childList: true, subtree: true });
+
+  // Also run on tab clicks
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('tab-btn')) {
+      setTimeout(runAll, 50);
+      setTimeout(runAll, 300);
+    }
+  }, true);
+})();
+
+</script>
 </body></html>

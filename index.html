@@ -976,6 +976,14 @@ div#tabs, #tabs {
   gap: 0 !important;
   border-bottom: 1px solid #272A31 !important;
   overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+div#tabs::-webkit-scrollbar, #tabs::-webkit-scrollbar {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
 }
 div#tabs button.tab-btn, #tabs button.tab-btn, button.tab-btn {
   flex: 1 !important;
@@ -1268,8 +1276,8 @@ table#dash-table tfoot tr, table#dash-table tfoot tr td {
 <!-- TABS -->
 <div id="tabs">
   <button class="tab-btn active" onclick="switchTab(&#39;form&#39;,this)">ENTRY</button>
-  <button class="tab-btn" onclick="switchTab(&#39;analysis&#39;,this)">ANALYSIS</button>
-  <button class="tab-btn" onclick="switchTab(&#39;dashboard&#39;,this)">DASHBOARD</button>
+  <button class="tab-btn" onclick="switchTab(&#39;analysis&#39;,this)">ANLYS</button>
+  <button class="tab-btn" onclick="switchTab(&#39;dashboard&#39;,this)">DASH</button>
   <button class="tab-btn" onclick="switchTab(&#39;log&#39;,this)">LOG</button>
   <button class="tab-btn" onclick="switchTab(&#39;plan&#39;,this)">PLAN</button>
 </div>
@@ -14608,7 +14616,7 @@ function renderPlan() {
   var KEY = 'mobica-theme';
   if (localStorage.getItem(KEY) === 'light') document.body.classList.add('light-mode');
 
-  var TAB_LABELS = { 'ENTRY':'ENTRY','ANALYSIS':'ANLYS','DASHBOARD':'DASH','LOG':'LOG','PLAN':'PLAN' };
+  var TAB_LABELS = { 'ENTRY':'ENTRY','ANLYS':'ANLYS','DASH':'DASH','LOG':'LOG','PLAN':'PLAN','ANALYSIS':'ANLYS','DASHBOARD':'DASH' };
   function fixTabs() {
     document.querySelectorAll('.tab-btn').forEach(function(btn) {
       var t = btn.textContent.trim();

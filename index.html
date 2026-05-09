@@ -399,7 +399,7 @@ body.loc-integrated .brand{color:#ffffff;}
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style id="rd-override">
-/* MOBICA Redesign v3 — embedded */
+/* MOBICA Redesign v4 */
 /* ============================================================
    MOBICA · Warehouse OS Redesign — drop-in override
    Paste this AFTER your existing <style> block, or load via
@@ -965,10 +965,9 @@ body.loc-integrated #dash-grand-container { border-left-color: var(--r-int) !imp
 
 
 /* ══════════════════════════════════════════════════
-   TABS — nuclear override (defeats border-radius+shadow)
+   TABS — nuclear override
 ══════════════════════════════════════════════════ */
-div#tabs,
-#tabs {
+div#tabs, #tabs {
   display: flex !important;
   background: #16181D !important;
   backdrop-filter: none !important;
@@ -978,18 +977,13 @@ div#tabs,
   border-bottom: 1px solid #272A31 !important;
   overflow-x: auto !important;
 }
-div#tabs button.tab-btn,
-#tabs button.tab-btn,
-button.tab-btn {
+div#tabs button.tab-btn, #tabs button.tab-btn, button.tab-btn {
   flex: 1 !important;
   padding: 14px 6px !important;
   font-size: 10px !important;
   font-weight: 600 !important;
   letter-spacing: 2px !important;
   border: none !important;
-  border-top: none !important;
-  border-left: none !important;
-  border-right: none !important;
   border-bottom: 2px solid transparent !important;
   border-radius: 0 !important;
   background: transparent !important;
@@ -1000,31 +994,192 @@ button.tab-btn {
   font-family: 'JetBrains Mono', ui-monospace, monospace !important;
   white-space: nowrap !important;
 }
-div#tabs button.tab-btn:hover,
-#tabs button.tab-btn:hover,
-button.tab-btn:hover {
-  background: #1D2026 !important;
-  color: #B8BBC2 !important;
-  box-shadow: none !important;
-  transform: none !important;
-}
-div#tabs button.tab-btn.active,
-#tabs button.tab-btn.active,
-button.tab-btn.active {
-  background: #0E0F12 !important;
-  color: #EDEEF0 !important;
-  border-bottom: 2px solid #FF7A1A !important;
-  box-shadow: none !important;
-  transform: none !important;
+div#tabs button.tab-btn:hover, #tabs button.tab-btn:hover { background: #1D2026 !important; color: #B8BBC2 !important; box-shadow: none !important; transform: none !important; }
+div#tabs button.tab-btn.active, #tabs button.tab-btn.active, button.tab-btn.active {
+  background: #0E0F12 !important; color: #EDEEF0 !important;
+  border-bottom: 2px solid #FF7A1A !important; box-shadow: none !important; transform: none !important;
 }
 body.loc-integrated div#tabs button.tab-btn.active,
-body.loc-integrated #tabs button.tab-btn.active,
-body.loc-integrated button.tab-btn.active {
-  border-bottom-color: #9FE800 !important;
+body.loc-integrated button.tab-btn.active { border-bottom-color: #9FE800 !important; }
+
+/* Desktop media query override — prevent 900px breakpoint from resizing tabs */
+@media (min-width: 900px) {
+  button.tab-btn { padding: 14px 10px !important; font-size: 10px !important; letter-spacing: 2px !important; }
 }
 
 /* ══════════════════════════════════════════════════
-   DASHBOARD HERO BOX
+   MONTH SELECTORS — fix inline font-size:20px
+══════════════════════════════════════════════════ */
+select#analysis-month-sel,
+select#dashboard-month-sel,
+select#plan-month-sel,
+select#export-month-sel {
+  background: #16181D !important;
+  border: 1px solid #272A31 !important;
+  border-radius: 3px !important;
+  color: #EDEEF0 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12px !important;
+  padding: 8px 10px !important;
+}
+
+/* ══════════════════════════════════════════════════
+   ANALYSIS — grand total card
+══════════════════════════════════════════════════ */
+#grand-total {
+  background: #16181D !important;
+  border: 1px solid #272A31 !important;
+  border-left: 3px solid #FF7A1A !important;
+  border-radius: 4px !important;
+  padding: 14px 16px !important;
+}
+body.loc-integrated #grand-total { border-left-color: #9FE800 !important; }
+
+#grand-total .label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 1.4px !important;
+  color: #7C8089 !important;
+  display: block !important;
+  margin-bottom: 6px !important;
+}
+#grand-total .label::before { content: '['; color: #3A3D44; }
+#grand-total .label::after  { content: ']'; color: #3A3D44; }
+
+#grand-total .value {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 48px !important;
+  font-weight: 700 !important;
+  color: #EDEEF0 !important;   /* white — not amber */
+  letter-spacing: -1px !important;
+  display: block !important;
+}
+
+/* ══════════════════════════════════════════════════
+   ANALYSIS — OEM cards
+══════════════════════════════════════════════════ */
+.oem-card {
+  border-radius: 4px !important;
+  margin-bottom: 8px !important;
+  background: #16181D !important;
+}
+.oem-card-header {
+  border-radius: 0 !important;
+  padding: 12px 14px !important;
+}
+.oem-card-name {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.2px !important;
+}
+.oem-card-total {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+.oem-row {
+  padding: 8px 14px !important;
+  border-bottom: 1px solid #1F2228 !important;
+}
+.oem-row-name {
+  font-family: 'Geist', system-ui, sans-serif !important;
+  font-size: 12px !important;
+  color: #B8BBC2 !important;
+}
+.oem-row-qty {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #EDEEF0 !important;
+}
+
+/* ══════════════════════════════════════════════════
+   PLAN — summary card
+══════════════════════════════════════════════════ */
+.plan-summary {
+  background: #16181D !important;
+  border: 1px solid #272A31 !important;
+  border-radius: 4px !important;
+  padding: 14px !important;
+  margin-bottom: 12px !important;
+}
+.plan-summary-item .label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  letter-spacing: 1.4px !important;
+  color: #7C8089 !important;
+}
+.plan-summary-item .val {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  color: #EDEEF0 !important;   /* white — not amber */
+  font-variant-numeric: tabular-nums !important;
+  margin-top: 2px !important;
+}
+
+/* ══════════════════════════════════════════════════
+   PLAN — OEM blocks
+══════════════════════════════════════════════════ */
+.plan-oem-block {
+  border-radius: 4px !important;
+  margin-bottom: 8px !important;
+  background: #16181D !important;
+  border: 1px solid #272A31 !important;
+}
+.plan-oem-header {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12px !important;
+  letter-spacing: 1.5px !important;
+  font-weight: 700 !important;
+  padding: 10px 14px !important;
+  border-bottom: 1px solid #272A31 !important;
+  border-radius: 0 !important;
+}
+.plan-oem-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+}
+.plan-hdr {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  letter-spacing: 1.4px !important;
+  color: #7C8089 !important;
+  background: #1D2026 !important;
+  border-bottom: 1px solid #272A31 !important;
+  padding: 6px 14px !important;
+}
+.plan-row {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12px !important;
+  padding: 8px 14px !important;
+  border-bottom: 1px solid #1F2228 !important;
+}
+.plan-row-model {
+  font-family: 'Geist', system-ui, sans-serif !important;
+  font-size: 12px !important;
+  color: #B8BBC2 !important;
+}
+.plan-num, .plan-pct {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #EDEEF0 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+.plan-badge {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  border-radius: 2px !important;
+  padding: 2px 5px !important;
+}
+
+/* ══════════════════════════════════════════════════
+   DASHBOARD TABLE + HERO
 ══════════════════════════════════════════════════ */
 #dash-grand-container {
   background: #16181D !important;
@@ -1035,16 +1190,7 @@ body.loc-integrated button.tab-btn.active {
   text-align: left !important;
   padding: 14px 16px !important;
 }
-body.loc-integrated #dash-grand-container {
-  border-left-color: #9FE800 !important;
-}
-#dash-grand-container > span:first-child {
-  color: #7C8089 !important;
-  font-family: 'JetBrains Mono', monospace !important;
-  font-size: 10px !important;
-  letter-spacing: 1.4px !important;
-  font-weight: 500 !important;
-}
+body.loc-integrated #dash-grand-container { border-left-color: #9FE800 !important; }
 #dash-grand-val {
   color: #EDEEF0 !important;
   font-family: 'JetBrains Mono', monospace !important;
@@ -1052,67 +1198,26 @@ body.loc-integrated #dash-grand-container {
   font-weight: 700 !important;
 }
 
-/* ══════════════════════════════════════════════════
-   DASHBOARD TABLE  — overrides inline #4FC3F7 styles
-   (!important beats inline style="")
-══════════════════════════════════════════════════ */
-table#dash-table {
-  font-family: 'JetBrains Mono', monospace !important;
-  font-size: 12px !important;
-  border-collapse: collapse !important;
+table#dash-table thead tr, table#dash-table thead tr th {
+  background: #1D2026 !important; color: #7C8089 !important;
+  border-color: #272A31 !important; font-size: 10px !important; letter-spacing: 1.4px !important;
 }
-table#dash-table thead tr,
-table#dash-table thead tr th {
-  background: #1D2026 !important;
-  color: #7C8089 !important;
-  border-color: #272A31 !important;
-  font-size: 10px !important;
-  letter-spacing: 1.4px !important;
+table#dash-table tbody tr, table#dash-table tbody tr td {
+  background: #16181D !important; color: #EDEEF0 !important; border-color: #272A31 !important;
 }
-table#dash-table tbody tr,
-table#dash-table tbody tr td {
-  background: #16181D !important;
-  color: #EDEEF0 !important;
-  border-color: #272A31 !important;
-}
-table#dash-table tfoot tr,
-table#dash-table tfoot tr td {
-  background: #1D2026 !important;
-  color: #EDEEF0 !important;
-  border-color: #272A31 !important;
-  font-weight: 700 !important;
+table#dash-table tfoot tr, table#dash-table tfoot tr td {
+  background: #1D2026 !important; color: #EDEEF0 !important;
+  border-color: #272A31 !important; font-weight: 700 !important;
 }
 
-/* ══════════════════════════════════════════════════
-   BAR CHART labels — dim the OEM name below bar
-   (keep bar colors as-is — colorful is better)
-══════════════════════════════════════════════════ */
-#dash-bar-chart {
-  border-bottom: 1px solid #272A31 !important;
-}
+/* Bar chart labels */
+#dash-bar-chart { border-bottom: 1px solid #272A31 !important; }
 #dash-bar-chart > div > span:last-child {
-  color: #7C8089 !important;
-  font-family: 'JetBrains Mono', monospace !important;
-  font-size: 9px !important;
-  letter-spacing: 0.5px !important;
-  font-weight: 600 !important;
+  color: #7C8089 !important; font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important; letter-spacing: 0.5px !important; font-weight: 600 !important;
 }
 #dash-bar-chart > div > span:first-child {
-  color: #B8BBC2 !important;
-  font-family: 'JetBrains Mono', monospace !important;
-  font-size: 10px !important;
-}
-
-/* Month selects */
-select#dashboard-month-sel,
-select#export-month-sel {
-  background: #16181D !important;
-  border: 1px solid #272A31 !important;
-  border-radius: 3px !important;
-  color: #EDEEF0 !important;
-  font-family: 'JetBrains Mono', monospace !important;
-  font-size: 12px !important;
-  padding: 8px 10px !important;
+  color: #B8BBC2 !important; font-family: 'JetBrains Mono', monospace !important; font-size: 10px !important;
 }
 
 </style>
@@ -14477,20 +14582,13 @@ function renderPlan() {
       }
     </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration>
 <script id="rd-js">
-/* MOBICA Redesign JS v3 — minimal + surgical */
 
 (function() {
   'use strict';
-
-  /* 1. Apply saved theme */
   var KEY = 'mobica-theme';
   if (localStorage.getItem(KEY) === 'light') document.body.classList.add('light-mode');
 
-  /* 2. Abbreviate tab labels once */
-  var TAB_LABELS = {
-    'ENTRY':'ENTRY', 'ANALYSIS':'ANLYS',
-    'DASHBOARD':'DASH', 'LOG':'LOG', 'PLAN':'PLAN'
-  };
+  var TAB_LABELS = { 'ENTRY':'ENTRY','ANALYSIS':'ANLYS','DASHBOARD':'DASH','LOG':'LOG','PLAN':'PLAN' };
   function fixTabs() {
     document.querySelectorAll('.tab-btn').forEach(function(btn) {
       var t = btn.textContent.trim();
@@ -14498,13 +14596,11 @@ function renderPlan() {
     });
   }
 
-  /* 3. Theme toggle button */
   function injectThemeBtn() {
     var hdr = document.getElementById('header-right');
     if (!hdr || document.getElementById('rd-theme-btn')) return;
     var b = document.createElement('button');
-    b.id = 'rd-theme-btn';
-    b.className = 'hbtn';
+    b.id = 'rd-theme-btn'; b.className = 'hbtn';
     b.style.cssText = 'min-width:32px;font-size:14px;';
     function refresh() { b.textContent = document.body.classList.contains('light-mode') ? '\u263E' : '\u263C'; }
     refresh();
@@ -14516,19 +14612,11 @@ function renderPlan() {
     hdr.insertBefore(b, hdr.firstChild);
   }
 
-  /* 4. Run */
   function init() { fixTabs(); injectThemeBtn(); }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-
-  /* Re-run tab fix after tab switches (labels may be reset by JS) */
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); }
+  else { init(); }
   document.addEventListener('click', function(e) {
-    if (e.target.classList && e.target.classList.contains('tab-btn')) {
-      setTimeout(fixTabs, 20);
-    }
+    if (e.target.classList && e.target.classList.contains('tab-btn')) setTimeout(fixTabs, 20);
   }, true);
 })();
 

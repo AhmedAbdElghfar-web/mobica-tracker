@@ -14584,9 +14584,9 @@ function showToast(msg) {
 
 // ── ANALYSIS ─────────────────────────────────────────
 // ── GLOBAL EXCLUSION FILTER ──────────────────────────
-// GM BRACKET is out of scope — excluded from all tabs
+// BRACKET appears in ANALYSIS / DASH / LOG — excluded only from PLAN calculation
 function isExcluded(e) {
-  return e.oem === "GM" && e.model === "BRACKET";
+  return false;
 }
 
 function renderAnalysis() {
@@ -15250,7 +15250,6 @@ async function openYearView() {
 
     yearViewData.forEach(function(e){
       if(e.deleted) return;                          // skip soft-deleted
-      if(e.oem==="GM" && e.model==="BRACKET") return; // exclude BRACKET
       var month=e.date?e.date.substring(0,7):"unknown";
       if(!months[month]) months[month]={adv:{qty:0,val:0},int:{qty:0,val:0}};
       var isInt=(e.location==="integrated")||(e.location===undefined&&YV_INT_OEMS.indexOf(e.oem)>=0);

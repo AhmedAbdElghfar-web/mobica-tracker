@@ -15458,16 +15458,38 @@ function buildPlanTrackingUnits(planRows, actualRows) {
       }).length > 0;
 
       if (!nissanHasLinePlan && nissanModelPlan > 0) {
-        // Model-level plan: show as single row, actual = sum all variants
-        var totalAct = variants.reduce(function(s,v){
-          return s + (actMap[oem+"|"+model+"|"+v]||0);
-        }, 0);
-        units.push({
-          oem: oem, model: model, label: model, line: "",
-          logicTag: "std",
-          plan:   nissanModelPlan,
-          actual: totalAct
-        });
+        // Model-level plan: STILL apply line split — use model plan qty as benchmark for each line.
+        // Seat and Door Panel are independent production lines; summing them against car-count plan is wrong.
+        var seatVarsM = variants.filter(function(v){ return v && /seat/i.test(v); });
+        var doorVarsM = variants.filter(function(v){ return v && (/door/i.test(v) || /luxe/i.test(v)); });
+        if (seatVarsM.length === 0 && doorVarsM.length === 0) {
+          // No variant actuals yet — still show 2 placeholder lines
+          seatVarsM = []; doorVarsM = [];
+          units.push({ oem:oem, model:model, label:model, line:"Seat",       logicTag:"seat", plan:nissanModelPlan, actual:0 });
+          units.push({ oem:oem, model:model, label:model, line:"Door Panel", logicTag:"door", plan:nissanModelPlan, actual:0 });
+        } else {
+          if (seatVarsM.length > 0) {
+            units.push({
+              oem:oem, model:model, label:model, line:"Seat", logicTag:"seat",
+              plan:   nissanModelPlan,
+              actual: seatVarsM.reduce(function(s,v){ return s + (actMap[oem+"|"+model+"|"+v]||0); }, 0)
+            });
+          }
+          if (doorVarsM.length > 0) {
+            units.push({
+              oem:oem, model:model, label:model, line:"Door Panel", logicTag:"door",
+              plan:   nissanModelPlan,
+              actual: doorVarsM.reduce(function(s,v){ return s + (actMap[oem+"|"+model+"|"+v]||0); }, 0)
+            });
+          }
+          // Edge: only seat actuals OR only door actuals exist — add missing line as 0
+          if (seatVarsM.length === 0) {
+            units.push({ oem:oem, model:model, label:model, line:"Seat",       logicTag:"seat", plan:nissanModelPlan, actual:0 });
+          }
+          if (doorVarsM.length === 0) {
+            units.push({ oem:oem, model:model, label:model, line:"Door Panel", logicTag:"door", plan:nissanModelPlan, actual:0 });
+          }
+        }
       } else {
         var seatVars = variants.filter(function(v){ return v && /seat/i.test(v); });
         var doorVars = variants.filter(function(v){ return v && (/door/i.test(v) || /luxe/i.test(v)); });

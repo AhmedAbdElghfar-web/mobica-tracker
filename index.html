@@ -15674,12 +15674,12 @@ function renderPlan() {
         var barPct = Math.min(pct, 100);
         var barColor = pct >= 100 ? "#34D399" : pct >= 80 ? "#FCD34D" : "#F87171";
 
-        html += '<div class="plan-row" style="' + colsStyle + ';position:relative;overflow:hidden;">';
+        html += '<div class="plan-row" style="' + colsStyle + ';position:relative;overflow:hidden;border-left:3px solid ' + barColor + '90;">';
 
-        // Background progress fill (subtle)
+        // Background progress fill
         if (barPct > 0 && u.plan > 0) {
           html += '<div style="position:absolute;left:0;top:0;height:100%;width:' +
-            barPct + '%;background:' + barColor + '18;pointer-events:none;border-radius:4px;"></div>';
+            barPct + '%;background:linear-gradient(90deg,' + barColor + '40 0%,' + barColor + '12 100%);pointer-events:none;border-radius:0 4px 4px 0;"></div>';
         }
 
         // Model label — for NISSAN, show model name only on first line

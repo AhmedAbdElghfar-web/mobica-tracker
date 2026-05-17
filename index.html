@@ -14177,11 +14177,87 @@ function loadTheme() {
   }
 }
 
+// ── PRICE LOADER ─────────────────────────────────────────────────────────────
+// Fetches the latest prices from Supabase and rebuilds OEM_PRICES / YV_PRICES
+// so no prices are hardcoded in the app HTML.
+// Strategy: for each OEM, find the row with the most recent effective_from <= today.
+function fetchPricesFromSupabase() {
+  var today = todayStr();
+  return fetch(SB_URL + "/rest/v1/prices?select=oem,model,variant,unit_price,effective_from&order=oem,model,variant,effective_from.desc", {
+    headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(rows) {
+    if (!Array.isArray(rows) || rows.length === 0) {
+      console.log("Prices: no rows returned, using hardcoded fallback.");
+      return;
+    }
+
+    // Keep only the most recent effective_from <= today per (oem, model, variant)
+    var best = {};
+    rows.forEach(function(r) {
+      if (r.effective_from > today) return; // future price — skip
+      var k = r.oem + "|" + r.model + "|" + (r.variant || "");
+      if (!best[k]) best[k] = r; // already sorted desc, first hit = latest
+    });
+
+    // Helper: get price from best map
+    function gp(oem, model, variant) {
+      var k = oem + "|" + model + "|" + (variant || "");
+      return best[k] ? Number(best[k].unit_price) : null;
+    }
+
+    // Rebuild index-based price objects using the same model arrays
+    var newPrices = {};
+
+    // ADV OEMs (indexed via YV_ADV_MODELS)
+    if (typeof YV_ADV_MODELS !== "undefined") {
+      Object.keys(YV_ADV_MODELS).forEach(function(oem) {
+        newPrices[oem] = {};
+        YV_ADV_MODELS[oem].forEach(function(pair, idx) {
+          if (!pair || !pair[0]) return; // null placeholder
+          var p = gp(oem, pair[0], pair[1] || "");
+          if (p !== null) newPrices[oem][String(idx)] = p;
+        });
+      });
+    }
+
+    // Integrated OEMs (indexed via YV_INT_MODELS)
+    if (typeof YV_INT_MODELS !== "undefined") {
+      Object.keys(YV_INT_MODELS).forEach(function(oem) {
+        newPrices[oem] = {};
+        YV_INT_MODELS[oem].forEach(function(model, idx) {
+          var p = gp(oem, model, "");
+          if (p !== null) newPrices[oem][String(idx)] = p;
+        });
+      });
+    }
+
+    // Apply to both global price objects
+    Object.keys(newPrices).forEach(function(oem) {
+      OEM_PRICES[oem] = newPrices[oem];
+      YV_PRICES[oem]  = newPrices[oem];
+    });
+
+    console.log("Prices loaded from Supabase: " + Object.keys(best).length + " entries.");
+
+    // Re-render any visible value-dependent views
+    if (typeof renderAnalysis === "function")  renderAnalysis();
+    if (typeof renderDashboard === "function") renderDashboard();
+    if (typeof renderPlanTracking === "function") renderPlanTracking();
+  })
+  .catch(function(err) {
+    console.warn("fetchPricesFromSupabase failed, using hardcoded fallback:", err.message);
+  });
+}
+
 window.onload = function() {
   loadTheme();
   loadData();
   document.getElementById("date-input").value = todayStr();
   setLocation(currentLocation); // populates OEM dropdown
+  // Fetch prices from Supabase early — refreshes OEM_PRICES / YV_PRICES
+  setTimeout(fetchPricesFromSupabase, 800);
   updateEntryCount();
   renderLog();
 

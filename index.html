@@ -14007,6 +14007,8 @@ async function sbSync() {
     persist();
     updateEntryCount(); renderLog(); renderAnalysis();
     if (typeof renderDashboard === "function") renderDashboard();
+    var planTab = document.getElementById("plan");
+    if (planTab && planTab.classList.contains("tab-active")) renderPlan();
     showToast("Synced " + entries.length + " entries ✓");
   } catch(e) { showToast("Sync failed: " + e.message); }
 }
@@ -14061,6 +14063,8 @@ async function silentSync() {
       persist();
       updateEntryCount(); renderLog(); renderAnalysis();
       if (typeof renderDashboard === "function") renderDashboard();
+      var planTab = document.getElementById("plan");
+     if (planTab && planTab.classList.contains("tab-active")) renderPlan();
     }
   } catch(e) { /* silent — offline */ }
 }

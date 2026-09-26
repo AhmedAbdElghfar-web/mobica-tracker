@@ -474,6 +474,7 @@ body:not(.mode-production) .production-only{display:none!important}
 
     <!-- ANALYSIS TAB -->
     <div id="analysis">
+      <div class="insight archived-note" id="analysis-archived-note" hidden><b>Archived month.</b> These records are from before the 1 Oct 2026 restart, a period with missed entries, so totals may be incomplete. Read-only; not used for stock.</div>
       <section class="filters">
         <label class="field"><span>Month</span><select id="analysis-month-sel" onchange="renderAnalysis()"></select></label>
       </section>
@@ -486,7 +487,8 @@ body:not(.mode-production) .production-only{display:none!important}
 
     <!-- DASHBOARD TAB -->
     <div id="dashboard">
-      <div class="insight"><b>Tracking restarted 1 Oct 2026.</b> Figures count entries dated on or after this date. Earlier records are archived and read-only; open them from Year view or the Log.</div>
+      <div class="insight archived-note" id="dashboard-archived-note" hidden><b>Archived month.</b> These records are from before the 1 Oct 2026 restart, a period with missed entries, so totals may be incomplete. Read-only; not used for stock.</div>
+      <div class="insight"><b>Tracking restarted 1 Oct 2026.</b> Stock and the default month count entries from this date. Earlier months are archived and read-only; pick them under “Archived” in the month list.</div>
       <section class="filters">
         <label class="field"><span>Month</span><select id="dashboard-month-sel" onchange="renderDashboard()"></select></label>
       </section>
@@ -538,6 +540,7 @@ body:not(.mode-production) .production-only{display:none!important}
 
     <!-- PLAN TAB -->
     <div id="plan">
+      <div class="insight archived-note" id="plan-archived-note" hidden><b>Archived month.</b> These records are from before the 1 Oct 2026 restart, a period with missed entries, so totals may be incomplete. Read-only; not used for stock.</div>
       <section class="filters">
         <label class="field"><span>Month</span><select id="plan-month-sel" onchange="renderPlan()"></select></label>
       </section>
@@ -657,6 +660,23 @@ function defaultActiveMonth(){
   var cur = todayStr().substring(0, 7);
   return ACTIVE_MONTHS.indexOf(cur) >= 0 ? cur : ACTIVE_MONTHS[0];
 }
+var ARCHIVED_MONTHS = ["2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","2026-09"];
+function isArchivedMonth(ym){ return !!ym && ym < SYSTEM_START.substring(0, 7); }
+// Month selector: months since the restart first, archived months below in their own group
+function fillMonthSelect(sel){
+  sel.innerHTML = "";
+  var g1 = document.createElement("optgroup"); g1.label = "Since restart (1 Oct 2026)";
+  ACTIVE_MONTHS.forEach(function(ym){ var o = document.createElement("option"); o.value = ym; o.textContent = monthLabel(ym); g1.appendChild(o); });
+  var g2 = document.createElement("optgroup"); g2.label = "Archived — before 1 Oct 2026";
+  ARCHIVED_MONTHS.slice().reverse().forEach(function(ym){ var o = document.createElement("option"); o.value = ym; o.textContent = monthLabel(ym) + " · archived"; g2.appendChild(o); });
+  sel.appendChild(g1); sel.appendChild(g2);
+  sel.value = defaultActiveMonth();
+}
+function updateArchivedNote(id, ym){
+  var el = document.getElementById(id);
+  if (el) el.hidden = !isArchivedMonth(ym);
+}
+function monthEntries(ym){ return entries.filter(function(e){ return e.date && e.date.substring(0, 7) === ym; }); }
 function isArchivedDate(d){ return !d || d < SYSTEM_START; }
 function activeEntries(){ return entries.filter(function(e){ return !isArchivedDate(e.date); }); }
 
@@ -1165,11 +1185,11 @@ function renderDashStockCards(){
   var month = document.getElementById("dashboard-month-sel").value;
   var prodMonth = production.filter(function(p){ return !p.deleted && p.date && p.date.startsWith(month) && !isArchivedDate(p.date) && !isStockExcluded(p.oem, p.model); })
     .reduce(function(s,p){ return s + Number(p.qty); }, 0);
-  var delMonth = activeEntries().filter(function(e){ return e.date.startsWith(month); }).reduce(function(s,e){ return s + Number(e.qty); }, 0);
+  var delMonth = monthEntries(month).reduce(function(s,e){ return s + Number(e.qty); }, 0);
   var prog = openingProgress("");
   el.innerHTML =
     '<article class="card"><h3>Delivered · ' + monthLabel(month) + '</h3><div class="metric">' + fmt(delMonth) + '</div><div class="sub">units, all OEMs</div></article>' +
-    '<article class="card green"><h3>Produced · ' + monthLabel(month) + '</h3><div class="metric">' + fmt(prodMonth) + '</div><div class="sub">units entered by production</div></article>' +
+    '<article class="card green"><h3>Produced · ' + monthLabel(month) + '</h3><div class="metric">' + (isArchivedMonth(month) ? '—' : fmt(prodMonth)) + '</div><div class="sub">' + (isArchivedMonth(month) ? 'production tracking starts 1 Oct 2026' : 'units entered by production') + '</div></article>' +
     '<article class="card amber"><h3>FG stock on hand</h3><div class="metric">' + fmt(totalStock) + '</div><div class="sub">' +
       (prog.done ? prog.done + ' of ' + prog.total + ' items counted on 1 Oct' : 'opening stock not entered yet') + '</div></article>' +
     '<article class="card red" style="cursor:pointer" onclick="goToDiscrepancies()"><h3>Stock discrepancies</h3><div class="metric" style="color:' + (neg.length ? 'var(--red)' : 'inherit') + '">' + neg.length + '</div>' +
@@ -1791,14 +1811,8 @@ window.onload = function() {
   // Month selectors: ANALYSIS / DASH use months from the 1 Oct 2026 restart onward
   var anSel = document.getElementById("analysis-month-sel");
   var dashSel = document.getElementById("dashboard-month-sel");
-  ACTIVE_MONTHS.forEach(function(ym) {
-    var o = document.createElement("option");
-    o.value = ym; o.textContent = monthLabel(ym);
-    anSel.appendChild(o);
-    dashSel.appendChild(o.cloneNode(true));
-  });
-  anSel.value = defaultActiveMonth();
-  dashSel.value = defaultActiveMonth();
+  fillMonthSelect(anSel);
+  fillMonthSelect(dashSel);
   // Excel export: any month (archived months stay exportable for reference)
   var exSel = document.getElementById("export-month-sel");
   YV_ALL_MONTHS.concat(ACTIVE_MONTHS.filter(function(m){ return YV_ALL_MONTHS.indexOf(m) < 0; })).forEach(function(ym) {
@@ -2274,8 +2288,9 @@ function renderAnalysis() {
   const selectedMonth = sel ? sel.value : "";
 
   // Filter entries by selected month (YYYY-MM)
+  updateArchivedNote("analysis-archived-note", selectedMonth);
   const filtered = selectedMonth
-    ? activeEntries().filter(e => e.date && e.date.substring(0,7) === selectedMonth && !isExcluded(e))
+    ? monthEntries(selectedMonth).filter(e => !isExcluded(e))
     : activeEntries().filter(e => !isExcluded(e));
 
   // Update label
@@ -2326,8 +2341,9 @@ function renderDashboard() {
   var grandQty = 0;
   var oemAgg = {};
 
+  updateArchivedNote("dashboard-archived-note", month);
   renderDashStockCards();
-  activeEntries().forEach(e => {
+  entries.forEach(e => {
     if(isExcluded(e)) return;
     if(e.date.startsWith(month)) {
       var price = 0;
@@ -2994,14 +3010,7 @@ var OEM_COLORS_PLAN = {
 
 (function initPlanMonthSel(){
   var sel = document.getElementById("plan-month-sel");
-  var months = ACTIVE_MONTHS;
-  var cur = defaultActiveMonth();
-  months.forEach(function(m){
-    var o = document.createElement("option");
-    o.value = m; o.textContent = monthLabel(m);
-    if(m === cur) o.selected = true;
-    sel.appendChild(o);
-  });
+  fillMonthSelect(sel);
 })();
 
 function buildPlanTrackingUnits(planRows, actualRows) {
@@ -3172,9 +3181,8 @@ function renderPlan() {
   var planUrl = SB_URL + "/rest/v1/monthly_plan?month=eq." + month +
     "&select=oem,model,variant,plan_qty";
 
-  var actualRows = activeEntries().filter(function(e){
-    return e.date && e.date.slice(0, 7) === month;
-  });
+  updateArchivedNote("plan-archived-note", month);
+  var actualRows = monthEntries(month);
 
   Promise.all([
     fetch(planUrl, { headers:{ apikey:SB_KEY, Authorization:"Bearer "+SB_KEY }})

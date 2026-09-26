@@ -38,14 +38,21 @@ var fflate=(function(){
   --text:#10263b; --sub:#34424f; --dim:#8a98a6;
   --primary:#0f2a43;
 }
-body.loc-integrated{ --accent:#157a52; }
+/* ── location themes: ADV = navy/teal (KAYAN), INT = forest/green ── */
+body.loc-integrated{
+  --navy:#0e3a2b; --navy-2:#145039; --teal:#22a06b; --teal-d:#157a52;
+  --accent:#157a52; --bgk:#edf3ef; --bg:#edf3ef; --track:#e3ede7; --target:#c9dccf;
+  --logo:#3fd49a; --eyebrow-h:#5fe0a8; --bar-a:#34c98a; --focus:rgba(34,160,107,.45);
+}
+body{--logo:#33b0d6; --eyebrow-h:#3bb7dd; --bar-a:#35b1d7; --focus:rgba(42,159,201,.45)}
+#header,#tabs .tab-btn,.chip,.loc-banner-btn,.btn,#btn-verify,#btn-save,body{transition:background-color .25s,border-color .25s,color .25s}
 *{box-sizing:border-box}
 html,body{margin:0}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{font-family:var(--font);color:var(--ink);background:var(--bgk);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
-:focus-visible{outline:3px solid rgba(42,159,201,.45);outline-offset:2px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .wrap{max-width:1500px;margin:0 auto;padding:0 clamp(16px,3.5vw,56px)}
 .num,td.n,th.n{font-variant-numeric:tabular-nums}
 
@@ -53,11 +60,12 @@ button{cursor:pointer}
 #header{background:var(--navy);color:#fff}
 #header .wrap{display:flex;align-items:center;gap:22px;min-height:112px;padding-block:16px}
 .logo{display:flex;align-items:flex-end;gap:5px;height:56px;flex:none}
-.logo i{display:block;width:13px;background:#33b0d6}
+.logo i{display:block;width:13px;background:var(--logo)}
 .logo i:nth-child(1){height:40%}.logo i:nth-child(2){height:68%}.logo i:nth-child(3){height:100%}
-.brand-block{flex:1;min-width:0}
+.brand-block{flex:1 1 auto;min-width:0}
+@media (min-width:721px){#header .wrap{flex-wrap:wrap}.brand-block{flex:0 0 auto}.brand-block .eyebrow,.brand-block h1{white-space:nowrap}.through{flex:1 1 220px;min-width:220px}#header-right{flex:0 1 auto;justify-content:flex-end;margin-left:auto}}
 .eyebrow{font-weight:900;letter-spacing:.18em;text-transform:uppercase;font-size:12.5px}
-#header .eyebrow{color:#3bb7dd}
+#header .eyebrow{color:var(--eyebrow-h)}
 .brand-block h1{margin:4px 0 0;font-size:clamp(22px,2.6vw,33px);font-weight:900;letter-spacing:-.01em;line-height:1.1}
 .through{display:flex;align-items:center;gap:10px;font-size:14px;color:#c9d6e2;line-height:1.25}
 .through b{display:block;color:#fff;font-size:17px;font-weight:800}
@@ -84,6 +92,7 @@ button{cursor:pointer}
 #tabs .wrap::-webkit-scrollbar{display:none}
 .tab-btn{background:none;border:0;padding:20px 14px 18px;font-size:18px;font-weight:700;color:var(--muted);border-bottom:4px solid transparent;white-space:nowrap}
 .tab-btn.active{color:var(--ink);font-weight:800;border-bottom-color:var(--teal)}
+.loc-tag{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;letter-spacing:.12em}
 .tab-btn.rec{color:var(--teal-d)}
 .tab-btn.rec.active{color:var(--ink)}
 #tabs .spacer{flex:1;min-width:12px}
@@ -94,7 +103,7 @@ button{cursor:pointer}
 .loc-banner-btn{display:inline-flex;align-items:baseline;gap:8px;border:1px solid #cdd7e0;background:#fff;border-radius:999px;padding:8px 16px;font-weight:800;font-size:15px}
 .loc-banner-btn .loc-sublabel{font-weight:600;color:var(--muted)}
 .loc-banner-btn.active-adv{background:var(--navy);border-color:var(--navy);color:#fff}
-.loc-banner-btn.active-int{background:#157a52;border-color:#157a52;color:#fff}
+.loc-banner-btn.active-int{background:#0e3a2b;border-color:#0e3a2b;color:#fff}
 .loc-banner-btn.active-adv .loc-sublabel,.loc-banner-btn.active-int .loc-sublabel{color:#d6e2ec}
 #loc-banner .hint{margin-left:auto}
 
@@ -128,7 +137,7 @@ select,input[type=date],input[type=number],input[type=text],input[type=password]
 .filters select,.filters input{min-width:180px}
 select:disabled{background:#f5f7f9;color:var(--faint)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--teal-d);color:#fff;border:0;border-radius:10px;padding:13px 18px;font-weight:800;font-size:16px;min-height:48px}
-.btn:hover{background:#166a8b}
+.btn:hover{filter:brightness(.92)}
 .btn.secondary{background:#fff;color:var(--ink);border:1px solid #cdd7e0}
 .btn.secondary:hover{background:#f5f7f9}
 .btn.danger{background:#fff;color:var(--red);border:1px solid #f0c3ca}
@@ -177,11 +186,11 @@ tfoot td{font-weight:900;border-top:2px solid var(--line);border-bottom:0}
 .variant-chip.selected{background:var(--navy);border-color:var(--navy);color:#fff}
 #qty-display,.vqty-display{background:#fff;border:1px solid #cdd7e0;border-radius:10px;padding:10px 16px;font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;cursor:pointer;min-height:64px;display:flex;align-items:center;justify-content:space-between}
 #qty-display.empty,.vqty-display.empty{color:var(--faint)}
-#qty-display.active,.vqty-display.active{border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,159,201,.18)}
+#qty-display.active,.vqty-display.active{border-color:var(--teal);box-shadow:0 0 0 3px var(--focus)}
 #keypad,.vqty-keypad{display:none;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 6px}
 #keypad.open,.vqty-keypad.open{display:grid}
 .key,.vk{background:#fff;border:1px solid #cdd7e0;border-radius:10px;min-height:56px;font-size:24px;font-weight:800}
-.key:active,.vk:active{background:#eef6fa}
+.key:active,.vk:active{background:var(--track)}
 .key-clear,.vk-clear{color:var(--red)}
 .key-back,.vk-back{color:var(--muted)}
 .vqty-row{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:12px;align-items:center;margin-top:8px}
@@ -210,7 +219,7 @@ body:not(.mode-production) .production-only{display:none!important}
 .bars .name{font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px;min-width:0}
 .bars .name span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar{position:relative;height:24px;background:var(--track);border-radius:4px;overflow:hidden}
-.bar .d{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:linear-gradient(90deg,#35b1d7,var(--teal-d))}
+.bar .d{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:linear-gradient(90deg,var(--bar-a),var(--teal-d))}
 .bars .pct{text-align:right;font-weight:900;font-size:16px;font-variant-numeric:tabular-nums}
 
 /* ── plan ── */
@@ -301,7 +310,7 @@ body:not(.mode-production) .production-only{display:none!important}
   <div class="wrap">
     <div class="logo" aria-hidden="true"><i></i><i></i><i></i></div>
     <div class="brand-block">
-      <div class="eyebrow">MOBICA Automotive</div>
+      <div class="eyebrow">MOBICA Automotive<span class="loc-tag" id="loc-tag">ADV · Advanced</span></div>
       <h1>Delivery &amp; Stock Control</h1>
     </div>
     <div class="through" title="Realtime connection to the cloud database">
@@ -1274,6 +1283,10 @@ function setLocation(loc) {
   currentLocation = loc;
   DATA = loc === "advanced" ? DATA_ADVANCED : DATA_INTEGRATED;
   document.body.classList.toggle("loc-integrated", loc === "integrated");
+  var _tag = document.getElementById("loc-tag");
+  if (_tag) _tag.textContent = loc === "integrated" ? "INT · Integrated" : "ADV · Advanced";
+  var _tc = document.querySelector('meta[name="theme-color"]');
+  if (_tc) _tc.setAttribute("content", loc === "integrated" ? "#0e3a2b" : "#0f2a43");
   // Update banner buttons
   document.getElementById("loc-adv").className = "loc-banner-btn" + (loc==="advanced"?" active-adv":"");
   document.getElementById("loc-int").className = "loc-banner-btn" + (loc==="integrated"?" active-int":"");

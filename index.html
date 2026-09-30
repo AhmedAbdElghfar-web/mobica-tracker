@@ -467,7 +467,7 @@ body:not(.mode-production) .production-only{display:none!important}
           <div><div class="eyebrow" id="opening-eyebrow">Entered once</div><h2>Opening stock count as of 1 Oct 2026</h2></div>
           <button class="btn secondary small" type="button" onclick="closeOpeningPanel()">Close</button>
         </div>
-        <div class="insight">Enter the physical count taken at the cut-off (end of 30 Sep or before production starts on 1 Oct). Units produced or delivered on 1 Oct go in as normal entries, not here. Saved rows lock. A correction is made from the login of the same OEM and is logged with the name, the login and the reason.</div>
+        <div class="insight">Enter the physical count taken at the cut-off (end of 30 Sep or before production starts on 1 Oct). Units produced or delivered on 1 Oct go in as normal entries, not here. Saved rows lock. Only the admin login can correct a saved count, and every correction is logged with the name, the login and the reason.</div>
         <section class="filters">
           <label class="field"><span>Location</span>
             <select id="opening-loc" onchange="renderOpeningPanel()"><option value="advanced">ADV · Advanced</option><option value="integrated">INT · Integrated</option></select></label>
@@ -1135,7 +1135,7 @@ function renderOpeningPanel(){
     (items.map(function(i, idx){
       var o = byKey[stockKey(i.oem, i.model, i.variant)];
       var cell = o
-        ? '<td class="n"><b>' + fmt(o.qty) + '</b></td><td><span class="pill green">Locked</span> <button class="btn danger small" type="button" onclick="openCorrection(\'' + o.id + '\')">Correct</button></td>'
+        ? '<td class="n"><b>' + fmt(o.qty) + '</b></td><td><span class="pill green">Locked</span>' + (isAdminSession() ? ' <button class="btn danger small" type="button" onclick="openCorrection(\'' + o.id + '\')">Correct</button>' : '') + '</td>'
         : '<td class="n"><input type="number" min="0" step="1" inputmode="numeric" data-idx="' + idx + '" aria-label="Opening qty ' + xlsxEsc(i.model + ' ' + i.variant) + '"></td><td><span class="pill grey">Not counted</span></td>';
       return '<tr><td>' + oemLabel(i.oem) + '</td><td>' + i.model + '</td><td>' + (i.variant || '—') + '</td><td>' + (i.line || '—') + '</td>' + cell + '</tr>';
     }).join("") || '<tr><td colspan="6" class="hint">No items for this login in this location. Try the other location above.</td></tr>') + '</tbody>';
@@ -1184,7 +1184,7 @@ function openCorrection(id){
   var o = openingStock.find(function(x){ return x.id === id; });
   if (!o) return;
   if (!sessionValid()) { openLogin(function(){ openCorrection(id); }); return; }
-  if (!isAdminSession() && (session.oems || []).indexOf(o.oem) < 0) { showToast("This login cannot correct " + oemLabel(o.oem) + " stock"); return; }
+  if (!isAdminSession()) { showToast("Corrections are made by the admin login only"); return; }
   (function(){
     _corrTarget = o;
     document.getElementById("corr-item").textContent = oemLabel(o.oem) + " · " + o.model + (o.variant ? " · " + o.variant : "");

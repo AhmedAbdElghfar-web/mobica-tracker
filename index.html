@@ -464,10 +464,10 @@ body:not(.mode-production) .production-only{display:none!important}
 
       <article class="panel" id="opening-panel" hidden>
         <div class="panel-head">
-          <div><div class="eyebrow">Admin · entered once</div><h2>Opening stock count as of 1 Oct 2026</h2></div>
+          <div><div class="eyebrow" id="opening-eyebrow">Entered once</div><h2>Opening stock count as of 1 Oct 2026</h2></div>
           <button class="btn secondary small" type="button" onclick="closeOpeningPanel()">Close</button>
         </div>
-        <div class="insight">Enter the physical count taken at the cut-off (end of 30 Sep or before production starts on 1 Oct). Units produced or delivered on 1 Oct go in as normal entries, not here. Saved rows lock; a correction needs the admin password and is logged.</div>
+        <div class="insight">Enter the physical count taken at the cut-off (end of 30 Sep or before production starts on 1 Oct). Units produced or delivered on 1 Oct go in as normal entries, not here. Saved rows lock. A correction is made from the login of the same OEM and is logged with the name, the login and the reason.</div>
         <section class="filters">
           <label class="field"><span>Location</span>
             <select id="opening-loc" onchange="renderOpeningPanel()"><option value="advanced">ADV · Advanced</option><option value="integrated">INT · Integrated</option></select></label>
@@ -1105,37 +1105,47 @@ function openOpeningPanel(){
     openingUnlocked = true;
     var p = document.getElementById("opening-panel");
     p.hidden = false;
-    document.getElementById("opening-loc").value = currentLocation;
+    var _locs = ["advanced", "integrated"].filter(function(l){ return openingItems(l).length; });
+    document.getElementById("opening-loc").value = _locs.indexOf(currentLocation) >= 0 ? currentLocation : (_locs[0] || currentLocation);
+    document.getElementById("opening-eyebrow").textContent = isAdminSession() ? "Admin · all OEMs · entered once"
+      : session.username + " · " + (session.oems || []).map(oemLabel).join(", ") + " · entered once";
     renderOpeningPanel();
     loadOpeningLog();
     p.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-  if (openingUnlocked) show(); else requirePassword("Open the opening-stock screen", show);
+  if (!sessionValid()) { openLogin(function(){ openOpeningPanel(); }); return; }
+  show();
 }
 function closeOpeningPanel(){ document.getElementById("opening-panel").hidden = true; }
+// Opening stock lists only the models of the signed-in login's OEMs (admin: all).
+function openingOems(){ return isAdminSession() ? null : (sessionValid() ? (session.oems || []) : []); }
+function openingItems(loc){
+  var only = openingOems();
+  return allStockItems().filter(function(i){ return i.location === loc && (!only || only.indexOf(i.oem) >= 0); });
+}
 function renderOpeningPanel(){
   var loc = document.getElementById("opening-loc").value;
-  var items = allStockItems().filter(function(i){ return i.location === loc; });
+  var items = openingItems(loc);
   var byKey = {};
   openingStock.forEach(function(o){ byKey[stockKey(o.oem, o.model, o.variant)] = o; });
-  var prog = openingProgress(loc);
+  var prog = { total: items.length, done: items.filter(function(i){ return byKey[stockKey(i.oem, i.model, i.variant)]; }).length };
   document.getElementById("opening-progress").textContent = prog.done + " of " + prog.total + " items counted";
   document.getElementById("opening-table").innerHTML =
     '<thead><tr><th>OEM</th><th>Model</th><th>Variant</th><th>Line</th><th class="n">Counted qty</th><th>Status</th></tr></thead><tbody>' +
-    items.map(function(i, idx){
+    (items.map(function(i, idx){
       var o = byKey[stockKey(i.oem, i.model, i.variant)];
       var cell = o
         ? '<td class="n"><b>' + fmt(o.qty) + '</b></td><td><span class="pill green">Locked</span> <button class="btn danger small" type="button" onclick="openCorrection(\'' + o.id + '\')">Correct</button></td>'
         : '<td class="n"><input type="number" min="0" step="1" inputmode="numeric" data-idx="' + idx + '" aria-label="Opening qty ' + xlsxEsc(i.model + ' ' + i.variant) + '"></td><td><span class="pill grey">Not counted</span></td>';
       return '<tr><td>' + oemLabel(i.oem) + '</td><td>' + i.model + '</td><td>' + (i.variant || '—') + '</td><td>' + (i.line || '—') + '</td>' + cell + '</tr>';
-    }).join("") + '</tbody>';
+    }).join("") || '<tr><td colspan="6" class="hint">No items for this login in this location. Try the other location above.</td></tr>') + '</tbody>';
   document.getElementById("opening-table").dataset.loc = loc;
 }
 async function saveOpeningStock(){
   var by = document.getElementById("opening-counted-by").value.trim();
   if (!by) { showToast("Enter who counted the stock"); document.getElementById("opening-counted-by").focus(); return; }
   var loc = document.getElementById("opening-loc").value;
-  var items = allStockItems().filter(function(i){ return i.location === loc; });
+  var items = openingItems(loc);
   var rows = [], bad = false;
   document.querySelectorAll("#opening-table input[data-idx]").forEach(function(inp){
     if (inp.value === "") return;
@@ -1154,11 +1164,12 @@ async function saveOpeningStock(){
     var fresh = rows.filter(function(r){ return !have.has(stockKey(r.oem, r.model, r.variant)); });
     var skipped = rows.length - fresh.length;
     if (fresh.length) {
-      const res = await fetch(SB_URL + "/rest/v1/fg_opening_stock", {
-        method: "POST", headers: sbHeaders({ "Content-Type":"application/json", "Prefer":"return=minimal" }),
-        body: JSON.stringify(fresh)
-      });
-      if (!res.ok) throw new Error((await res.text()) || ("HTTP " + res.status));
+      if (!sessionValid()) { handleSessionExpired(); openLogin(); return; }
+      var r = await rpcCall("mt_opening_insert", { p_token: session.token, p_rows: fresh });
+      if (r.expired) { handleSessionExpired(); openLogin(); return; }
+      if (!r.ok) throw new Error(r.network ? "No connection" : r.error);
+      var rej = (r.data && r.data.rejected) || [];
+      if (rej.length) throw new Error(labelize(rej[0].reason));
     }
     await syncOpening();
     renderOpeningPanel(); onStockDataChanged();
@@ -1172,7 +1183,9 @@ var _corrTarget = null;
 function openCorrection(id){
   var o = openingStock.find(function(x){ return x.id === id; });
   if (!o) return;
-  requirePassword("Correct opening stock", function(){
+  if (!sessionValid()) { openLogin(function(){ openCorrection(id); }); return; }
+  if (!isAdminSession() && (session.oems || []).indexOf(o.oem) < 0) { showToast("This login cannot correct " + oemLabel(o.oem) + " stock"); return; }
+  (function(){
     _corrTarget = o;
     document.getElementById("corr-item").textContent = oemLabel(o.oem) + " · " + o.model + (o.variant ? " · " + o.variant : "");
     document.getElementById("corr-old").textContent = fmt(o.qty);
@@ -1181,7 +1194,7 @@ function openCorrection(id){
     document.getElementById("corr-reason").value = "";
     document.getElementById("corr-error").textContent = "";
     document.getElementById("corr-modal").style.display = "flex";
-  });
+  })();
 }
 function closeCorrection(){ document.getElementById("corr-modal").style.display = "none"; _corrTarget = null; }
 async function saveCorrection(){
@@ -1195,11 +1208,10 @@ async function saveCorrection(){
   if (!by) { err.textContent = "Enter who is making the correction."; return; }
   var btn = document.getElementById("btn-corr-save"); btn.disabled = true;
   try {
-    const res = await fetch(SB_URL + "/rest/v1/fg_opening_stock?id=eq." + encodeURIComponent(o.id), {
-      method: "PATCH", headers: sbHeaders({ "Content-Type":"application/json", "Prefer":"return=minimal" }),
-      body: JSON.stringify({ qty: q, updated_by: by, correction_reason: reason || null })
-    });
-    if (!res.ok) throw new Error((await res.text()) || ("HTTP " + res.status));
+    if (!sessionValid()) { closeCorrection(); handleSessionExpired(); openLogin(); return; }
+    var r = await rpcCall("mt_opening_correct", { p_token: session.token, p_id: o.id, p_qty: q, p_by: by, p_reason: reason });
+    if (r.expired) { closeCorrection(); handleSessionExpired(); openLogin(); return; }
+    if (!r.ok) throw new Error(r.network ? "No connection" : r.error);
     closeCorrection();
     await syncOpening();
     renderOpeningPanel(); loadOpeningLog(); onStockDataChanged();
@@ -1211,6 +1223,7 @@ async function loadOpeningLog(){
   var t = document.getElementById("opening-log-table");
   try {
     openingLog = await fetchAllRows("fg_opening_stock_log", "select=*&order=ts.desc");
+    var _only = openingOems(); if (_only) openingLog = openingLog.filter(function(l){ return _only.indexOf(l.oem) >= 0; });
     if (!openingLog.length) { t.innerHTML = '<tbody><tr><td class="hint">No corrections so far.</td></tr></tbody>'; return; }
     t.innerHTML = '<thead><tr><th>When</th><th>Item</th><th class="n">Old</th><th class="n">New</th><th>Changed by</th><th>Reason</th></tr></thead><tbody>' +
       openingLog.map(function(l){
@@ -1470,7 +1483,7 @@ async function doLogin(){
   try { syncStockData(); } catch(e) {}          // upload production saved while signed out
 }
 function handleSessionExpired(){
-  session = null; saveSession(); renderSessionChip(); fillOemSelect();
+  session = null; saveSession(); renderSessionChip(); closeOpeningPanel(); fillOemSelect();
   try { setEntryMode(entryMode); } catch(e) {}
   showToast("Session expired — sign in again");
 }
@@ -1492,7 +1505,7 @@ function onSessionChip(){ if (sessionValid()) openAccount(); else openLogin(); }
 function signOut(){
   if (sessionValid()) rpcCall("mt_logout", { p_token: session.token });
   session = null; saveSession(); renderSessionChip();
-  closeAccount(); fillOemSelect();
+  closeAccount(); closeOpeningPanel(); fillOemSelect();
   try { setEntryMode(entryMode); } catch(e) {}
   if (isTabActive("form") && entryMode === "production") { var t = document.querySelector('.tab-btn[data-tab="dashboard"]'); switchTab("dashboard", t); }
   showToast("Signed out");

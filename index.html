@@ -256,6 +256,14 @@ body:not(.mode-production) .production-only{display:none!important}
 .stock-warn{background:var(--amber-bg);border:1px solid #f1d9a1;color:#6b4a06;border-radius:10px;padding:12px 14px;margin-top:14px;font-size:14px}
 .stock-warn b{color:#6b4a06}
 #pw-error{color:var(--red);font-size:14px;min-height:20px;margin:6px 0}
+#lg-error,#ac-msg{color:var(--red);font-size:14px;min-height:20px;margin:8px 0 0;font-weight:700}
+#ac-msg.ok{color:#157a52}
+#login-modal,#acct-modal{z-index:110}
+.acct-sec{border-top:1px solid var(--line);margin-top:16px;padding-top:14px}
+.acct-sec h4{margin:0 0 8px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#56677a}
+.acct-sec .field{margin-top:8px}
+#btn-session.signed{background:rgba(47,208,142,.18);border-color:rgba(47,208,142,.55)}
+#oem-scope-hint{margin-top:6px}
 .file-row{display:flex;justify-content:space-between;gap:10px;background:#f5f7f9;border-radius:10px;padding:12px 14px;font-weight:700}
 .file-ok{color:#157a52;font-weight:900}
 
@@ -323,9 +331,11 @@ body:not(.mode-production) .production-only{display:none!important}
       <select id="export-month-sel" title="Month for the Excel export" aria-label="Month for the Excel export"></select>
       <button class="hbtn" id="btn-eod" type="button" onclick="exportExcel()">Excel</button>
       <div id="more-wrap">
-        <button class="hbtn" id="btn-more" type="button" onclick="toggleMoreMenu()" title="More options" aria-label="More options">⋯</button>
+        <button class="hbtn" id="btn-session" type="button" onclick="onSessionChip()" title="Production sign-in">Sign in</button>
+      <button class="hbtn" id="btn-more" type="button" onclick="toggleMoreMenu()" title="More options" aria-label="More options">⋯</button>
         <div id="more-menu">
           <div class="more-item" onclick="sbSync();syncStockData();closeMoreMenu()">Sync now</div>
+          <div class="more-item" onclick="unlockDeliveries();closeMoreMenu()">Delivery password…</div>
           <div class="more-sep"></div>
           <div class="more-item" onclick="backupRestore();closeMoreMenu()">Download backup</div>
         </div>
@@ -372,7 +382,7 @@ body:not(.mode-production) .production-only{display:none!important}
             <div class="eyebrow" id="entry-eyebrow">Delivery entry</div>
             <h2 id="entry-title">Record a delivery to the OEM</h2>
           </div>
-          <span class="pill grey production-only" id="pe-lock-state">Production PIN required</span>
+          <span class="pill grey production-only" id="pe-lock-state">Sign-in required</span>
         </div>
         <div class="entry-grid">
           <div id="form-left">
@@ -388,6 +398,7 @@ body:not(.mode-production) .production-only{display:none!important}
 
             <label class="field-label" for="sel-oem">OEM</label>
             <select id="sel-oem" onchange="onOemChange()"><option value="">Select OEM...</option></select>
+            <div class="hint production-only" id="oem-scope-hint" hidden></div>
 
             <label class="field-label" for="sel-model">Model</label>
             <select id="sel-model" onchange="onModelChange()" disabled><option value="">Select model...</option></select>
@@ -585,6 +596,54 @@ body:not(.mode-production) .production-only{display:none!important}
   </div>
 </div>
 
+<!-- OEM LOGIN MODAL -->
+<div id="login-modal" class="overlay">
+  <div class="dialog" role="dialog" aria-modal="true" style="max-width:400px">
+    <div class="eyebrow">Production entry</div>
+    <div class="dialog-title">Sign in with your OEM login</div>
+    <label class="field" style="margin-top:14px"><span>Username</span>
+      <input type="text" id="lg-user" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"
+             onkeydown="if(event.key==='Enter')document.getElementById('lg-pass').focus()"></label>
+    <label class="field" style="margin-top:12px"><span>Password</span>
+      <input type="password" id="lg-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></label>
+    <div id="lg-error"></div>
+    <div class="dialog-actions">
+      <button class="btn secondary" type="button" onclick="closeLogin()">Cancel</button>
+      <button class="btn" type="button" id="lg-go" onclick="doLogin()">Sign in</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACCOUNT MODAL -->
+<div id="acct-modal" class="overlay">
+  <div class="dialog" role="dialog" aria-modal="true" style="max-width:440px;max-height:90vh;overflow:auto">
+    <div class="eyebrow">Account</div>
+    <div class="dialog-title" id="ac-title"></div>
+    <div class="hint" id="ac-sub"></div>
+    <div class="acct-sec">
+      <h4>Change my password</h4>
+      <label class="field"><span>Current password</span><input type="password" id="ac-old" autocomplete="current-password"></label>
+      <label class="field"><span>New password (8+ characters)</span><input type="password" id="ac-new" autocomplete="new-password"></label>
+      <label class="field"><span>Repeat new password</span><input type="password" id="ac-new2" autocomplete="new-password"></label>
+      <div class="dialog-actions"><button class="btn" type="button" onclick="changeMyPassword()">Change password</button></div>
+    </div>
+    <div class="acct-sec" id="ac-admin" hidden>
+      <h4>Admin · reset an OEM login</h4>
+      <label class="field"><span>Account</span><select id="ac-user"></select></label>
+      <label class="field"><span>New password (8+ characters)</span><input type="text" id="ac-userpw" autocomplete="off" autocapitalize="none"></label>
+      <div class="dialog-actions"><button class="btn" type="button" onclick="adminResetPassword()">Set password</button></div>
+      <h4 style="margin-top:16px">Admin · delivery-entry password</h4>
+      <label class="field"><span>New delivery password (8+ characters)</span><input type="text" id="ac-delpw" autocomplete="off" autocapitalize="none"></label>
+      <div class="dialog-actions"><button class="btn" type="button" onclick="adminSetDeliveryPw()">Set delivery password</button></div>
+    </div>
+    <div id="ac-msg"></div>
+    <div class="dialog-actions" style="margin-top:14px">
+      <button class="btn secondary" type="button" onclick="closeAccount()">Close</button>
+      <button class="btn secondary" type="button" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+</div>
+
 <!-- OPENING-STOCK CORRECTION MODAL -->
 <div id="corr-modal">
   <div class="dialog" role="dialog" aria-modal="true" style="max-width:420px;border-top-color:var(--amber)">
@@ -637,7 +696,8 @@ body:not(.mode-production) .production-only{display:none!important}
 // RESTART 1 OCT 2026 + FINISHED-GOODS STOCK MODULE
 // ═════════════════════════════════════════════════════════════════════
 const SYSTEM_START = "2026-10-01";          // tracking restart; earlier records are archived (read-only)
-const PRODUCTION_PIN = "prod2026";          // production engineer PIN (change before go-live)
+// Production entry needs an OEM login and delivery entry needs the delivery password.
+// Both are verified inside the database (no secret lives in this file). See the LOGINS block.
 const PRODUCTION_KEY = "mobica_production_v1";
 const OPENING_KEY = "mobica_opening_v1";
 const PE_NAME_KEY = "mobica_pe_name";
@@ -692,14 +752,13 @@ function setEntryMode(mode){
   var lock = document.getElementById("pe-lock-state");
   if (lock) {
     var ok = isProductionUnlocked();
-    lock.textContent = ok ? "Production PIN accepted" : "Production PIN required";
+    lock.textContent = ok ? ("Signed in: " + session.username) : "Sign-in required";
     lock.className = "pill production-only " + (ok ? "green" : "grey");
   }
+  fillOemSelect();
   resetVerified();
 }
-function isProductionUnlocked(){
-  try { return sessionStorage.getItem(PROD_UNLOCK_KEY) === "1"; } catch(e) { return false; }
-}
+function isProductionUnlocked(){ return sessionValid(); }
 function onEngineerInput(){
   var v = document.getElementById("pe-name").value;
   try { localStorage.setItem(PE_NAME_KEY, v); } catch(e) {}
@@ -790,15 +849,16 @@ function productionPayload(p){
            entered_by:p.entered_by || "", deleted:!!p.deleted };
 }
 async function sbInsertProduction(rows){
-  try {
-    const res = await fetch(SB_URL + "/rest/v1/production?on_conflict=id", {
-      method: "POST",
-      headers: sbHeaders({ "Content-Type":"application/json", "Prefer":"resolution=merge-duplicates,return=minimal" }),
-      body: JSON.stringify(rows.map(productionPayload))
-    });
-    if (!res.ok) { console.warn("production insert failed:", res.status, await res.text()); return false; }
-    return true;
-  } catch(e) { console.warn("production insert offline:", e.message); return false; }
+  if (!sessionValid()) return false;
+  var allOk = true;
+  for (var i = 0; i < rows.length; i += 200) {
+    var r = await rpcCall("mt_production_upsert", { p_token: session.token, p_rows: rows.slice(i, i + 200).map(productionPayload) });
+    if (r.expired) { handleSessionExpired(); return false; }
+    if (!r.ok) { allOk = false; continue; }
+    var rej = (r.data && r.data.rejected) || [];
+    if (rej.length) { allOk = false; showToast("Not saved to the cloud: " + labelize(rej[0].reason)); }
+  }
+  return allOk;
 }
 async function fetchAllRows(table, query){
   var PAGE = 1000, offset = 0, all = [];
@@ -818,11 +878,12 @@ async function syncProduction(){
   var remote = await fetchAllRows("production", "select=*&order=ts.asc");
   var remoteIds = new Set(remote.map(function(p){ return p.id; }));
   var offline = production.filter(function(p){ return !remoteIds.has(p.id) && !p.deleted; });
-  if (offline.length) { if (await sbInsertProduction(offline)) remote = remote.concat(offline); }
+  var keepOffline = [];       // rows the cloud did not accept yet stay on this device and are retried
+  if (offline.length) { if (await sbInsertProduction(offline)) remote = remote.concat(offline); else keepOffline = offline; }
   var pendingDel = production.filter(function(p){ return p.deleted && p._pending; });
   for (var i = 0; i < pendingDel.length; i++) { await sbSoftDeleteProduction(pendingDel[i].id); }
   var localDel = new Set(pendingDel.map(function(p){ return p.id; }));
-  production = remote.filter(function(p){ return !p.deleted && !localDel.has(p.id); }).sort(function(a,b){ return a.ts - b.ts; });
+  production = remote.filter(function(p){ return !p.deleted && !localDel.has(p.id); }).concat(keepOffline).sort(function(a,b){ return a.ts - b.ts; });
   persistProduction();
 }
 async function syncOpening(){
@@ -859,18 +920,16 @@ function currentStock(){ return computeStock(entries, production, openingStock);
 
 // ── Production soft delete ──────────────────────────────────────────────
 async function sbSoftDeleteProduction(id){
-  try {
-    const res = await fetch(SB_URL + "/rest/v1/production?id=eq." + encodeURIComponent(id), {
-      method: "PATCH", headers: sbHeaders({ "Content-Type":"application/json", "Prefer":"return=minimal" }),
-      body: JSON.stringify({ deleted: true })
-    });
-    return res.ok;
-  } catch(e) { return false; }
+  if (!sessionValid()) return false;
+  var r = await rpcCall("mt_production_delete", { p_token: session.token, p_id: id });
+  if (r.expired) handleSessionExpired();
+  return r.ok;
 }
 function deleteProduction(id){
   var p = production.find(function(x){ return x.id === id; });
   if (!p) return;
   if (isArchivedDate(p.date)) { showToast("Archived entries are read-only"); return; }
+  if (!sessionValid()) { openLogin(function(){ deleteProduction(id); }); return; }
   requirePassword("Delete production entry", async function(){
     p.deleted = true; p._pending = true;
     persistProduction();
@@ -912,7 +971,7 @@ function renderStock(){
   var oems = Array.from(new Set(rows.map(function(r){ return r.oem; })));
   var order = Object.keys(DATA_ADVANCED).concat(Object.keys(DATA_INTEGRATED));
   oems.sort(function(a,b){ return (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99); });
-  oemSel.innerHTML = '<option value="">All OEMs</option>' + oems.map(function(o){ return '<option value="' + o + '"' + (o === oemF ? ' selected' : '') + '>' + o + '</option>'; }).join("");
+  oemSel.innerHTML = '<option value="">All OEMs</option>' + oems.map(function(o){ return '<option value="' + o + '"' + (o === oemF ? ' selected' : '') + '>' + oemLabel(o) + '</option>'; }).join("");
 
   var view = rows.filter(function(r){
     if (oemF && r.oem !== oemF) return false;
@@ -949,7 +1008,7 @@ function renderStock(){
     '<th class="n">Opening</th><th class="n">Produced</th><th class="n">Delivered</th><th class="n">FG stock</th></tr></thead><tbody>' +
     view.map(function(r){
       var neg = r.stock < 0;
-      return '<tr class="' + (neg ? 'neg' : '') + '"><td><span class="odot" style="background:' + (OEM_COLORS[r.oem] || '#8a98a6') + '"></span> ' + r.oem + '</td>' +
+      return '<tr class="' + (neg ? 'neg' : '') + '"><td><span class="odot" style="background:' + (OEM_COLORS[r.oem] || '#8a98a6') + '"></span> ' + oemLabel(r.oem) + '</td>' +
         '<td>' + r.model + '</td><td>' + (r.variant || '—') + '</td><td>' + (r.line || '—') + '</td>' +
         '<td><span class="loc-badge ' + (r.location === 'integrated' ? 'int' : 'adv') + '">' + (r.location === 'integrated' ? 'INT' : 'ADV') + '</span></td>' +
         '<td class="n">' + (r.hasOpening ? fmt(r.opening) : '<span class="hint">not counted</span>') + '</td>' +
@@ -1021,11 +1080,11 @@ function stockExportSheets(){
   return [
     { name: "FG Stock", widths:[12,18,16,12,11,11,11,11,11],
       header: ["OEM","Model","Variant","Line","Location","Opening","Produced","Delivered","FG stock"], negCol: 8,
-      rows: rows.map(function(r){ return [r.oem, r.model, r.variant, r.line, r.location === "integrated" ? "INT" : "ADV", r.opening, r.produced, r.delivered, r.stock]; }) },
+      rows: rows.map(function(r){ return [oemLabel(r.oem), r.model, r.variant, r.line, r.location === "integrated" ? "INT" : "ADV", r.opening, r.produced, r.delivered, r.stock]; }) },
     { name: "Production", widths:[12,12,18,16,12,10,18],
       header: ["Date","OEM","Model","Variant","Line","Qty","Engineer"],
       rows: production.filter(function(p){ return !p.deleted && !isArchivedDate(p.date) && (!oemF || p.oem === oemF); })
-        .map(function(p){ return [p.date, p.oem, p.model, p.variant || "", p.line || "", Number(p.qty), p.entered_by || ""]; }) }
+        .map(function(p){ return [p.date, oemLabel(p.oem), p.model, p.variant || "", p.line || "", Number(p.qty), p.entered_by || ""]; }) }
   ];
 }
 function exportStockExcel(){
@@ -1068,7 +1127,7 @@ function renderOpeningPanel(){
       var cell = o
         ? '<td class="n"><b>' + fmt(o.qty) + '</b></td><td><span class="pill green">Locked</span> <button class="btn danger small" type="button" onclick="openCorrection(\'' + o.id + '\')">Correct</button></td>'
         : '<td class="n"><input type="number" min="0" step="1" inputmode="numeric" data-idx="' + idx + '" aria-label="Opening qty ' + xlsxEsc(i.model + ' ' + i.variant) + '"></td><td><span class="pill grey">Not counted</span></td>';
-      return '<tr><td>' + i.oem + '</td><td>' + i.model + '</td><td>' + (i.variant || '—') + '</td><td>' + (i.line || '—') + '</td>' + cell + '</tr>';
+      return '<tr><td>' + oemLabel(i.oem) + '</td><td>' + i.model + '</td><td>' + (i.variant || '—') + '</td><td>' + (i.line || '—') + '</td>' + cell + '</tr>';
     }).join("") + '</tbody>';
   document.getElementById("opening-table").dataset.loc = loc;
 }
@@ -1115,7 +1174,7 @@ function openCorrection(id){
   if (!o) return;
   requirePassword("Correct opening stock", function(){
     _corrTarget = o;
-    document.getElementById("corr-item").textContent = o.oem + " · " + o.model + (o.variant ? " · " + o.variant : "");
+    document.getElementById("corr-item").textContent = oemLabel(o.oem) + " · " + o.model + (o.variant ? " · " + o.variant : "");
     document.getElementById("corr-old").textContent = fmt(o.qty);
     document.getElementById("corr-new").value = "";
     document.getElementById("corr-by").value = document.getElementById("opening-counted-by").value || "";
@@ -1155,7 +1214,7 @@ async function loadOpeningLog(){
     if (!openingLog.length) { t.innerHTML = '<tbody><tr><td class="hint">No corrections so far.</td></tr></tbody>'; return; }
     t.innerHTML = '<thead><tr><th>When</th><th>Item</th><th class="n">Old</th><th class="n">New</th><th>Changed by</th><th>Reason</th></tr></thead><tbody>' +
       openingLog.map(function(l){
-        return '<tr><td>' + new Date(l.ts).toLocaleString("en-GB") + '</td><td>' + l.oem + ' · ' + l.model + (l.variant ? ' · ' + l.variant : '') + '</td>' +
+        return '<tr><td>' + new Date(l.ts).toLocaleString("en-GB") + '</td><td>' + oemLabel(l.oem) + ' · ' + l.model + (l.variant ? ' · ' + l.variant : '') + '</td>' +
           '<td class="n">' + fmt(l.old_qty) + '</td><td class="n">' + fmt(l.new_qty) + '</td><td>' + xlsxEsc(l.changed_by) + '</td><td>' + xlsxEsc(l.reason || '—') + '</td></tr>';
       }).join("") + '</tbody>';
   } catch(e) { t.innerHTML = '<tbody><tr><td class="hint">Correction log unavailable (' + xlsxEsc(e.message) + ').</td></tr></tbody>'; }
@@ -1311,14 +1370,7 @@ function setLocation(loc) {
   document.getElementById("loc-adv").className = "loc-banner-btn" + (loc==="advanced"?" active-adv":"");
   document.getElementById("loc-int").className = "loc-banner-btn" + (loc==="integrated"?" active-int":"");
   // Reset form
-  document.getElementById("sel-oem").innerHTML = "<option value=''>Select OEM...</option>";
-  Object.keys(DATA).forEach(oem => {
-    const o = document.createElement("option");
-    o.value = o.textContent = oem;
-    document.getElementById("sel-oem").appendChild(o);
-  });
-  document.getElementById("sel-oem").value = "";
-  onOemChange();
+  fillOemSelect(true);
 }
 
 const OEM_COLORS_ADVANCED = {
@@ -1354,30 +1406,225 @@ var INT_MODELS = {
 const SB_URL = "https://ojsmjqwjsdornetdqiyu.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qc21qcXdqc2Rvcm5ldGRxaXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MTM1NTgsImV4cCI6MjA5MTA4OTU1OH0.ThQBFXNp1wC-7bteu95Fuiertz1t69TbyLqpna_rjVQ";
 
-async function sbInsert(entry) {
+async function sbInsert(entry) { return sbUpsertDeliveries([entry]); }
+
+// ── OEM DISPLAY NAMES ─────────────────────────────────────────────────────────
+// Display only. The code (EXCEED) stays in the data, the database, prices, plan and the Sheets sync.
+var OEM_LABELS = { EXCEED: "Mercedes" };
+function oemLabel(o){ return Object.prototype.hasOwnProperty.call(OEM_LABELS, o) ? OEM_LABELS[o] : o; }
+function labelize(t){ return String(t == null ? "" : t).replace(/\bEXCEED\b/g, function(m){ return OEM_LABELS[m] || m; }); }
+
+// ── LOGINS & DELIVERY PASSWORD (verified inside the database: sql/01_stage1_auth.sql) ──
+var AUTH_KEY = "mobica_session_v2";
+var session = null;        // { token, username, role, oems[], expires_at }
+var deliveryPw = null;     // delivery-entry password: kept in memory only, asked again after a reload
+try { session = JSON.parse(localStorage.getItem(AUTH_KEY) || "null"); } catch(e) { session = null; }
+try { localStorage.removeItem("mobica_prod_unlocked"); } catch(e) {}
+
+function saveSession(){ try { if (session) localStorage.setItem(AUTH_KEY, JSON.stringify(session)); else localStorage.removeItem(AUTH_KEY); } catch(e) {} }
+function sessionValid(){ return !!(session && session.token && (!session.expires_at || new Date(session.expires_at) > new Date())); }
+function isAdminSession(){ return sessionValid() && session.role === "admin"; }
+function allowedProductionOems(){ return !sessionValid() ? [] : (session.role === "admin" ? Object.keys(DATA) : (session.oems || [])); }
+
+// Calls a database function. Result: { ok, data, error, code, expired, network }
+async function rpcCall(name, args){
   try {
-    const res = await fetch(SB_URL + "/rest/v1/deliveries?on_conflict=id", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": SB_KEY,
-        "Authorization": "Bearer " + SB_KEY,
-        "Prefer": "resolution=merge-duplicates,return=minimal"
-      },
-      body: JSON.stringify({
-        id: entry.id, ts: entry.ts, dn: entry.dn||"",
-        date: entry.date, oem: entry.oem, model: entry.model,
-        variant: entry.variant||"", qty: Number(entry.qty),
-        location: entry.location||"advanced"
-      })
-    });
+    var res = await fetch(SB_URL + "/rest/v1/rpc/" + name, { method:"POST",
+      headers: sbHeaders({ "Content-Type":"application/json" }), body: JSON.stringify(args || {}) });
+    var body = null; try { body = await res.json(); } catch(e) {}
     if (!res.ok) {
-      const errText = await res.text();
-      console.warn("Supabase upsert failed:", res.status, errText);
-      return false;
+      var msg = (body && (body.message || body.error)) || ("HTTP " + res.status);
+      return { ok:false, error:msg, expired:/Session expired/i.test(msg), network:false };
     }
-    return true;
-  } catch(e) { console.warn("Supabase offline:", e.message); return false; }
+    if (body && body.ok === false) return { ok:false, data:body, error:body.error, code:body.code, network:false };
+    return { ok:true, data:body, network:false };
+  } catch(e) { return { ok:false, network:true, error:"offline" }; }
+}
+
+// ---- sign-in
+var loginAfter = null;
+function openLogin(after){
+  loginAfter = after || null;
+  document.getElementById("lg-error").textContent = "";
+  document.getElementById("lg-pass").value = "";
+  document.getElementById("login-modal").style.display = "flex";
+  setTimeout(function(){ document.getElementById("lg-user").focus(); }, 100);
+}
+function closeLogin(){ document.getElementById("login-modal").style.display = "none"; loginAfter = null; }
+async function doLogin(){
+  var u = document.getElementById("lg-user").value.trim(), p = document.getElementById("lg-pass").value;
+  var err = document.getElementById("lg-error"), btn = document.getElementById("lg-go");
+  if (!u || !p) { err.textContent = "Enter your username and password."; return; }
+  btn.disabled = true; err.textContent = "";
+  var r = await rpcCall("mt_login", { p_username: u, p_password: p });
+  btn.disabled = false;
+  if (!r.ok) { err.textContent = r.network ? "No connection. Sign-in needs the internet." : (r.error || "Sign-in failed."); document.getElementById("lg-pass").value = ""; return; }
+  session = { token:r.data.token, username:r.data.username, role:r.data.role, oems:r.data.oems || [], expires_at:r.data.expires_at };
+  saveSession();
+  document.getElementById("login-modal").style.display = "none";
+  document.getElementById("lg-pass").value = "";
+  renderSessionChip(); fillOemSelect(); setEntryMode(entryMode);
+  var cb = loginAfter; loginAfter = null;
+  showToast("Signed in as " + session.username + " ✓");
+  if (cb) cb();
+  try { syncStockData(); } catch(e) {}          // upload production saved while signed out
+}
+function handleSessionExpired(){
+  session = null; saveSession(); renderSessionChip(); fillOemSelect();
+  try { setEntryMode(entryMode); } catch(e) {}
+  showToast("Session expired — sign in again");
+}
+async function verifySessionQuietly(){
+  if (!sessionValid()) { if (session) { session = null; saveSession(); } renderSessionChip(); return; }
+  var r = await rpcCall("mt_whoami", { p_token: session.token });
+  if (r.ok) { session.role = r.data.role; session.oems = r.data.oems || []; saveSession(); }
+  else if (r.expired) { session = null; saveSession(); }
+  renderSessionChip(); fillOemSelect();
+}
+function renderSessionChip(){
+  var b = document.getElementById("btn-session"); if (!b) return;
+  var on = sessionValid();
+  b.textContent = on ? session.username : "Sign in";
+  b.classList.toggle("signed", on);
+  b.title = on ? "Signed in — account" : "Production sign-in";
+}
+function onSessionChip(){ if (sessionValid()) openAccount(); else openLogin(); }
+function signOut(){
+  if (sessionValid()) rpcCall("mt_logout", { p_token: session.token });
+  session = null; saveSession(); renderSessionChip();
+  closeAccount(); fillOemSelect();
+  try { setEntryMode(entryMode); } catch(e) {}
+  if (isTabActive("form") && entryMode === "production") { var t = document.querySelector('.tab-btn[data-tab="dashboard"]'); switchTab("dashboard", t); }
+  showToast("Signed out");
+}
+
+// ---- account modal
+function acMsg(t, ok){ var m = document.getElementById("ac-msg"); m.textContent = t || ""; m.className = ok ? "ok" : ""; }
+async function openAccount(){
+  if (!sessionValid()) return openLogin();
+  acMsg("");
+  ["ac-old","ac-new","ac-new2","ac-userpw","ac-delpw"].forEach(function(id){ document.getElementById(id).value = ""; });
+  document.getElementById("ac-title").textContent = session.username;
+  document.getElementById("ac-sub").textContent = session.role === "admin" ? "Admin · can enter production for every OEM"
+    : "Production entry for: " + (session.oems || []).map(oemLabel).join(", ");
+  var admin = isAdminSession();
+  document.getElementById("ac-admin").hidden = !admin;
+  document.getElementById("acct-modal").style.display = "flex";
+  if (admin) {
+    var r = await rpcCall("mt_admin_accounts", { p_token: session.token });
+    if (r.ok) document.getElementById("ac-user").innerHTML = r.data.filter(function(a){ return a.role !== "admin"; })
+      .map(function(a){ return '<option value="' + a.username + '">' + a.username + ' · ' + (a.oems || []).map(oemLabel).join(", ") + '</option>'; }).join("");
+  }
+}
+function closeAccount(){ document.getElementById("acct-modal").style.display = "none"; }
+async function changeMyPassword(){
+  var o = document.getElementById("ac-old").value, n = document.getElementById("ac-new").value, n2 = document.getElementById("ac-new2").value;
+  if (!o || !n) return acMsg("Enter the current and the new password.");
+  if (n !== n2) return acMsg("The two new passwords do not match.");
+  var r = await rpcCall("mt_change_password", { p_token: session.token, p_old: o, p_new: n });
+  if (r.expired) { closeAccount(); return handleSessionExpired(); }
+  if (!r.ok) return acMsg(r.network ? "No connection." : r.error);
+  ["ac-old","ac-new","ac-new2"].forEach(function(id){ document.getElementById(id).value = ""; });
+  acMsg("Password changed ✓", true);
+}
+async function adminResetPassword(){
+  var u = document.getElementById("ac-user").value, p = document.getElementById("ac-userpw").value;
+  if (!u || !p) return acMsg("Choose an account and enter the new password.");
+  var r = await rpcCall("mt_admin_set_password", { p_token: session.token, p_username: u, p_new: p });
+  if (r.expired) { closeAccount(); return handleSessionExpired(); }
+  if (!r.ok) return acMsg(r.network ? "No connection." : r.error);
+  document.getElementById("ac-userpw").value = "";
+  acMsg("Password set for " + u + " ✓", true);
+}
+async function adminSetDeliveryPw(){
+  var p = document.getElementById("ac-delpw").value;
+  if (!p) return acMsg("Enter the new delivery password.");
+  var r = await rpcCall("mt_admin_set_delivery_password", { p_token: session.token, p_new: p });
+  if (r.expired) { closeAccount(); return handleSessionExpired(); }
+  if (!r.ok) return acMsg(r.network ? "No connection." : r.error);
+  deliveryPw = null; document.getElementById("ac-delpw").value = "";
+  acMsg("Delivery password changed ✓ (everyone is asked for it again)", true);
+}
+
+// ---- OEM dropdown: production logins only see the OEMs they may enter
+function fillOemSelect(reset){
+  var sel = document.getElementById("sel-oem"); if (!sel) return;
+  var keep = reset ? "" : sel.value;
+  var list = Object.keys(DATA), hint = document.getElementById("oem-scope-hint"), prod = (entryMode === "production");
+  if (prod && sessionValid() && session.role !== "admin") {
+    var mine = session.oems || [], here = list.filter(function(o){ return mine.indexOf(o) >= 0; });
+    var elsewhere = mine.filter(function(o){ return list.indexOf(o) < 0; });
+    list = here;
+    if (hint) { hint.hidden = false;
+      hint.textContent = "Signed in as " + session.username + ": you can enter " + mine.map(oemLabel).join(", ") +
+        (!here.length && elsewhere.length ? ". Switch the location banner above to see " + elsewhere.map(oemLabel).join(", ") + "." : "."); }
+  } else if (hint) { hint.hidden = true; }
+  sel.innerHTML = "<option value=''>Select OEM...</option>";
+  list.forEach(function(oem){ var o = document.createElement("option"); o.value = oem; o.textContent = oemLabel(oem); sel.appendChild(o); });
+  sel.value = list.indexOf(keep) >= 0 ? keep : "";
+  if (prod && list.length === 1 && !sel.value) sel.value = list[0];
+  onOemChange();
+}
+
+// ---- delivery password
+var _pendingNoticeAt = 0;
+function noteWaitingDeliveries(n){
+  if (Date.now() - _pendingNoticeAt < 60000) return;
+  _pendingNoticeAt = Date.now();
+  showToast("⚠ " + n + " delivery entr" + (n === 1 ? "y is" : "ies are") + " waiting on this device. Enter the delivery password to upload.");
+}
+function askDeliveryPassword(cb){
+  document.getElementById("pw-field-label").textContent = "Delivery password";
+  document.getElementById("pw-action-label").textContent = "Delivery entry — enter the delivery password";
+  document.getElementById("pw-input").value = "";
+  document.getElementById("pw-error").textContent = "";
+  pwPendingAction = null;
+  pwServerCheck = async function(pw){
+    if (!pw) return;
+    var r = await rpcCall("mt_check_delivery_pw", { p_password: pw });
+    if (r.ok) {
+      deliveryPw = pw; pwServerCheck = null;
+      document.getElementById("pw-modal").style.display = "none"; document.getElementById("pw-input").value = "";
+      if (cb) cb();
+      try { silentSync(); } catch(e) {}
+    } else {
+      document.getElementById("pw-error").textContent = "✗ " + (r.network ? "No connection. The delivery password is checked online." : (r.error || "Wrong password"));
+      document.getElementById("pw-input").value = ""; document.getElementById("pw-input").focus();
+    }
+  };
+  document.getElementById("pw-modal").style.display = "flex";
+  setTimeout(function(){ document.getElementById("pw-input").focus(); }, 100);
+}
+function withDeliveryPw(cb){ if (deliveryPw) cb(); else askDeliveryPassword(cb); }
+function unlockDeliveries(){ askDeliveryPassword(function(){ showToast("Delivery upload unlocked ✓"); }); }
+
+function deliveryPayload(e){
+  return { id:e.id, ts:e.ts, dn:e.dn || "", date:e.date, oem:e.oem, model:e.model,
+           variant:e.variant || "", qty:Number(e.qty), location:e.location || "advanced" };
+}
+async function sbUpsertDeliveries(rows){
+  if (!rows || !rows.length) return true;
+  if (!deliveryPw) { noteWaitingDeliveries(rows.length); return false; }
+  var allOk = true;
+  for (var i = 0; i < rows.length; i += 400) {
+    var r = await rpcCall("mt_deliveries_upsert", { p_password: deliveryPw, p_rows: rows.slice(i, i + 400).map(deliveryPayload) });
+    if (!r.ok) {
+      allOk = false;
+      if (r.code === "wrong_password") { deliveryPw = null; noteWaitingDeliveries(rows.length); }
+      else if (r.code === "locked") showToast(r.error);
+      else if (!r.network) console.warn("deliveries upsert failed:", r.error);
+      break;
+    }
+    var rej = (r.data && r.data.rejected) || [];
+    if (rej.length) { allOk = false; console.warn("deliveries rejected:", rej); }
+  }
+  return allOk;
+}
+async function sbSoftDeleteDelivery(id){
+  if (!deliveryPw) return false;
+  var r = await rpcCall("mt_delivery_delete", { p_password: deliveryPw, p_id: id });
+  if (!r.ok && r.code === "wrong_password") deliveryPw = null;
+  return r.ok;
 }
 
 // ── STARTUP SYNC — push all local entries to Supabase on load ──
@@ -1388,14 +1635,7 @@ async function syncLocalToSupabase() {
     // Step 0: Retry soft-delete for any locally pending deletions
     const deletedIds = getDeletedIds();
     if (deletedIds.size > 0) {
-      await Promise.all([...deletedIds].map(function(id) {
-        return fetch(SB_URL + "/rest/v1/deliveries?id=eq." + id, {
-          method: "PATCH",
-          headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY,
-                     "Content-Type": "application/json", "Prefer": "return=minimal" },
-          body: JSON.stringify({ deleted: true })
-        }).catch(function(){});
-      }));
+      await Promise.all([...deletedIds].map(function(id) { return sbSoftDeleteDelivery(id); }));
     }
 
     // Step 1: Pull Supabase — it is the source of truth
@@ -1422,22 +1662,8 @@ async function syncLocalToSupabase() {
 
     // Step 3: Push offline entries to Supabase
     if (offlineEntries.length > 0) {
-      const pushRes = await fetch(SB_URL + "/rest/v1/deliveries?on_conflict=id", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": SB_KEY,
-          "Authorization": "Bearer " + SB_KEY,
-          "Prefer": "resolution=merge-duplicates,return=minimal"
-        },
-        body: JSON.stringify(offlineEntries.map(e => ({
-          id: e.id, ts: e.ts, dn: e.dn||"",
-          date: e.date, oem: e.oem, model: e.model,
-          variant: e.variant||"", qty: Number(e.qty),
-          location: e.location||"advanced"
-        })))
-      });
-      if (pushRes.ok) remote = remote.concat(offlineEntries);
+      await sbUpsertDeliveries(offlineEntries);
+      remote = remote.concat(offlineEntries);        // never drop entries the cloud has not accepted yet
     }
 
     // Step 4: Replace local with Supabase data
@@ -1456,31 +1682,7 @@ async function syncLocalToSupabase() {
   }
 }
 
-async function sbDelete(id) {
-  try {
-    // Soft delete: mark deleted=true in Supabase so all devices see it
-    const res = await fetch(SB_URL + "/rest/v1/deliveries?id=eq." + id, {
-      method: "PATCH",
-      headers: {
-        "apikey": SB_KEY,
-        "Authorization": "Bearer " + SB_KEY,
-        "Content-Type": "application/json",
-        "Prefer": "return=minimal"
-      },
-      body: JSON.stringify({ deleted: true })
-    });
-    if (!res.ok) {
-      const txt = await res.text();
-      console.error("sbDelete failed:", res.status, txt);
-      return false;
-    }
-    console.log("sbDelete OK (soft):", id);
-    return true;
-  } catch(e) {
-    console.warn("sbDelete network error:", e.message);
-    return false;
-  }
-}
+async function sbDelete(id) { return sbSoftDeleteDelivery(id); }
 
 async function sbSync() {
   try {
@@ -1510,20 +1712,7 @@ async function sbSync() {
     const remoteIds = new Set(allRemote.map(e => e.id));
     const offlineEntries = entries.filter(e => !remoteIds.has(e.id) && !allDeletedIds.has(e.id));
     if (offlineEntries.length > 0) {
-      await fetch(SB_URL + "/rest/v1/deliveries?on_conflict=id", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY,
-          "Prefer": "resolution=merge-duplicates,return=minimal"
-        },
-        body: JSON.stringify(offlineEntries.map(e => ({
-          id: e.id, ts: e.ts, dn: e.dn||"",
-          date: e.date, oem: e.oem, model: e.model,
-          variant: e.variant||"", qty: Number(e.qty),
-          location: e.location||"advanced"
-        })))
-      }).catch(function(){});
+      await sbUpsertDeliveries(offlineEntries);
       allRemote = allRemote.concat(offlineEntries);
     }
     migrateRT50(allRemote);
@@ -1563,20 +1752,7 @@ async function silentSync() {
     const remoteIds = new Set(allRemote.map(e => e.id));
     const offlineEntries = entries.filter(e => !remoteIds.has(e.id) && !allDeletedIds.has(e.id));
     if (offlineEntries.length > 0) {
-      await fetch(SB_URL + "/rest/v1/deliveries?on_conflict=id", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY,
-          "Prefer": "resolution=merge-duplicates,return=minimal"
-        },
-        body: JSON.stringify(offlineEntries.map(e => ({
-          id: e.id, ts: e.ts, dn: e.dn||"",
-          date: e.date, oem: e.oem, model: e.model,
-          variant: e.variant||"", qty: Number(e.qty),
-          location: e.location||"advanced"
-        })))
-      }).catch(function(){});
+      await sbUpsertDeliveries(offlineEntries);
       allRemote = allRemote.concat(offlineEntries);
     }
     migrateRT50(allRemote);
@@ -1803,6 +1979,7 @@ window.onload = function() {
   try { document.getElementById("pe-name").value = localStorage.getItem(PE_NAME_KEY) || ""; } catch(e) {}
   setLocation(currentLocation); // populates OEM dropdown
   setEntryMode("delivery");
+  renderSessionChip(); verifySessionQuietly();
   // Fetch prices from Supabase early — refreshes OEM_PRICES / YV_PRICES
   setTimeout(fetchPricesFromSupabase, 800);
   updateEntryCount();
@@ -1852,10 +2029,7 @@ window.onload = function() {
 // ── TABS ─────────────────────────────────────────────
 function switchTab(tab, btn) {
   if (tab === "production" && !isProductionUnlocked()) {
-    requirePassword("Production entry — enter the production PIN", function(){
-      try { sessionStorage.setItem(PROD_UNLOCK_KEY, "1"); } catch(e) {}
-      switchTab("production", btn);
-    }, PRODUCTION_PIN, "Production PIN");
+    openLogin(function(){ switchTab("production", btn); });
     return;
   }
   var pane = tab === "production" ? "form" : tab;
@@ -2069,7 +2243,7 @@ function openModal() {
   document.getElementById("m-engineer").textContent = document.getElementById("pe-name").value.trim();
   document.getElementById("m-dn").textContent = dn || "—";
   document.getElementById("m-date").textContent = date;
-  document.getElementById("m-oem").textContent = oem;
+  document.getElementById("m-oem").textContent = oemLabel(oem);
   document.getElementById("m-model").textContent = model;
 
   const listEl = document.getElementById("m-variant-list");
@@ -2108,6 +2282,7 @@ function closeModal() { document.getElementById("modal").style.display="none"; }
 // ── SAVE ─────────────────────────────────────────────
 function saveEntry() {
   if (entryMode === "production") { saveProductionEntry(); return; }
+  if (!deliveryPw) { askDeliveryPassword(function(){ saveEntry(); }); return; }
   if (document.getElementById("date-input").value < SYSTEM_START) { showToast("Dates before 1 Oct 2026 are archived and read-only"); return; }
   const dn = document.getElementById("dn-input").value.trim();
   const oem = document.getElementById("sel-oem").value;
@@ -2149,7 +2324,9 @@ function saveEntry() {
 }
 
 function saveProductionEntry() {
+  if (!sessionValid()) { closeModal(); handleSessionExpired(); openLogin(); return; }
   const oem = document.getElementById("sel-oem").value;
+  if (!isAdminSession() && allowedProductionOems().indexOf(oem) < 0) { showToast("This login cannot enter " + oemLabel(oem)); return; }
   const model = document.getElementById("sel-model").value;
   const date = document.getElementById("date-input").value;
   const engineer = document.getElementById("pe-name").value.trim();
@@ -2185,7 +2362,9 @@ const LOG_PASSWORD = "mobica2026";
 var pwPendingAction = null;
 
 var pwExpected = null;
+var pwServerCheck = null;       // set while the modal is asking for the delivery password
 function requirePassword(actionLabel, callback, expected, fieldLabel) {
+  pwServerCheck = null;
   pwPendingAction = callback;
   pwExpected = expected || LOG_PASSWORD;
   document.getElementById("pw-field-label").textContent = fieldLabel || "Password";
@@ -2198,6 +2377,7 @@ function requirePassword(actionLabel, callback, expected, fieldLabel) {
 
 function confirmPassword() {
   var entered = document.getElementById("pw-input").value;
+  if (pwServerCheck) { pwServerCheck(entered); return; }
   if (entered === (pwExpected || LOG_PASSWORD)) {
     document.getElementById("pw-modal").style.display = "none";
     document.getElementById("pw-input").value = "";
@@ -2210,6 +2390,7 @@ function confirmPassword() {
 }
 
 function cancelPassword() {
+  pwServerCheck = null;
   document.getElementById("pw-modal").style.display = "none";
   document.getElementById("pw-input").value = "";
   pwPendingAction = null;
@@ -2227,7 +2408,7 @@ function addDeletedId(id) {
 function deleteEntry(id) {
   var target = entries.find(e => e.id === id);
   if (target && isArchivedDate(target.date)) { showToast("Archived entries are read-only"); return; }
-  requirePassword("Delete delivery entry", async function() {
+  requirePassword("Delete delivery entry", function() { withDeliveryPw(async function() {
     entries = entries.filter(e => e.id !== id);
     persist(); updateEntryCount(); renderLog(); renderAnalysis();
     addDeletedId(id);
@@ -2237,7 +2418,7 @@ function deleteEntry(id) {
     } else {
       showToast("⚠ Deleted locally — cloud delete failed, will retry on next sync");
     }
-  });
+  }); });
 }
 function clearAll() {
   requirePassword("Clear the local cache (cloud data is kept and re-synced)", function() {
@@ -2325,7 +2506,7 @@ function renderAnalysis() {
     ).join("");
     return `<div class="oem-card" style="border-top-color:${color}">
       <div class="oem-card-header">
-        <span class="oem-card-name"><span class="odot" style="background:${color}"></span>${oem} <span class="loc-badge ${loc==="INT"?"int":"adv"}">${loc}</span></span>
+        <span class="oem-card-name"><span class="odot" style="background:${color}"></span>${oemLabel(oem)} <span class="loc-badge ${loc==="INT"?"int":"adv"}">${loc}</span></span>
         <span class="oem-card-total">${(totals[oem]||0).toLocaleString()}</span>
       </div>${rows}</div>`;
   }).join("");
@@ -2409,7 +2590,7 @@ function renderDashboard() {
     var pct = grandVal > 0 ? ((v / grandVal) * 100).toFixed(1) + "%" : "0%";
     
     html += '<tr>';
-    html += '<td><span class="odot" style="background:' + c + '"></span> <b>' + oem + '</b></td>';
+    html += '<td><span class="odot" style="background:' + c + '"></span> <b>' + oemLabel(oem) + '</b></td>';
     html += '<td class="n">' + q.toLocaleString('en') + '</td>';
     html += '<td class="n">' + v.toLocaleString('en',{minimumFractionDigits:2, maximumFractionDigits:2}) + '</td>';
     html += '<td class="n">' + pct + '</td>';
@@ -2417,7 +2598,7 @@ function renderDashboard() {
 
     var vM = (v / 1000000).toFixed(1) + "M";
     var h = maxVal > 0 ? (v / maxVal) * 100 : 0;
-    chartHtml += '<div class="name"><span class="odot" style="background:' + c + '"></span><span>' + oem + '</span></div>' +
+    chartHtml += '<div class="name"><span class="odot" style="background:' + c + '"></span><span>' + oemLabel(oem) + '</span></div>' +
       '<div class="bar"><div class="d" style="width:' + h.toFixed(1) + '%"></div></div>' +
       '<div class="pct">' + vM + '</div>';
   });
@@ -2461,7 +2642,7 @@ function renderLog() {
     if (modF && !models.includes(modF)) modF = "";
     if (varF && !variants.includes(varF)) varF = "";
 
-    oemFilterEl.innerHTML = '<option value="">All OEMs</option>' + oems.map(o => `<option value="${o}" ${o===oemF?'selected':''}>${o}</option>`).join('');
+    oemFilterEl.innerHTML = '<option value="">All OEMs</option>' + oems.map(o => `<option value="${o}" ${o===oemF?'selected':''}>${oemLabel(o)}</option>`).join('');
     modelFilterEl.innerHTML = '<option value="">All Models</option>' + models.map(m => `<option value="${m}" ${m===modF?'selected':''}>${m}</option>`).join('');
     variantFilterEl.innerHTML = '<option value="">All Variants</option>' + variants.map(v => `<option value="${v}" ${v===varF?'selected':''}>${v}</option>`).join('');
   }
@@ -2496,7 +2677,7 @@ function renderLog() {
                                : `<button class="del-btn" onclick="deleteEntry('${e.id}')">Delete</button>`);
     if (kind === "production") return `<tr class="${archived?'archived':''}">
       <td>${e.date}</td><td>${badge}</td>
-      <td>${e.oem}</td><td>${e.model}</td>
+      <td>${oemLabel(e.oem)}</td><td>${e.model}</td>
       <td>${e.variant||"—"}</td>
       <td class="qty-cell">${Number(e.qty).toLocaleString()}</td>
       <td>${e.entered_by||"—"}</td>
@@ -2506,7 +2687,7 @@ function renderLog() {
       <td style="font-weight:800">${e.dn||"—"}</td>
       <td>${e.date}</td>
       <td>${badge}</td>
-      <td>${e.oem}</td><td>${e.model}</td>
+      <td>${oemLabel(e.oem)}</td><td>${e.model}</td>
       <td>${e.variant||"—"}</td>
       <td class="qty-cell">${Number(e.qty).toLocaleString()}</td>
       <td>${action}</td>
@@ -2519,7 +2700,7 @@ function renderLog() {
 function downloadCSV() {
   if (!entries.length) { showToast("No data to export"); return; }
   const header = "DN No.,Date,OEM,Model,Variant,Quantity";
-  const rows = entries.map(e => `${e.dn||""},${e.date},${e.oem},${e.model},${e.variant||""},${e.qty}`);
+  const rows = entries.map(e => `${e.dn||""},${e.date},${oemLabel(e.oem)},${e.model},${e.variant||""},${e.qty}`);
   const blob = new Blob([[header,...rows].join("\n")], {type:"text/csv"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a"); a.href=url; a.download="mobica_deliveries.csv"; a.click();
@@ -2725,20 +2906,20 @@ cw+'<sheetData>'+rows.join('')+'</sheetData>'+merge+'</worksheet>';
         var schema=SCHEMA[oem]; if(!schema) return;
         var dCols=[];
         schema.cols.forEach(function(col,ci){ if(col[0]!=='_') dCols.push({idx:ci,model:col[0],variant:col[1]||''}); });
-        _sFiles['xl/worksheets/sheet'+_si+'.xml']=_makeSheet(oem,dCols,lookup[oem],APRIL_DATES);
-        _sheets.push({name:oem,idx:_si});
+        _sFiles['xl/worksheets/sheet'+_si+'.xml']=_makeSheet(oemLabel(oem),dCols,lookup[oem],APRIL_DATES);
+        _sheets.push({name:oemLabel(oem),idx:_si});
         var tot=0,val=0;
         APRIL_DATES.forEach(function(iso){ var dd=(lookup[oem]&&lookup[oem][iso])||{}; dCols.forEach(function(col){ var v=dd[col.idx]||0; tot+=v; val+=v*((OEM_PRICES[oem]&&OEM_PRICES[oem][String(col.idx)])||0); }); });
-        _dashSum.push({name:oem,total:tot,value:val}); _si++;
+        _dashSum.push({name:oemLabel(oem),total:tot,value:val}); _si++;
       });
 
       _intOrder.forEach(function(oem){
         var models=INT_MODELS[oem]; if(!models) return;
-        _sFiles['xl/worksheets/sheet'+_si+'.xml']=_makeIntSheet(oem,models,intLookup[oem],APRIL_DATES);
-        _sheets.push({name:oem,idx:_si});
+        _sFiles['xl/worksheets/sheet'+_si+'.xml']=_makeIntSheet(oemLabel(oem),models,intLookup[oem],APRIL_DATES);
+        _sheets.push({name:oemLabel(oem),idx:_si});
         var tot=0,val=0;
         APRIL_DATES.forEach(function(iso){ var dd=(intLookup[oem]&&intLookup[oem][iso])||{}; models.forEach(function(m,mi){ var v=dd[mi]||0; tot+=v; val+=v*((OEM_PRICES[oem]&&OEM_PRICES[oem][String(mi)])||0); }); });
-        _dashSum.push({name:oem,total:tot,value:val}); _si++;
+        _dashSum.push({name:oemLabel(oem),total:tot,value:val}); _si++;
       });
 
       _sFiles['xl/worksheets/sheet'+_si+'.xml']=_makeDashboard(_dashSum,APRIL_DATES[0].substring(0,7));
@@ -2975,7 +3156,7 @@ function yearViewCSV() {
   var rows=yearViewData.map(function(e){
     var month=e.date?e.date.substring(0,7):"";
     var val=Math.round(yvCalcValue(e));
-    return [e.date,month,e.oem,e.model,e.variant||"",e.qty,val,e.location||"advanced",e.dn||""].join(",");
+    return [e.date,month,oemLabel(e.oem),e.model,e.variant||"",e.qty,val,e.location||"advanced",e.dn||""].join(",");
   });
   var csv=header+"\n"+rows.join("\n");
   var blob=new Blob([csv],{type:"text/csv"});
@@ -3269,7 +3450,7 @@ function renderPlan() {
       html += '<div class="plan-oem-block">';
       html += '<div class="plan-oem-header">';
       html += '<div class="plan-oem-dot" style="background:' + color + '"></div>';
-      html += '<span style="flex:1">' + oem + '</span>';
+      html += '<span style="flex:1">' + oemLabel(oem) + '</span>';
 
       // Show logic tag for GM and NISSAN
       if (oem === "GM")

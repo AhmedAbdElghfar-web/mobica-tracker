@@ -264,6 +264,11 @@ body:not(.mode-production) .production-only{display:none!important}
 .acct-sec .field{margin-top:8px}
 #btn-session.signed{background:rgba(47,208,142,.18);border-color:rgba(47,208,142,.55)}
 #oem-scope-hint{margin-top:6px}
+.months-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.mbtn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:52px;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:800;cursor:pointer;text-align:left}
+.mbtn span{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.mbtn.open{background:#e6f6ee;border-color:#8fd3b0;color:#157a52}
+.mbtn.closed{background:#fff4e5;border-color:#f0c78a;color:#9a5b00}
 .file-row{display:flex;justify-content:space-between;gap:10px;background:#f5f7f9;border-radius:10px;padding:12px 14px;font-weight:700}
 .file-ok{color:#157a52;font-weight:900}
 
@@ -635,6 +640,13 @@ body:not(.mode-production) .production-only{display:none!important}
       <h4 style="margin-top:16px">Admin · delivery-entry password</h4>
       <label class="field"><span>New delivery password (8+ characters)</span><input type="text" id="ac-delpw" autocomplete="off" autocapitalize="none"></label>
       <div class="dialog-actions"><button class="btn" type="button" onclick="adminSetDeliveryPw()">Set delivery password</button></div>
+      <h4 style="margin-top:16px">Admin · plan months</h4>
+      <div class="hint">Open months accept plan entry from the plan sheet. Closed months refuse it, and the sheet shows the reason. Tap a month to switch it.</div>
+      <div id="ac-months" class="months-grid"></div>
+      <div class="dialog-actions">
+        <button class="btn secondary" type="button" onclick="setAllPlanMonths(false)">Close all</button>
+        <button class="btn secondary" type="button" onclick="setAllPlanMonths(true)">Open all</button>
+      </div>
     </div>
     <div id="ac-msg"></div>
     <div class="dialog-actions" style="margin-top:14px">
@@ -1524,6 +1536,7 @@ async function openAccount(){
   document.getElementById("ac-admin").hidden = !admin;
   document.getElementById("acct-modal").style.display = "flex";
   if (admin) {
+    loadPlanMonths();
     var r = await rpcCall("mt_admin_accounts", { p_token: session.token });
     if (r.ok) document.getElementById("ac-user").innerHTML = r.data.filter(function(a){ return a.role !== "admin"; })
       .map(function(a){ return '<option value="' + a.username + '">' + a.username + ' · ' + (a.oems || []).map(oemLabel).join(", ") + '</option>'; }).join("");
@@ -1557,6 +1570,36 @@ async function adminSetDeliveryPw(){
   if (!r.ok) return acMsg(r.network ? "No connection." : r.error);
   deliveryPw = null; document.getElementById("ac-delpw").value = "";
   acMsg("Delivery password changed ✓ (everyone is asked for it again)", true);
+}
+
+// ---- admin: plan months (the plan sheet follows these; enforced in the database)
+var MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function monthLabel(m){ return MONTH_NAMES[Number(m.slice(5, 7)) - 1] + " " + m.slice(0, 4); }
+async function loadPlanMonths(){
+  var box = document.getElementById("ac-months"); if (!box) return;
+  try {
+    var res = await fetch(SB_URL + "/rest/v1/plan_month_status?select=month,is_open&order=month", { headers: sbHeaders({}) });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    var rows = await res.json();
+    box.innerHTML = rows.map(function(r){
+      return '<button type="button" class="mbtn ' + (r.is_open ? 'open' : 'closed') + '" data-m="' + r.month + '" onclick="togglePlanMonth(\'' + r.month + '\',' + (r.is_open ? 'false' : 'true') + ')">' +
+             monthLabel(r.month) + '<span>' + (r.is_open ? 'Open' : 'Closed') + '</span></button>';
+    }).join("") || '<span class="hint">No months defined.</span>';
+  } catch(e) { box.innerHTML = '<span class="hint">Could not load the plan months (' + xlsxEsc(e.message) + ').</span>'; }
+}
+async function setPlanMonths(months, open, label){
+  var r = await rpcCall("mt_admin_set_plan_months", { p_token: session.token, p_months: months, p_open: open });
+  if (r.expired) { closeAccount(); return handleSessionExpired(); }
+  if (!r.ok) return acMsg(r.network ? "No connection." : r.error);
+  acMsg(label + (open ? " opened ✓" : " closed ✓"), true);
+  loadPlanMonths();
+}
+function togglePlanMonth(m, open){ setPlanMonths([m], open, monthLabel(m)); }
+function setAllPlanMonths(open){
+  var months = [].map.call(document.querySelectorAll("#ac-months .mbtn"), function(b){ return b.getAttribute("data-m"); });
+  if (!months.length) return;
+  if (!confirm((open ? "Open" : "Close") + " all " + months.length + " months for plan entry?")) return;
+  setPlanMonths(months, open, "All " + months.length + " months");
 }
 
 // ---- OEM dropdown: production logins only see the OEMs they may enter

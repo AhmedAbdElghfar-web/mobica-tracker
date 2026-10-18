@@ -478,6 +478,7 @@ body:not(.mode-production) .production-only{display:none!important}
             <select id="opening-loc" onchange="renderOpeningPanel()"><option value="advanced">ADV · Advanced</option><option value="integrated">INT · Integrated</option></select></label>
           <label class="field"><span>Counted by</span><input type="text" id="opening-counted-by" placeholder="Name"></label>
           <button class="btn" type="button" id="btn-save-opening" onclick="saveOpeningStock()">Save opening stock</button>
+          <button class="btn" type="button" id="btn-opening-signin" hidden onclick="openLogin(function(){ openOpeningPanel(); })">Sign in to count</button>
           <span class="hint" id="opening-progress"></span>
         </section>
         <div class="tbl-wrap"><table id="opening-table"></table></div>
@@ -1012,7 +1013,7 @@ function renderStock(){
   var st = document.getElementById("stock-opening-status");
   if (prog.done === 0) st.innerHTML = '<b>Opening stock not entered yet.</b> Until the 1 Oct physical count is saved, balances start from zero and will read low. Use “Opening stock (1 Oct)” to enter it once.';
   else if (prog.done < prog.total) st.innerHTML = '<b>Opening count: ' + prog.done + ' of ' + prog.total + ' items entered.</b> Items without a count start from zero.';
-  else st.innerHTML = '<b>Opening count complete: ' + prog.total + ' items, locked.</b> Corrections are password-protected and logged.';
+  else st.innerHTML = '<b>Opening count complete: ' + prog.total + ' items, locked.</b> Only the admin login can correct a saved count; every correction is logged.';
 
   var tbl = document.getElementById("stock-table");
   if (!view.length) { tbl.innerHTML = '<tbody><tr><td class="empty-state">No items match these filters.</td></tr></tbody>'; return; }
@@ -1119,18 +1120,19 @@ function openOpeningPanel(){
     p.hidden = false;
     var _locs = ["advanced", "integrated"].filter(function(l){ return openingItems(l).length; });
     document.getElementById("opening-loc").value = _locs.indexOf(currentLocation) >= 0 ? currentLocation : (_locs[0] || currentLocation);
-    document.getElementById("opening-eyebrow").textContent = isAdminSession() ? "Admin · all OEMs · entered once"
+    document.getElementById("opening-eyebrow").textContent = openingViewOnly() ? "View only · all OEMs · count as of 1 Oct"
+      : isAdminSession() ? "Admin · all OEMs · entered once"
       : session.username + " · " + (session.oems || []).map(oemLabel).join(", ") + " · entered once";
     renderOpeningPanel();
     loadOpeningLog();
     p.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-  if (!sessionValid()) { openLogin(function(){ openOpeningPanel(); }); return; }
   show();
 }
 function closeOpeningPanel(){ document.getElementById("opening-panel").hidden = true; }
 // Opening stock lists only the models of the signed-in login's OEMs (admin: all).
-function openingOems(){ return isAdminSession() ? null : (sessionValid() ? (session.oems || []) : []); }
+function openingViewOnly(){ return !sessionValid(); }   // not signed in: the panel is a read-only view of every count
+function openingOems(){ return isAdminSession() ? null : (sessionValid() ? (session.oems || []) : null); }
 function openingItems(loc){
   var only = openingOems();
   return allStockItems().filter(function(i){ return i.location === loc && (!only || only.indexOf(i.oem) >= 0); });
@@ -1141,19 +1143,30 @@ function renderOpeningPanel(){
   var byKey = {};
   openingStock.forEach(function(o){ byKey[stockKey(o.oem, o.model, o.variant)] = o; });
   var prog = { total: items.length, done: items.filter(function(i){ return byKey[stockKey(i.oem, i.model, i.variant)]; }).length };
+  var vo = openingViewOnly();
+  var _lab = document.getElementById("opening-counted-by").closest("label");
+  if (_lab) _lab.style.display = vo ? "none" : "";
+  document.getElementById("btn-save-opening").style.display = vo ? "none" : "";
+  document.getElementById("btn-opening-signin").hidden = !vo;
+  document.querySelector("#opening-panel .insight").textContent = vo
+    ? "View only: the physical count taken at the cut-off (end of 30 Sep or before production starts on 1 Oct). Items without a count start from zero. To enter a count, sign in with your OEM login. Only the admin login can correct a saved count, and every correction is logged."
+    : "Enter the physical count taken at the cut-off (end of 30 Sep or before production starts on 1 Oct). Units produced or delivered on 1 Oct go in as normal entries, not here. Saved rows lock. Only the admin login can correct a saved count, and every correction is logged with the name, the login and the reason.";
   document.getElementById("opening-progress").textContent = prog.done + " of " + prog.total + " items counted";
   document.getElementById("opening-table").innerHTML =
     '<thead><tr><th>OEM</th><th>Model</th><th>Variant</th><th>Line</th><th class="n">Counted qty</th><th>Status</th></tr></thead><tbody>' +
     (items.map(function(i, idx){
       var o = byKey[stockKey(i.oem, i.model, i.variant)];
-      var cell = o
+      var cell = vo ? (o
+        ? '<td class="n"><b>' + fmt(o.qty) + '</b></td><td><span class="pill green">Counted</span></td>'
+        : '<td class="n"><span class="hint">—</span></td><td><span class="pill grey">Not counted</span></td>') : o
         ? '<td class="n"><b>' + fmt(o.qty) + '</b></td><td><span class="pill green">Locked</span>' + (isAdminSession() ? ' <button class="btn danger small" type="button" onclick="openCorrection(\'' + o.id + '\')">Correct</button>' : '') + '</td>'
         : '<td class="n"><input type="number" min="0" step="1" inputmode="numeric" data-idx="' + idx + '" aria-label="Opening qty ' + xlsxEsc(i.model + ' ' + i.variant) + '"></td><td><span class="pill grey">Not counted</span></td>';
       return '<tr><td>' + oemLabel(i.oem) + '</td><td>' + i.model + '</td><td>' + (i.variant || '—') + '</td><td>' + (i.line || '—') + '</td>' + cell + '</tr>';
-    }).join("") || '<tr><td colspan="6" class="hint">No items for this login in this location. Try the other location above.</td></tr>') + '</tbody>';
+    }).join("") || '<tr><td colspan="6" class="hint">' + (vo ? 'No items in this location.' : 'No items for this login in this location. Try the other location above.') + '</td></tr>') + '</tbody>';
   document.getElementById("opening-table").dataset.loc = loc;
 }
 async function saveOpeningStock(){
+  if (!sessionValid()) { openLogin(function(){ openOpeningPanel(); }); return; }
   var by = document.getElementById("opening-counted-by").value.trim();
   if (!by) { showToast("Enter who counted the stock"); document.getElementById("opening-counted-by").focus(); return; }
   var loc = document.getElementById("opening-loc").value;
@@ -1233,6 +1246,7 @@ async function saveCorrection(){
 }
 async function loadOpeningLog(){
   var t = document.getElementById("opening-log-table");
+  if (openingViewOnly()) { t.innerHTML = '<tbody><tr><td class="hint">Sign in to see the correction log.</td></tr></tbody>'; return; }
   try {
     openingLog = await fetchAllRows("fg_opening_stock_log", "select=*&order=ts.desc");
     var _only = openingOems(); if (_only) openingLog = openingLog.filter(function(l){ return _only.indexOf(l.oem) >= 0; });
@@ -1375,7 +1389,8 @@ const DATA_INTEGRATED = {
     "T7BL (قماش)": []
   },
   Geyushi: {
-    "Geyushi": ["BUS"]
+    "Geyushi": ["BUS"],
+    "EL-WAHAB": ["BUS"]
   }
 };
 
@@ -1424,7 +1439,7 @@ var INT_MODELS = {
   "AAV": ["SEATS W4","DP W4"],
   "Citroen": ["C43 L3","C43 L2"],
   "Ghabour": ["T7HL (جلد)", "T7BL (قماش)"],
-  "Geyushi": ["Geyushi"]
+  "Geyushi": ["Geyushi", "EL-WAHAB"]
 };
 
 // ── SUPABASE CONFIG ──────────────────────────────────
@@ -3092,7 +3107,7 @@ var YV_INT_MODELS={
   "AAV":["SEATS W4","DP W4"],
   "Citroen":["C43 L3","C43 L2"],
   "Ghabour":["T7HL (جلد)","T7BL (قماش)"],
-  "Geyushi":["Geyushi"]
+  "Geyushi":["Geyushi","EL-WAHAB"]
 };
 
 function yvCalcValue(e){

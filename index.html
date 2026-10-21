@@ -269,6 +269,61 @@ body:not(.mode-production) .production-only{display:none!important}
 .mbtn span{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
 .mbtn.open{background:#e6f6ee;border-color:#8fd3b0;color:#157a52}
 .mbtn.closed{background:#fff4e5;border-color:#f0c78a;color:#9a5b00}
+tr.oem-row{cursor:pointer;transition:background .12s}
+tr.oem-row:hover,tr.oem-row:focus{background:#eef6fb;outline:none}
+tr.oem-row td.go{color:var(--teal-d);font-weight:800;text-align:right;white-space:nowrap}
+tr.oem-row:hover td.go{text-decoration:underline}
+td.share{min-width:180px}td.share span{font-weight:800;font-size:13px;margin-left:8px}
+.sbar{display:inline-block;vertical-align:middle;width:110px;height:8px;border-radius:99px;background:var(--track);overflow:hidden}
+.sbar .d{height:100%;border-radius:99px}
+.dash-sum-hint{margin:-2px 0 12px;color:var(--muted);font-size:14px}
+#oem-detail-modal{z-index:105}
+.oemd{background:var(--bgk);width:min(980px,100%);max-height:92vh;overflow:auto;border-radius:18px;box-shadow:0 24px 60px rgba(15,42,67,.35)}
+.oemd-top{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:14px;padding:16px 20px;color:#fff;background:linear-gradient(135deg,var(--navy),var(--navy-2));border-bottom:4px solid var(--oemc,var(--teal))}
+.oemd-top .odot{width:16px;height:16px;border-radius:50%;box-shadow:0 0 0 3px rgba(255,255,255,.18);flex:none}
+.oemd-title{font-size:22px;font-weight:900;line-height:1.1}
+.oemd-sub{font-size:13px;opacity:.85;margin-top:3px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.oemd-badge{background:rgba(255,255,255,.16);border-radius:99px;padding:2px 10px;font-weight:800;font-size:12px;letter-spacing:.05em}
+.oemd-nav{margin-left:auto;display:flex;gap:8px}
+.oemd-nav button{width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);color:#fff;font-size:20px;font-weight:900;cursor:pointer}
+.oemd-nav button:hover{background:rgba(255,255,255,.2)}
+.oemd-body{padding:18px 20px 22px;display:grid;gap:18px}
+.oemd-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.oemd-kpi{background:#fff;border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);border-top:3px solid var(--oemc,var(--teal))}
+.oemd-kpi small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.oemd-kpi b{display:block;font-size:26px;font-weight:900;margin-top:4px;color:var(--ink)}
+.oemd-kpi em{display:block;font-style:normal;font-size:12px;color:var(--faint);margin-top:2px}
+.oemd-sec{background:#fff;border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+.oemd-sec h4{margin:0 0 12px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:900;display:flex;align-items:center;gap:8px}
+.oemd-sec h4 span{margin-left:auto;font-weight:700;letter-spacing:0;text-transform:none;color:var(--faint)}
+.mrow{padding:10px 0;border-top:1px solid var(--line)}.mrow:first-child{border-top:0;padding-top:0}
+.mrow-top{display:flex;align-items:baseline;gap:10px}
+.mrow-name{font-weight:900;font-size:16px}
+.mrow-qty{margin-left:auto;font-weight:900;font-size:18px}
+.mrow-pct{color:var(--faint);font-weight:800;font-size:13px;width:44px;text-align:right}
+.mtrack{height:10px;border-radius:99px;background:var(--track);overflow:hidden;margin:8px 0}
+.mtrack .d{height:100%;border-radius:99px;background:var(--oemc,var(--teal))}
+.vchips{display:flex;flex-wrap:wrap;gap:6px}
+.vchip{background:var(--bgk);border:1px solid var(--line);border-radius:99px;padding:3px 10px;font-size:13px;font-weight:800;color:var(--sub)}
+.vchip b{color:var(--ink);margin-left:6px}
+.days{display:flex;align-items:flex-end;gap:3px;height:134px}
+.day{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.day .col{width:100%;border-radius:5px 5px 2px 2px;background:var(--oemc,var(--teal));opacity:.5}
+.day.peak .col{opacity:1}
+.day.zero .col{background:var(--track);opacity:1}
+.day i{font-style:normal;font-size:10px;color:var(--faint);margin-top:4px;height:12px;line-height:12px}
+.oemd-listhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.oemd-listhead h4{margin:0}
+.oemd-listhead input{margin-left:auto;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:inherit}
+.oemd-scroll{max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:12px}
+#oemd-table{width:100%;border-collapse:collapse;font-size:14px}
+#oemd-table th{position:sticky;top:0;background:#f6f9fb;text-align:left;padding:9px 12px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#oemd-table td{padding:9px 12px;border-top:1px solid var(--line)}
+#oemd-table td.n,#oemd-table th.n{text-align:right}
+#oemd-table tbody tr:hover{background:#f3f8fb}
+#oemd-table tfoot td{font-weight:900;background:#f6f9fb;border-top:2px solid var(--line)}
+.oemd-empty{color:var(--faint);padding:6px 0}
+@media (max-width:760px){.oemd-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.oemd{max-height:96vh}.oemd-top{padding:14px}.oemd-title{font-size:19px}.oemd-listhead input{margin-left:0;width:100%}}
 .file-row{display:flex;justify-content:space-between;gap:10px;background:#f5f7f9;border-radius:10px;padding:12px 14px;font-weight:700}
 .file-ok{color:#157a52;font-weight:900}
 
@@ -512,17 +567,18 @@ body:not(.mode-production) .production-only{display:none!important}
       <div class="cards" id="dash-cards"></div>
       <div id="dash-grand-container" style="display:none"><span id="dash-grand-val">0 EGP</span></div>
       <div class="grid2" style="display:grid;grid-template-columns:minmax(0,1fr);gap:22px">
-        <article class="panel">
+        <article class="panel" id="dash-value-panel">
           <div class="panel-head"><div><div class="eyebrow">Delivery value</div><h2>Value by OEM</h2></div></div>
           <div class="bars" id="dash-bar-chart"></div>
         </article>
         <article class="panel">
-          <div class="panel-head"><div><div class="eyebrow">Delivery summary</div><h2>Quantity and value by OEM</h2></div></div>
+          <div class="panel-head"><div><div class="eyebrow">Delivery summary</div><h2 id="dash-sum-title">Quantity by OEM</h2></div></div>
+          <div class="dash-sum-hint">Tap an OEM to see its delivery details.</div>
           <div class="tbl-wrap">
             <table id="dash-table">
-              <thead><tr><th>OEM</th><th class="n">Total qty</th><th class="n">Total value (EGP)</th><th class="n">% of value</th></tr></thead>
+              <thead id="dash-thead"></thead>
               <tbody id="dash-oem-rows"></tbody>
-              <tfoot><tr><td>Grand total</td><td class="n" id="dash-grand-qty">0</td><td class="n" id="dash-grand-val-foot">0</td><td class="n">100%</td></tr></tfoot>
+              <tfoot id="dash-tfoot"></tfoot>
             </table>
           </div>
         </article>
@@ -598,6 +654,30 @@ body:not(.mode-production) .production-only{display:none!important}
     <div class="dialog-actions">
       <button class="btn secondary" type="button" onclick="cancelPassword()">Cancel</button>
       <button class="btn" type="button" onclick="confirmPassword()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- OEM DELIVERY DETAIL -->
+<div id="oem-detail-modal" class="overlay" onclick="if(event.target===this)closeOemDetail()">
+  <div class="oemd" role="dialog" aria-modal="true" aria-labelledby="oemd-title">
+    <div class="oemd-top">
+      <span class="odot" id="oemd-dot"></span>
+      <div><div class="oemd-title" id="oemd-title"></div><div class="oemd-sub" id="oemd-sub"></div></div>
+      <div class="oemd-nav">
+        <button type="button" onclick="stepOemDetail(-1)" aria-label="Previous OEM" title="Previous OEM (←)">‹</button>
+        <button type="button" onclick="stepOemDetail(1)" aria-label="Next OEM" title="Next OEM (→)">›</button>
+        <button type="button" onclick="closeOemDetail()" aria-label="Close" title="Close (Esc)">✕</button>
+      </div>
+    </div>
+    <div class="oemd-body">
+      <div class="oemd-kpis" id="oemd-kpis"></div>
+      <div class="oemd-sec"><h4>By model <span id="oemd-models-note"></span></h4><div id="oemd-models"></div></div>
+      <div class="oemd-sec"><h4>By day <span id="oemd-days-note"></span></h4><div class="days" id="oemd-days"></div></div>
+      <div class="oemd-sec">
+        <div class="oemd-listhead"><h4>Deliveries</h4><input type="search" id="oemd-q" placeholder="Search DN, model, variant, date…" oninput="renderOemDeliveries()" aria-label="Search deliveries"></div>
+        <div class="oemd-scroll"><table id="oemd-table"></table></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1448,6 +1528,115 @@ const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 async function sbInsert(entry) { return sbUpsertDeliveries([entry]); }
 
+// ── DASHBOARD: display switches and the OEM delivery detail ────────────────────
+var SHOW_PLAN_TAB = false;     // true brings the Plan tab back
+var SHOW_DASH_VALUE = false;   // true brings the delivery value back on the Dashboard tab
+function applyDisplaySwitches(){
+  var pb = document.querySelector('.tab-btn[data-tab="plan"]');
+  if (pb) pb.style.display = SHOW_PLAN_TAB ? "" : "none";
+}
+// the same rule renderDashboard uses to decide which deliveries count
+function dashEntryValid(e){
+  var schema = SCHEMA[e.oem];
+  if (schema && schema.cols) return schema.cols.findIndex(function(c){ return c[0] === e.model && c[1] === (e.variant || ""); }) >= 0;
+  if (INT_MODELS[e.oem]) return INT_MODELS[e.oem].findIndex(function(m){ return m === e.model || (e.model != null && (m.startsWith(e.model) || e.model.startsWith(m))); }) >= 0;
+  return false;
+}
+var _oemd = { oem: "", month: "", order: [] };
+function fmtDay(iso){ var p = String(iso).split("-"); return p[2] + " " + (MONTH_ABBR[p[1]] || p[1]); }
+function openOemDetail(oem){
+  var sel = document.getElementById("dashboard-month-sel");
+  _oemd.month = sel ? sel.value : "";
+  _oemd.order = [].map.call(document.querySelectorAll("#dash-oem-rows tr[data-oem]"), function(r){ return r.getAttribute("data-oem"); });
+  _oemd.oem = oem;
+  var q = document.getElementById("oemd-q"); if (q) q.value = "";
+  renderOemDetail();
+  document.getElementById("oem-detail-modal").style.display = "flex";
+  var box = document.querySelector("#oem-detail-modal .oemd"); if (box) box.scrollTop = 0;
+}
+function closeOemDetail(){ document.getElementById("oem-detail-modal").style.display = "none"; }
+function stepOemDetail(d){
+  var n = _oemd.order.length; if (n < 2) return;
+  var i = _oemd.order.indexOf(_oemd.oem);
+  _oemd.oem = _oemd.order[(i + d + n) % n];
+  var q = document.getElementById("oemd-q"); if (q) q.value = "";
+  renderOemDetail();
+  var box = document.querySelector("#oem-detail-modal .oemd"); if (box) box.scrollTop = 0;
+}
+function oemDetailEntries(){
+  return entries.filter(function(e){ return !isExcluded(e) && e.oem === _oemd.oem && e.date && e.date.startsWith(_oemd.month) && dashEntryValid(e); });
+}
+function renderOemDetail(){
+  var oem = _oemd.oem, list = oemDetailEntries();
+  var color = OEM_COLORS[oem] || "#2a9fc9";
+  document.querySelector("#oem-detail-modal .oemd").style.setProperty("--oemc", color);
+  document.getElementById("oemd-dot").style.background = color;
+  document.getElementById("oemd-title").textContent = oemLabel(oem);
+  var pos = _oemd.order.indexOf(oem);
+  document.getElementById("oemd-sub").innerHTML = '<span>' + xlsxEsc(monthLabel(_oemd.month)) + '</span><span class="oemd-badge">' +
+    (DATA_INTEGRATED[oem] ? 'INT · Integrated' : 'ADV · Advanced') + '</span>' +
+    (_oemd.order.length > 1 ? '<span>' + (pos + 1) + ' of ' + _oemd.order.length + ' OEMs</span>' : '');
+  var total = 0, dns = {}, days = {}, byModel = {}, byDay = {};
+  list.forEach(function(e){
+    var q = Number(e.qty) || 0, dn = (e.dn || "").trim();
+    total += q; if (dn) dns[dn] = 1; days[e.date] = 1; byDay[e.date] = (byDay[e.date] || 0) + q;
+    var m = byModel[e.model] || (byModel[e.model] = { qty: 0, v: {} });
+    m.qty += q; var vk = e.variant || "—"; m.v[vk] = (m.v[vk] || 0) + q;
+  });
+  var dnCount = Object.keys(dns).length, dayList = Object.keys(days).sort();
+  var last = dayList.length ? dayList[dayList.length - 1] : "";
+  var lastDns = last ? list.filter(function(e){ return e.date === last && (e.dn || "").trim(); }).map(function(e){ return e.dn.trim(); })
+                         .filter(function(v, i, a){ return a.indexOf(v) === i; }) : [];
+  var peakDay = "", peakQ = 0;
+  Object.keys(byDay).forEach(function(d){ if (byDay[d] > peakQ) { peakQ = byDay[d]; peakDay = d; } });
+  document.getElementById("oemd-kpis").innerHTML =
+    '<div class="oemd-kpi"><small>Units delivered</small><b>' + fmt(total) + '</b><em>' + list.length + (list.length === 1 ? ' entry' : ' entries') + '</em></div>' +
+    '<div class="oemd-kpi"><small>Delivery notes</small><b>' + (dnCount || '—') + '</b><em>' + (dnCount ? 'distinct DN numbers' : 'no DN recorded') + '</em></div>' +
+    '<div class="oemd-kpi"><small>Delivery days</small><b>' + dayList.length + '</b><em>' + (peakDay ? 'peak ' + fmtDay(peakDay) + ' · ' + fmt(peakQ) : '—') + '</em></div>' +
+    '<div class="oemd-kpi"><small>Last delivery</small><b>' + (last ? fmtDay(last) : '—') + '</b><em>' +
+      (lastDns.length ? 'DN ' + xlsxEsc(lastDns.slice(0, 2).join(', ')) + (lastDns.length > 2 ? ' +' + (lastDns.length - 2) : '') : (last ? 'no DN' : '')) + '</em></div>';
+  var models = Object.keys(byModel).sort(function(a, b){ return byModel[b].qty - byModel[a].qty; });
+  var maxM = models.length ? byModel[models[0]].qty : 0;
+  document.getElementById("oemd-models-note").textContent = models.length + (models.length === 1 ? ' model' : ' models');
+  document.getElementById("oemd-models").innerHTML = models.map(function(m){
+    var o = byModel[m], pct = total ? (o.qty / total * 100) : 0, w = maxM ? (o.qty / maxM * 100) : 0;
+    var chips = Object.keys(o.v).sort(function(a, b){ return o.v[b] - o.v[a]; })
+      .map(function(v){ return '<span class="vchip">' + xlsxEsc(v) + '<b>' + fmt(o.v[v]) + '</b></span>'; }).join("");
+    return '<div class="mrow"><div class="mrow-top"><span class="mrow-name">' + xlsxEsc(m) + '</span><span class="mrow-qty">' + fmt(o.qty) + '</span><span class="mrow-pct">' + pct.toFixed(0) + '%</span></div>' +
+      '<div class="mtrack"><div class="d" style="width:' + w.toFixed(1) + '%"></div></div><div class="vchips">' + chips + '</div></div>';
+  }).join("") || '<div class="oemd-empty">No deliveries for this OEM in this month.</div>';
+  var parts = _oemd.month.split("-"), dim = new Date(Number(parts[0]), Number(parts[1]), 0).getDate(), dh = "";
+  for (var d = 1; d <= dim; d++) {
+    var iso = _oemd.month + "-" + String(d).padStart(2, "0"), q2 = byDay[iso] || 0;
+    var px = peakQ && q2 ? Math.max(6, Math.round(q2 / peakQ * 100)) : 3;
+    dh += '<div class="day' + (q2 ? '' : ' zero') + (q2 && iso === peakDay ? ' peak' : '') + '" title="' + fmtDay(iso) + ': ' + fmt(q2) + ' units">' +
+          '<div class="col" style="height:' + px + 'px"></div><i>' + ((d === 1 || d % 5 === 0 || d === dim) ? d : '') + '</i></div>';
+  }
+  document.getElementById("oemd-days").innerHTML = dh;
+  document.getElementById("oemd-days-note").textContent = peakDay ? 'peak ' + fmtDay(peakDay) + ': ' + fmt(peakQ) + ' units' : '';
+  renderOemDeliveries();
+}
+function renderOemDeliveries(){
+  var list = oemDetailEntries();
+  var qv = ((document.getElementById("oemd-q") || {}).value || "").trim().toLowerCase();
+  var rows = list.slice().sort(function(a, b){ return a.date === b.date ? (Number(b.ts) || 0) - (Number(a.ts) || 0) : (a.date < b.date ? 1 : -1); });
+  if (qv) rows = rows.filter(function(e){ return ((e.dn || "") + " " + e.model + " " + (e.variant || "") + " " + e.date + " " + fmtDay(e.date)).toLowerCase().indexOf(qv) >= 0; });
+  var sum = rows.reduce(function(s, e){ return s + (Number(e.qty) || 0); }, 0);
+  document.getElementById("oemd-table").innerHTML =
+    '<thead><tr><th>Date</th><th>DN</th><th>Model</th><th>Variant</th><th class="n">Qty</th></tr></thead><tbody>' +
+    (rows.map(function(e){ return '<tr><td>' + fmtDay(e.date) + '</td><td>' + xlsxEsc(e.dn || '—') + '</td><td>' + xlsxEsc(e.model) + '</td><td>' + xlsxEsc(e.variant || '—') + '</td><td class="n"><b>' + fmt(e.qty) + '</b></td></tr>'; }).join("") ||
+      '<tr><td colspan="5" class="oemd-empty">' + (qv ? 'No delivery matches your search.' : 'No deliveries.') + '</td></tr>') + '</tbody>' +
+    '<tfoot><tr><td colspan="4">' + (qv ? rows.length + ' of ' + list.length + ' shown' : rows.length + (rows.length === 1 ? ' delivery' : ' deliveries')) + '</td><td class="n">' + fmt(sum) + '</td></tr></tfoot>';
+}
+document.addEventListener("keydown", function(ev){
+  var m = document.getElementById("oem-detail-modal");
+  if (!m || m.style.display !== "flex") return;
+  if (ev.key === "Escape") closeOemDetail();
+  else if (ev.target && ev.target.id === "oemd-q") return;
+  else if (ev.key === "ArrowLeft") stepOemDetail(-1);
+  else if (ev.key === "ArrowRight") stepOemDetail(1);
+});
+
 // ── OEM DISPLAY NAMES ─────────────────────────────────────────────────────────
 // Display only. The code (EXCEED) stays in the data, the database, prices, plan and the Sheets sync.
 var OEM_LABELS = { EXCEED: "Mercedes" };
@@ -2050,7 +2239,7 @@ window.onload = function() {
   try { document.getElementById("pe-name").value = localStorage.getItem(PE_NAME_KEY) || ""; } catch(e) {}
   setLocation(currentLocation); // populates OEM dropdown
   setEntryMode("delivery");
-  renderSessionChip(); verifySessionQuietly();
+  renderSessionChip(); verifySessionQuietly(); applyDisplaySwitches();
   // Fetch prices from Supabase early — refreshes OEM_PRICES / YV_PRICES
   setTimeout(fetchPricesFromSupabase, 800);
   updateEntryCount();
@@ -2099,6 +2288,7 @@ window.onload = function() {
 
 // ── TABS ─────────────────────────────────────────────
 function switchTab(tab, btn) {
+  if (tab === "plan" && !SHOW_PLAN_TAB) { tab = "dashboard"; btn = document.querySelector('.tab-btn[data-tab="dashboard"]'); }
   if (tab === "production" && !isProductionUnlocked()) {
     openLogin(function(){ switchTab("production", btn); });
     return;
@@ -2643,8 +2833,20 @@ function renderDashboard() {
   document.getElementById("dash-no-data").style.display = "none";
   table.closest(".grid2").style.display = "grid";
   
+  var thead = document.getElementById("dash-thead"), tfoot = document.getElementById("dash-tfoot");
+  var vp = document.getElementById("dash-value-panel");
+  if (vp) vp.style.display = SHOW_DASH_VALUE ? "" : "none";
+  document.getElementById("dash-sum-title").textContent = SHOW_DASH_VALUE ? "Quantity and value by OEM" : "Quantity by OEM";
+  if (SHOW_DASH_VALUE) {
+    thead.innerHTML = '<tr><th>OEM</th><th class="n">Total qty</th><th class="n">Total value (EGP)</th><th class="n">% of value</th><th></th></tr>';
+    tfoot.innerHTML = '<tr><td>Grand total</td><td class="n" id="dash-grand-qty">0</td><td class="n" id="dash-grand-val-foot">0</td><td class="n">100%</td><td></td></tr>';
+  } else {
+    thead.innerHTML = '<tr><th>OEM</th><th class="n">Total qty</th><th>Share of units</th><th></th></tr>';
+    tfoot.innerHTML = '<tr><td>Grand total</td><td class="n" id="dash-grand-qty">0</td><td>100%</td><td></td></tr>';
+  }
   document.getElementById("dash-grand-qty").textContent = grandQty.toLocaleString('en');
-  document.getElementById("dash-grand-val-foot").textContent = grandVal.toLocaleString('en',{minimumFractionDigits:2, maximumFractionDigits:2});
+  var _gv = document.getElementById("dash-grand-val-foot");
+  if (_gv) _gv.textContent = grandVal.toLocaleString('en',{minimumFractionDigits:2, maximumFractionDigits:2});
   
   var html = "";
   var chartHtml = "";
@@ -2660,12 +2862,17 @@ function renderDashboard() {
     var q = oemAgg[oem].qty;
     var pct = grandVal > 0 ? ((v / grandVal) * 100).toFixed(1) + "%" : "0%";
     
-    html += '<tr>';
+    var shareQ = grandQty > 0 ? (q / grandQty) * 100 : 0;
+    html += '<tr class="oem-row" data-oem="' + xlsxEsc(oem) + '" tabindex="0" role="button" aria-label="Delivery details for ' + xlsxEsc(oemLabel(oem)) + '">';
     html += '<td><span class="odot" style="background:' + c + '"></span> <b>' + oemLabel(oem) + '</b></td>';
     html += '<td class="n">' + q.toLocaleString('en') + '</td>';
-    html += '<td class="n">' + v.toLocaleString('en',{minimumFractionDigits:2, maximumFractionDigits:2}) + '</td>';
-    html += '<td class="n">' + pct + '</td>';
-    html += '</tr>';
+    if (SHOW_DASH_VALUE) {
+      html += '<td class="n">' + v.toLocaleString('en',{minimumFractionDigits:2, maximumFractionDigits:2}) + '</td>';
+      html += '<td class="n">' + pct + '</td>';
+    } else {
+      html += '<td class="share"><span class="sbar"><span class="d" style="display:block;width:' + shareQ.toFixed(1) + '%;background:' + c + '"></span></span><span>' + shareQ.toFixed(1) + '%</span></td>';
+    }
+    html += '<td class="go">Details ›</td></tr>';
 
     var vM = (v / 1000000).toFixed(1) + "M";
     var h = maxVal > 0 ? (v / maxVal) * 100 : 0;
@@ -2676,6 +2883,8 @@ function renderDashboard() {
   
   tbody.innerHTML = html;
   if(barChart) barChart.innerHTML = chartHtml;
+  tbody.onclick = function(ev){ var tr = ev.target.closest("tr[data-oem]"); if (tr) openOemDetail(tr.getAttribute("data-oem")); };
+  tbody.onkeydown = function(ev){ if (ev.key === "Enter" || ev.key === " ") { var tr = ev.target.closest("tr[data-oem]"); if (tr) { ev.preventDefault(); openOemDetail(tr.getAttribute("data-oem")); } } };
 }
 
 function renderLog() {

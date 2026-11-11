@@ -572,6 +572,7 @@ td.share{min-width:180px}td.share span{font-weight:800;font-size:13px;margin-lef
       <div class="insight" id="stock-opening-status"></div>
       <div class="kpis" id="stock-kpis"></div>
       <section class="filters" aria-label="Stock filters">
+        <label class="field"><span>Month</span><select id="stock-filter-month" onchange="renderStock()"><option value="">Since 1 Oct (all)</option></select></label>
         <label class="field"><span>OEM</span><select id="stock-filter-oem" onchange="renderStock()"><option value="">All OEMs</option></select></label>
         <label class="field"><span>Location</span>
           <select id="stock-filter-loc" onchange="renderStock()">
@@ -586,7 +587,7 @@ td.share{min-width:180px}td.share span{font-weight:800;font-size:13px;margin-lef
       </section>
       <article class="panel">
         <div class="panel-head"><div><div class="eyebrow">Finished goods</div><h2>Stock by model and variant</h2>
-            <div class="hint" style="margin-top:6px">Opening count + production − deliveries, from 1 Oct 2026</div></div>
+            <div class="hint" id="fg-period-hint" style="margin-top:6px">Opening count + production − deliveries, from 1 Oct 2026</div></div>
           <div class="fg-headright">
             <div class="fg-legend" id="fg-legend"><span><i class="sw on" id="fg-sw-on"></i><span id="fg-lg-on">On hand</span></span><span><i class="sw neg"></i>Below zero</span><span class="fg-lg-cap"><i class="sw cap"></i>Bar length = stock vs largest item</span></div>
             <div class="seg" role="group" aria-label="Stock view">
@@ -1087,6 +1088,38 @@ function isTabActive(id){ var el = document.getElementById(id); return el && el.
 function renderStockIfVisible(){ if (isTabActive("stock")) renderStock(); }
 function currentStock(){ return computeStock(entries, production, openingStock); }
 
+// ── Monthly stock roll-forward ──────────────────────────────────────────
+// For month M: start = opening count + Σprod − Σdel before M; then + prod in M − del in M = end of M.
+var FG_MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function fgMonthLabel(ym){ return FG_MONTHS[Number(ym.substring(5, 7)) - 1] + " " + ym.substring(0, 4); }
+function fgMonthList(){
+  var out = [], d = new Date(), cur = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+  var y = Number(SYSTEM_START.substring(0, 4)), m = Number(SYSTEM_START.substring(5, 7));
+  for (var i = 0; i < 120; i++) {
+    var ym = y + "-" + String(m).padStart(2, "0");
+    if (ym > cur) break;
+    out.push(ym); m++; if (m > 12) { m = 1; y++; }
+  }
+  return out.reverse();
+}
+function stockMonth(){ var el = document.getElementById("stock-filter-month"); return el ? el.value : ""; }
+function stockRows(ym){
+  if (!ym) return currentStock();
+  var start = ym + "-01";
+  var inM = function(x){ return x.date && x.date.substring(0, 7) === ym; };
+  var pre = computeStock(entries.filter(function(d){ return d.date < start; }), production.filter(function(p){ return p.date < start; }), openingStock);
+  var mon = computeStock(entries.filter(inM), production.filter(inM), []);
+  var map = {};
+  pre.forEach(function(r){ map[stockKey(r.oem, r.model, r.variant)] = { oem:r.oem, model:r.model, variant:r.variant, line:r.line, location:r.location,
+    opening:r.stock, produced:0, delivered:0, stock:0, hasOpening:r.hasOpening }; });
+  mon.forEach(function(r){
+    var k = stockKey(r.oem, r.model, r.variant);
+    if (!map[k]) map[k] = { oem:r.oem, model:r.model, variant:r.variant, line:r.line, location:r.location, opening:0, produced:0, delivered:0, stock:0, hasOpening:false };
+    map[k].produced = r.produced; map[k].delivered = r.delivered;
+  });
+  return Object.keys(map).map(function(k){ var r = map[k]; r.stock = r.opening + r.produced - r.delivered; return r; });
+}
+
 // ── Production soft delete ──────────────────────────────────────────────
 async function sbSoftDeleteProduction(id){
   if (!sessionValid()) return false;
@@ -1127,7 +1160,13 @@ function openingProgress(loc){
 function fmt(n){ return Number(n || 0).toLocaleString("en"); }
 function renderStock(){
   renderStockBanner();
-  var rows = currentStock();
+  var monSel = document.getElementById("stock-filter-month"), monPrev = monSel.value;
+  var mlist = fgMonthList();
+  monSel.innerHTML = '<option value="">Since 1 Oct (all)</option>' + mlist.map(function(m){ return '<option value="' + m + '"' + (m === monPrev ? ' selected' : '') + '>' + fgMonthLabel(m) + '</option>'; }).join("");
+  var monF = mlist.indexOf(monPrev) >= 0 ? monPrev : "";
+  var isFirst = monF === SYSTEM_START.substring(0, 7);
+  var curYm = todayStr().substring(0, 7);
+  var rows = stockRows(monF);
   // include master items with no movement so the list is complete
   var seen = new Set(rows.map(function(r){ return stockKey(r.oem, r.model, r.variant); }));
   allStockItems().forEach(function(i){
@@ -1162,11 +1201,18 @@ function renderStock(){
   tot.units = fgUnits(kList, rows);
   tot.opening = fgUnits(kList, rows, "opening"); tot.produced = fgUnits(kList, rows, "produced"); tot.delivered = fgUnits(kList, rows, "delivered");
   var gmNote = (!oemF || oemF === "GM") ? ' · GM as sets' : '';
+  var mName = monF ? fgMonthLabel(monF) : "";
+  var lOpen = !monF ? 'Opening stock' : 'Stock at start';
+  var sOpen = !monF || isFirst ? 'count as of 1 Oct' : 'as of 1 ' + mName;
+  var sFlow = monF ? 'in ' + mName : 'since 1 Oct';
+  var sEnd = !monF || monF === curYm ? 'units on hand' : 'end of ' + mName;
+  document.getElementById("fg-period-hint").textContent = !monF ? "Opening count + production − deliveries, from 1 Oct 2026"
+    : "Stock at start of " + mName + " + production − deliveries in " + mName + (monF === curYm ? " (to date)" : "");
   document.getElementById("stock-kpis").innerHTML =
-    '<div><span>Opening stock</span><b>' + fmt(tot.opening) + '</b><small>count as of 1 Oct' + gmNote + '</small></div>' +
-    '<div><span>Produced</span><b>' + fmt(tot.produced) + '</b><small>since 1 Oct' + gmNote + '</small></div>' +
-    '<div><span>Delivered</span><b>' + fmt(tot.delivered) + '</b><small>since 1 Oct' + gmNote + '</small></div>' +
-    '<div><span>FG stock</span><b>' + fmt(tot.units) + '</b><small>units on hand' + gmNote + '</small></div>' +
+    '<div><span>' + lOpen + '</span><b>' + fmt(tot.opening) + '</b><small>' + sOpen + gmNote + '</small></div>' +
+    '<div><span>Produced</span><b>' + fmt(tot.produced) + '</b><small>' + sFlow + gmNote + '</small></div>' +
+    '<div><span>Delivered</span><b>' + fmt(tot.delivered) + '</b><small>' + sFlow + gmNote + '</small></div>' +
+    '<div><span>FG stock</span><b>' + fmt(tot.units) + '</b><small>' + sEnd + gmNote + '</small></div>' +
     '<div class="' + (tot.neg ? 'bad' : '') + '"><span>Discrepancies</span><b>' + tot.neg + '</b><small>items below zero</small></div>';
 
   var prog = openingProgress(locF);
@@ -1181,7 +1227,7 @@ function renderStock(){
   document.getElementById("fg-legend").hidden = mode !== "visual";
   document.getElementById("stock-visual").hidden = mode !== "visual";
   document.getElementById("stock-table-wrap").hidden = mode !== "table";
-  if (mode === "visual") { renderStockVisual(view, rows, oemF, locF, order); return; }
+  if (mode === "visual") { renderStockVisual(view, rows, oemF, locF, order, monF); return; }
 
   var tbl = document.getElementById("stock-table");
   if (!view.length) { tbl.innerHTML = '<tbody><tr><td class="empty-state">No items match these filters.</td></tr></tbody>'; return; }
@@ -1216,9 +1262,9 @@ function setStockView(m){
   renderStock();
 }
 function fgEsc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-function fgWorkDays(){
+function fgWorkDays(ym){
   var d = new Set();
-  entries.forEach(function(e){ if (!e.deleted && !isArchivedDate(e.date)) d.add(e.date); });
+  entries.forEach(function(e){ if (!e.deleted && !isArchivedDate(e.date) && (!ym || e.date.substring(0, 7) === ym)) d.add(e.date); });
   return d.size;
 }
 function fgCoverPill(r, days){
@@ -1247,9 +1293,10 @@ function fgUnits(list, allRows, field){
   return u;
 }
 function fgPct(v, m){ return m > 0 ? Math.max(0, v / m * 100) : 0; }
-function renderStockVisual(view, rows, oemF, locF, order){
+function renderStockVisual(view, rows, oemF, locF, order, monF){
   var host = document.getElementById("stock-visual");
-  var days = fgWorkDays();
+  var days = fgWorkDays(monF);
+  var startLbl = monF && monF !== SYSTEM_START.substring(0, 7) ? "Start " : "Open ";
   var html = "";
   var sw = document.getElementById("fg-sw-on");
   if (sw) sw.style.background = oemF ? (OEM_COLORS[oemF] || "") : "";
@@ -1328,7 +1375,7 @@ function renderStockVisual(view, rows, oemF, locF, order){
         var body = m.rows.map(function(r){
           var bar = '<div class="fg-bar"><i class="' + (r.stock < 0 ? 'neg' : 'on') + '" style="width:' + fgPct(Math.abs(r.stock), scale).toFixed(2) + '%"></i></div>';
           var isBn = bnNames.indexOf(r.variant) >= 0;
-          var flow = 'Open ' + (r.hasOpening ? fmt(r.opening) : '<span class="nc">not counted</span>') + ' · +' + fmt(r.produced) + ' prod · −' + fmt(r.delivered) + ' del';
+          var flow = startLbl + (r.hasOpening ? fmt(r.opening) : (startLbl === 'Open ' ? '<span class="nc">not counted</span>' : fmt(r.opening) + ' <span class="nc">(no 1 Oct count)</span>')) + ' · +' + fmt(r.produced) + ' prod · −' + fmt(r.delivered) + ' del';
           return '<div class="fg-row"><div class="fg-vn">' + fgEsc(r.variant || r.model) +
               (r.line ? '<span class="tag">' + fgEsc(r.line) + '</span>' : '') + (isBn ? '<span class="tag bn">bottleneck</span>' : '') + '</div>' +
             '<div class="fg-barcol">' + bar + '<div class="fg-flow">' + flow + '</div></div>' +
@@ -1397,7 +1444,8 @@ function buildXlsx(sheets){
   return fflate.zipSync(files, { level: 6 });
 }
 function stockExportSheets(){
-  var rows = currentStock();
+  var monF = stockMonth();
+  var rows = stockRows(monF);
   var order = Object.keys(DATA_ADVANCED).concat(Object.keys(DATA_INTEGRATED));
   rows.sort(function(a,b){ return (order.indexOf(a.oem) - order.indexOf(b.oem)) || a.model.localeCompare(b.model) || a.variant.localeCompare(b.variant); });
   var oemF = document.getElementById("stock-filter-oem").value;
@@ -1405,11 +1453,11 @@ function stockExportSheets(){
   rows = rows.filter(function(r){ return (!oemF || r.oem === oemF) && (!locF || r.location === locF); });
   return [
     { name: "FG Stock", widths:[12,18,16,12,11,11,11,11,11],
-      header: ["OEM","Model","Variant","Line","Location","Opening","Produced","Delivered","FG stock"], negCol: 8,
+      header: ["OEM","Model","Variant","Line","Location", monF ? "Start of month" : "Opening", "Produced", "Delivered", monF ? "End of month" : "FG stock"], negCol: 8,
       rows: rows.map(function(r){ return [oemLabel(r.oem), r.model, r.variant, r.line, r.location === "integrated" ? "INT" : "ADV", r.opening, r.produced, r.delivered, r.stock]; }) },
     { name: "Production", widths:[12,12,18,16,12,10,18],
       header: ["Date","OEM","Model","Variant","Line","Qty","Engineer"],
-      rows: production.filter(function(p){ return !p.deleted && !isArchivedDate(p.date) && (!oemF || p.oem === oemF); })
+      rows: production.filter(function(p){ return !p.deleted && !isArchivedDate(p.date) && (!oemF || p.oem === oemF) && (!monF || p.date.substring(0, 7) === monF); })
         .map(function(p){ return [p.date, oemLabel(p.oem), p.model, p.variant || "", p.line || "", Number(p.qty), p.entered_by || ""]; }) }
   ];
 }
@@ -1418,7 +1466,7 @@ function exportStockExcel(){
     var zip = buildXlsx(stockExportSheets());
     var blob = new Blob([zip], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     var url = URL.createObjectURL(blob);
-    var a = document.createElement("a"); a.href = url; a.download = "MOBICA_FG_Stock_" + todayStr() + ".xlsx"; a.click();
+    var a = document.createElement("a"); a.href = url; a.download = "MOBICA_FG_Stock_" + (stockMonth() ? stockMonth() + "_" : "") + todayStr() + ".xlsx"; a.click();
     URL.revokeObjectURL(url);
     showToast("Stock exported ✓");
   } catch(e) { showToast("Export failed: " + e.message); console.error(e); }

@@ -1158,12 +1158,15 @@ function renderStock(){
     tot.opening += r.opening; tot.produced += r.produced; tot.delivered += r.delivered; tot.stock += r.stock;
     if (r.stock < 0) tot.neg++;
   });
-  tot.units = fgUnits(rows.filter(function(r){ return (!oemF || r.oem === oemF) && (!locF || r.location === locF); }), rows);
+  var kList = rows.filter(function(r){ return (!oemF || r.oem === oemF) && (!locF || r.location === locF); });
+  tot.units = fgUnits(kList, rows);
+  tot.opening = fgUnits(kList, rows, "opening"); tot.produced = fgUnits(kList, rows, "produced"); tot.delivered = fgUnits(kList, rows, "delivered");
+  var gmNote = (!oemF || oemF === "GM") ? ' · GM as sets' : '';
   document.getElementById("stock-kpis").innerHTML =
-    '<div><span>Opening stock</span><b>' + fmt(tot.opening) + '</b><small>count as of 1 Oct</small></div>' +
-    '<div><span>Produced</span><b>' + fmt(tot.produced) + '</b><small>since 1 Oct</small></div>' +
-    '<div><span>Delivered</span><b>' + fmt(tot.delivered) + '</b><small>since 1 Oct</small></div>' +
-    '<div><span>FG stock</span><b>' + fmt(tot.units) + '</b><small>units on hand' + ((!oemF || oemF === "GM") ? ' · GM as complete sets' : '') + '</small></div>' +
+    '<div><span>Opening stock</span><b>' + fmt(tot.opening) + '</b><small>count as of 1 Oct' + gmNote + '</small></div>' +
+    '<div><span>Produced</span><b>' + fmt(tot.produced) + '</b><small>since 1 Oct' + gmNote + '</small></div>' +
+    '<div><span>Delivered</span><b>' + fmt(tot.delivered) + '</b><small>since 1 Oct' + gmNote + '</small></div>' +
+    '<div><span>FG stock</span><b>' + fmt(tot.units) + '</b><small>units on hand' + gmNote + '</small></div>' +
     '<div class="' + (tot.neg ? 'bad' : '') + '"><span>Discrepancies</span><b>' + tot.neg + '</b><small>items below zero</small></div>';
 
   var prog = openingProgress(locF);
@@ -1230,15 +1233,16 @@ function fgCoverPill(r, days){
 // Units on hand for a set of item rows. GM variants are components of one seat set,
 // so a GM model with several variants counts MIN(variant stock) complete sets (never < 0);
 // every other item counts its own stock. allRows supplies the full component list per model.
-function fgUnits(list, allRows){
-  var parts = {}, seen = {}, u = 0;
-  allRows.forEach(function(r){ if (r.oem === "GM") (parts[r.model] = parts[r.model] || []).push(r.stock); });
+// field: "stock" (default), "opening", "produced" or "delivered" — same MIN rule per flow.
+function fgUnits(list, allRows, field){
+  var f = field || "stock", parts = {}, seen = {}, u = 0;
+  allRows.forEach(function(r){ if (r.oem === "GM") (parts[r.model] = parts[r.model] || []).push(Number(r[f]) || 0); });
   list.forEach(function(r){
     var p = r.oem === "GM" ? parts[r.model] : null;
     if (p && p.length > 1) {
       if (seen[r.model]) return;
       seen[r.model] = true; u += Math.max(0, Math.min.apply(null, p));
-    } else u += r.stock;
+    } else u += Number(r[f]) || 0;
   });
   return u;
 }

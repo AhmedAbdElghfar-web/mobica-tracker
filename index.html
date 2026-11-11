@@ -331,70 +331,62 @@ td.share{min-width:180px}td.share span{font-weight:800;font-size:13px;margin-lef
 #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:12px 20px;border-radius:10px;font-weight:700;opacity:0;transition:.25s;z-index:200;pointer-events:none;max-width:90vw}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ── FG stock visual view ── */
+/* ── FG stock visual view (compact) ── */
 .fg-headright{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.fg-legend{display:flex;gap:14px;font-size:13px;color:var(--muted);font-weight:700}
+.fg-legend{display:flex;gap:12px;font-size:12.5px;color:var(--muted);font-weight:700;flex-wrap:wrap}
 .fg-legend span{display:inline-flex;align-items:center;gap:6px}
-.sw{display:inline-block;width:14px;height:10px;border-radius:3px}
-.sw.on{background:var(--teal)}.sw.cap{background:var(--track);width:22px}.sw.neg{background:repeating-linear-gradient(45deg,var(--red) 0 3px,#f39aa7 3px 6px)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:4px;border:1px solid var(--line);background:#fff}
+.sw.bn{background:var(--amber-bg);border-color:#f1d9a1}.sw.neg{background:var(--red-bg);border-color:#f0c3ca}.sw.zero{background:#f3f5f7}
 .seg{display:inline-flex;border:1px solid #cdd7e0;border-radius:10px;overflow:hidden;background:#fff}
-.seg button{border:0;background:#fff;padding:9px 16px;font-weight:800;font-size:14px;color:var(--muted);min-height:40px}
+.seg button{border:0;background:#fff;padding:8px 14px;font-weight:800;font-size:14px;color:var(--muted);min-height:38px}
 .seg button+button{border-left:1px solid #cdd7e0}
 .seg button[aria-pressed=true]{background:var(--navy);color:#fff}
-.fg-oems{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-bottom:24px}
-.fg-oemtile{text-align:left;background:#fff;border:1px solid var(--line);border-left:5px solid var(--oc,var(--teal));border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
-.fg-oemtile:hover{background:#f5f9fc;border-color:#c7d3dd;border-left-color:var(--oc,var(--teal))}
-.fg-oemtile .t{display:flex;align-items:center;gap:8px;font-weight:900;font-size:15px}
-.fg-oemtile .t .pill{margin-left:auto;font-size:11px;padding:2px 8px}
-.fg-oemtile b{font-size:24px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
-.fg-oemtile small{color:var(--muted);font-size:12.5px;font-weight:600}
-.fg-mini{height:6px;border-radius:99px;background:var(--track);overflow:hidden}
-.fg-mini i{display:block;height:100%;border-radius:99px;background:var(--oc,var(--teal))}
-.fg-oem{margin-bottom:26px}
+.fg-oems{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:18px}
+.fg-oemtile{text-align:left;background:#fff;border:1px solid var(--line);border-left:4px solid var(--oc,var(--teal));border-radius:10px;padding:8px 12px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px}
+.fg-oemtile:hover{background:#f5f9fc}
+.fg-oemtile .t{font-weight:800;font-size:13.5px;display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fg-oemtile b{font-size:19px;font-weight:900;font-variant-numeric:tabular-nums;text-align:right}
+.fg-oemtile b.neg{color:var(--red)}
+.fg-oemtile small{grid-column:1 / -1;color:var(--muted);font-size:11.5px;font-weight:600}
+.fg-oemtile small .bad{color:var(--red);font-weight:800}
+.fg-oem{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}
 .fg-oem:last-child{margin-bottom:0}
-.fg-oemhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 2px 10px;border-bottom:3px solid var(--oc,var(--teal));margin-bottom:14px}
-.fg-oemhead .nm{font-size:20px;font-weight:900}
-.fg-oemhead .odot{width:13px;height:13px}
-.fg-oemhead .tot{margin-left:auto;display:flex;gap:18px;align-items:baseline;color:var(--muted);font-size:13px;font-weight:700}
-.fg-oemhead .tot b{color:var(--ink);font-size:20px;font-weight:900;font-variant-numeric:tabular-nums;margin-left:4px}
-.fg-models{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,520px),1fr));gap:14px;align-items:start}
-.fg-model{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
-.fg-model.has-neg{border-color:#f0c3ca}
-.fg-mhead{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#f7f9fb;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.fg-mhead .mn{font-weight:900;font-size:16.5px}
-.fg-mhead .ms{margin-left:auto;text-align:right;line-height:1.15}
-.fg-mhead .ms b{display:block;font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}
-.fg-mhead .ms b.neg{color:var(--red)}
-.fg-mhead .ms small{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.fg-mhead .bn{flex-basis:100%;font-size:13px;color:#6b4a06;background:var(--amber-bg);border-radius:8px;padding:5px 10px;font-weight:700}
-.fg-rows{padding:4px 16px 8px}
-.fg-row{display:grid;grid-template-columns:minmax(96px,150px) minmax(0,1fr) 64px;gap:6px 14px;align-items:center;padding:10px 0;border-top:1px solid #eef2f5}
-.fg-row:first-child{border-top:0}
-.fg-vn{font-weight:800;font-size:14.5px;min-width:0;overflow-wrap:anywhere}
-.fg-vn .tag{display:inline-block;margin-left:6px;font-size:10.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;border-radius:99px;padding:1px 7px;background:#eef1f4;color:var(--muted);vertical-align:1px}
-.fg-vn .tag.bn{background:var(--amber-bg);color:#a8700b}
-.fg-barcol{min-width:0}
-.fg-bar{display:flex;height:14px;border-radius:4px;background:var(--track);overflow:hidden}
-.fg-bar i{display:block;height:100%}
-.fg-bar i.on{background:var(--oc,var(--teal))}
-.fg-bar i.del{background:#d5dde4}
-.fg-bar i.neg{background:repeating-linear-gradient(45deg,var(--red) 0 3px,#f39aa7 3px 6px)}
-.fg-bar.empty{background:var(--track)}
-.fg-flow{font-size:12px;color:var(--muted);margin-top:5px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fg-flow .nc{color:#a8700b;font-weight:700}
-.fg-qty{text-align:right;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
-.fg-qty.neg{color:var(--red)}
-.fg-qty.zero{color:var(--faint)}
+.fg-oemhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 14px;background:#f7f9fb;border-bottom:1px solid var(--line);border-left:4px solid var(--oc,var(--teal))}
+.fg-oemhead .nm{font-size:16px;font-weight:900}
+.fg-oemhead .tot{margin-left:auto;display:flex;gap:14px;align-items:baseline;color:var(--muted);font-size:12.5px;font-weight:700}
+.fg-oemhead .tot b{color:var(--ink);font-size:17px;font-weight:900;font-variant-numeric:tabular-nums;margin-left:4px}
+.fg-m{border-top:1px solid #eef2f5}
+.fg-m:first-of-type{border-top:0}
+.fg-m>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:minmax(110px,170px) 64px minmax(0,1fr) 14px;align-items:center;gap:6px 14px;padding:8px 14px}
+.fg-m>summary::-webkit-details-marker{display:none}
+.fg-m>summary:hover{background:#fafcfd}
+.fg-m.neg>summary{background:#fff7f8}
+.fg-mname{font-weight:900;font-size:14.5px;line-height:1.15;min-width:0;overflow-wrap:anywhere}
+.fg-mname small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+.fg-mnum{text-align:right;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
+.fg-mnum.neg{color:var(--red)}.fg-mnum.zero{color:var(--faint)}
+.fg-chips{display:flex;flex-wrap:wrap;gap:5px}
+.fg-chip{display:inline-flex;align-items:baseline;gap:6px;border:1px solid var(--line);background:#fff;border-radius:7px;padding:3px 8px;font-size:12.5px;font-weight:700;color:var(--sub);overflow:hidden;white-space:nowrap}
+.fg-chip b{color:var(--ink);font-weight:900;font-variant-numeric:tabular-nums}
+.fg-chip.bn{background:var(--amber-bg);border-color:#f1d9a1}
+.fg-chip.neg{background:var(--red-bg);border-color:#f0c3ca}.fg-chip.neg b{color:var(--red)}
+.fg-chip.zero{background:#f3f5f7;color:var(--faint)}.fg-chip.zero b{color:var(--faint)}
+.fg-caret{width:8px;height:8px;border-right:2px solid var(--faint);border-bottom:2px solid var(--faint);transform:rotate(-45deg);justify-self:end}
+.fg-m[open] .fg-caret{transform:rotate(45deg)}
+.fg-detail{padding:2px 14px 12px}
+.fg-detail .bnote{font-size:12.5px;color:#6b4a06;background:var(--amber-bg);border-radius:7px;padding:5px 10px;font-weight:700;margin:2px 0 8px}
+.fg-detail table{font-size:13.5px}
+.fg-detail th{font-size:11px;padding:6px 8px}
+.fg-detail td{padding:6px 8px}
+.fg-detail td.neg{color:var(--red);font-weight:900}
+.fg-detail .nc{color:#a8700b;font-weight:700;font-size:12px}
 @media (max-width:720px){
   .fg-headright{width:100%;justify-content:space-between}
-  .fg-legend{gap:10px;font-size:12px;flex-wrap:wrap}.fg-lg-cap{display:none!important}
-  .fg-oems{grid-template-columns:1fr 1fr;gap:10px}
-  .fg-oemtile b{font-size:20px}
-  .fg-oemhead .tot{margin-left:0;width:100%;justify-content:space-between}
-  .fg-rows{padding:2px 12px 6px}
-  .fg-mhead{padding:10px 12px}
-  .fg-row{grid-template-columns:minmax(0,1fr) auto;gap:6px 10px}
-  .fg-barcol{grid-column:1 / -1;grid-row:2}
+  .fg-oems{grid-template-columns:1fr 1fr}
+  .fg-oemhead .tot{margin-left:0;width:100%;justify-content:flex-start}
+  .fg-m>summary{grid-template-columns:minmax(0,1fr) auto 14px;padding:8px 12px}
+  .fg-chips{grid-column:1 / -1;grid-row:2}
+  .fg-detail{padding:2px 8px 10px}
 }
 
 /* ── opening stock ── */
@@ -587,7 +579,7 @@ td.share{min-width:180px}td.share span{font-weight:800;font-size:13px;margin-lef
         <div class="panel-head"><div><div class="eyebrow">Finished goods</div><h2>Stock by model and variant</h2>
             <div class="hint" id="fg-period-hint" style="margin-top:6px">Opening count + production − deliveries, from 1 Oct 2026</div></div>
           <div class="fg-headright">
-            <div class="fg-legend" id="fg-legend"><span><i class="sw on" id="fg-sw-on"></i><span id="fg-lg-on">On hand</span></span><span><i class="sw neg"></i>Below zero</span><span class="fg-lg-cap"><i class="sw cap"></i>Bar length = stock vs largest item</span></div>
+            <div class="fg-legend" id="fg-legend"><span><i class="sw bn"></i>Bottleneck</span><span><i class="sw neg"></i>Below zero</span><span><i class="sw zero"></i>Zero</span><span>Tap a model for details</span></div>
             <div class="seg" role="group" aria-label="Stock view">
               <button type="button" id="fg-view-visual" aria-pressed="true" onclick="setStockView('visual')">Visual</button>
               <button type="button" id="fg-view-table" aria-pressed="false" onclick="setStockView('table')">Table</button>
@@ -1278,10 +1270,6 @@ function renderStockVisual(view, rows, oemF, locF, order, monF){
   var host = document.getElementById("stock-visual");
   var startLbl = monF && monF !== SYSTEM_START.substring(0, 7) ? "Start " : "Open ";
   var html = "";
-  var sw = document.getElementById("fg-sw-on");
-  if (sw) sw.style.background = oemF ? (OEM_COLORS[oemF] || "") : "";
-  var lg = document.getElementById("fg-lg-on");
-  if (lg) lg.textContent = oemF ? "On hand" : "On hand (OEM colour)";
 
   // 1) OEM overview tiles (only when no OEM is selected)
   if (!oemF) {
@@ -1293,15 +1281,13 @@ function renderStockVisual(view, rows, oemF, locF, order, monF){
     });
     Object.keys(byOem).forEach(function(o){ byOem[o].stock = fgUnits(rows.filter(function(r){ return r.oem === o && (!locF || r.location === locF); }), rows); });
     var olist = Object.keys(byOem).sort(function(a,b){ return byOem[b].stock - byOem[a].stock || order.indexOf(a) - order.indexOf(b); });
-    var omax = Math.max.apply(null, olist.map(function(o){ return byOem[o].stock; }).concat([1]));
     if (olist.length > 1) {
       html += '<div class="fg-oems">' + olist.map(function(o){
         var x = byOem[o], c = OEM_COLORS[o] || "#8a98a6";
         return '<button type="button" class="fg-oemtile" style="--oc:' + c + '" data-oem="' + fgEsc(o) + '" onclick="fgPickOem(this.dataset.oem)">' +
-          '<span class="t"><span class="odot" style="background:' + c + '"></span>' + fgEsc(oemLabel(o)) +
-          (x.neg ? '<span class="pill red">' + x.neg + ' below 0</span>' : '') + '</span>' +
-          '<b>' + fmt(x.stock) + '</b><small>units on hand · ' + x.items + ' items</small>' +
-          '<span class="fg-mini"><i style="width:' + fgPct(Math.max(0, x.stock), omax).toFixed(1) + '%"></i></span></button>';
+          '<span class="t"><span class="odot" style="background:' + c + '"></span>' + fgEsc(oemLabel(o)) + '</span>' +
+          '<b class="' + (x.stock < 0 ? 'neg' : '') + '">' + fmt(x.stock) + '</b>' +
+          '<small>' + x.items + ' items' + (x.neg ? ' · <span class="bad">' + x.neg + ' below 0</span>' : '') + '</small></button>';
       }).join("") + '</div>';
     }
   }
@@ -1328,7 +1314,6 @@ function renderStockVisual(view, rows, oemF, locF, order, monF){
   html += groups.map(function(g){
     var c = OEM_COLORS[g.oem] || "#8a98a6";
     var all = []; g.models.forEach(function(m){ all = all.concat(m.rows); });
-    var scale = Math.max.apply(null, all.map(function(r){ return Math.abs(r.stock); }).concat([1]));
     var gStock = fgUnits(all, rows);
     var gNeg = all.filter(function(r){ return r.stock < 0; }).length;
     var loc = all[0].location === "integrated";
@@ -1337,36 +1322,39 @@ function renderStockVisual(view, rows, oemF, locF, order, monF){
       '<span class="loc-badge ' + (loc ? 'int' : 'adv') + '">' + (loc ? 'INT' : 'ADV') + '</span>' +
       (gNeg ? '<span class="pill red">' + gNeg + ' below zero</span>' : '') +
       '<span class="tot"><span>FG stock<b>' + fmt(gStock) + '</b></span><span>Items<b>' + all.length + '</b></span></span></div>' +
-      '<div class="fg-models">' + g.models.map(function(m){
-        var parts = setInfo[g.oem + "|" + m.model];
+      g.models.map(function(m){
+        var key = g.oem + "|" + m.model;
+        var parts = setInfo[key];
         var isSet = parts && parts.length > 1;
-        var sets = 0, minStock = null, maxStock = null;
-        if (isSet) {
-          parts.forEach(function(p){ minStock = minStock === null ? p.stock : Math.min(minStock, p.stock); maxStock = maxStock === null ? p.stock : Math.max(maxStock, p.stock); });
-          sets = Math.max(0, minStock);
-        }
-        var mStock = m.rows.reduce(function(s,r){ return s + r.stock; }, 0);
+        var minStock = null, maxStock = null;
+        if (isSet) parts.forEach(function(p){ minStock = minStock === null ? p.stock : Math.min(minStock, p.stock); maxStock = maxStock === null ? p.stock : Math.max(maxStock, p.stock); });
+        var num = isSet ? Math.max(0, minStock) : m.rows.reduce(function(s,r){ return s + r.stock; }, 0);
         var hasNeg = m.rows.some(function(r){ return r.stock < 0; });
         var bnNames = isSet && maxStock !== minStock ? parts.filter(function(p){ return p.stock === minStock; }).map(function(p){ return p.variant; }) : [];
-        var head = '<div class="fg-mhead"><span class="mn">' + fgEsc(m.model) + '</span><span class="ms">' +
-          (isSet ? '<b>' + fmt(sets) + '</b><small>complete sets</small>' : '<b class="' + (mStock < 0 ? 'neg' : '') + '">' + fmt(mStock) + '</b><small>units on hand</small>') + '</span>' +
-          (bnNames.length ? '<span class="bn">Limited by ' + fgEsc(bnNames.join(", ")) + ' — ' + fmt(maxStock - minStock) + ' surplus parts on the fullest component</span>' : '') +
-          '</div>';
-        var body = m.rows.map(function(r){
-          var bar = '<div class="fg-bar"><i class="' + (r.stock < 0 ? 'neg' : 'on') + '" style="width:' + fgPct(Math.abs(r.stock), scale).toFixed(2) + '%"></i></div>';
-          var isBn = bnNames.indexOf(r.variant) >= 0;
-          var flow = startLbl + (r.hasOpening ? fmt(r.opening) : (startLbl === 'Open ' ? '<span class="nc">not counted</span>' : fmt(r.opening) + ' <span class="nc">(no 1 Oct count)</span>')) + ' · +' + fmt(r.produced) + ' prod · −' + fmt(r.delivered) + ' del';
-          return '<div class="fg-row"><div class="fg-vn">' + fgEsc(r.variant || r.model) +
-              (r.line ? '<span class="tag">' + fgEsc(r.line) + '</span>' : '') + (isBn ? '<span class="tag bn">bottleneck</span>' : '') + '</div>' +
-            '<div class="fg-barcol">' + bar + '<div class="fg-flow">' + flow + '</div></div>' +
-            '<div class="fg-qty ' + (r.stock < 0 ? 'neg' : r.stock === 0 ? 'zero' : '') + '">' + fmt(r.stock) + '</div></div>';
+        var named = m.rows.filter(function(r){ return r.variant; });
+        var chips = named.map(function(r){
+          var cls = r.stock < 0 ? 'neg' : bnNames.indexOf(r.variant) >= 0 ? 'bn' : r.stock === 0 ? 'zero' : '';
+          return '<span class="fg-chip ' + cls + '">' + fgEsc(r.variant) + ' <b>' + fmt(r.stock) + '</b></span>';
         }).join("");
-        return '<article class="fg-model' + (hasNeg ? ' has-neg' : '') + '">' + head + '<div class="fg-rows">' + body + '</div></article>';
-      }).join("") + '</div></section>';
+        var openCls = FG_OPEN.has(key) ? ' open' : '';
+        var detail = '<div class="fg-detail">' +
+          (bnNames.length ? '<div class="bnote">Limited by ' + fgEsc(bnNames.join(", ")) + ' — fullest component has ' + fmt(maxStock - minStock) + ' extra parts</div>' : '') +
+          '<div class="tbl-wrap"><table><thead><tr><th>Variant</th><th class="n">' + startLbl.trim() + '</th><th class="n">+ Prod</th><th class="n">− Del</th><th class="n">Stock</th></tr></thead><tbody>' +
+          m.rows.map(function(r){
+            var op = r.hasOpening || startLbl !== 'Open ' ? fmt(r.opening) + (r.hasOpening ? '' : ' <span class="nc">no count</span>') : '<span class="nc">not counted</span>';
+            return '<tr><td>' + fgEsc(r.variant || r.model) + (r.line ? ' <span class="hint">' + fgEsc(r.line) + '</span>' : '') + '</td><td class="n">' + op + '</td><td class="n">' + fmt(r.produced) + '</td><td class="n">' + fmt(r.delivered) + '</td><td class="n ' + (r.stock < 0 ? 'neg' : '') + '"><b>' + fmt(r.stock) + '</b></td></tr>';
+          }).join("") + '</tbody></table></div></div>';
+        return '<details class="fg-m' + (hasNeg ? ' neg' : '') + '" data-k="' + fgEsc(key) + '" ontoggle="fgToggle(this)"' + openCls + '>' +
+          '<summary><span class="fg-mname">' + fgEsc(m.model) + '<small>' + (isSet ? 'complete sets' : 'units') + '</small></span>' +
+          '<span class="fg-mnum ' + (num < 0 ? 'neg' : num === 0 ? 'zero' : '') + '">' + fmt(num) + '</span>' +
+          '<span class="fg-chips">' + chips + '</span><span class="fg-caret"></span></summary>' + detail + '</details>';
+      }).join("") + '</section>';
   }).join("");
 
   host.innerHTML = html;
 }
+var FG_OPEN = new Set();
+function fgToggle(el){ var k = el.getAttribute("data-k"); if (el.open) FG_OPEN.add(k); else FG_OPEN.delete(k); }
 function fgPickOem(o){
   var s = document.getElementById("stock-filter-oem");
   s.value = o; renderStock();

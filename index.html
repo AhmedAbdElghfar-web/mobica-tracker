@@ -1158,11 +1158,12 @@ function renderStock(){
     tot.opening += r.opening; tot.produced += r.produced; tot.delivered += r.delivered; tot.stock += r.stock;
     if (r.stock < 0) tot.neg++;
   });
+  tot.units = fgUnits(rows.filter(function(r){ return (!oemF || r.oem === oemF) && (!locF || r.location === locF); }), rows);
   document.getElementById("stock-kpis").innerHTML =
     '<div><span>Opening stock</span><b>' + fmt(tot.opening) + '</b><small>count as of 1 Oct</small></div>' +
     '<div><span>Produced</span><b>' + fmt(tot.produced) + '</b><small>since 1 Oct</small></div>' +
     '<div><span>Delivered</span><b>' + fmt(tot.delivered) + '</b><small>since 1 Oct</small></div>' +
-    '<div><span>FG stock</span><b>' + fmt(tot.stock) + '</b><small>units on hand</small></div>' +
+    '<div><span>FG stock</span><b>' + fmt(tot.units) + '</b><small>units on hand' + ((!oemF || oemF === "GM") ? ' · GM as complete sets' : '') + '</small></div>' +
     '<div class="' + (tot.neg ? 'bad' : '') + '"><span>Discrepancies</span><b>' + tot.neg + '</b><small>items below zero</small></div>';
 
   var prog = openingProgress(locF);
@@ -1226,6 +1227,21 @@ function fgCoverPill(r, days){
   var lbl = c >= 99 ? "99+ d" : (c < 10 ? c.toFixed(1) : String(Math.round(c))) + " d";
   return '<span class="pill ' + cls + '" title="Days of cover at the average delivery rate since 1 Oct (' + fmt(Math.round(r.delivered / days * 10) / 10) + '/day)">' + lbl + '</span>';
 }
+// Units on hand for a set of item rows. GM variants are components of one seat set,
+// so a GM model with several variants counts MIN(variant stock) complete sets (never < 0);
+// every other item counts its own stock. allRows supplies the full component list per model.
+function fgUnits(list, allRows){
+  var parts = {}, seen = {}, u = 0;
+  allRows.forEach(function(r){ if (r.oem === "GM") (parts[r.model] = parts[r.model] || []).push(r.stock); });
+  list.forEach(function(r){
+    var p = r.oem === "GM" ? parts[r.model] : null;
+    if (p && p.length > 1) {
+      if (seen[r.model]) return;
+      seen[r.model] = true; u += Math.max(0, Math.min.apply(null, p));
+    } else u += r.stock;
+  });
+  return u;
+}
 function fgPct(v, m){ return m > 0 ? Math.max(0, v / m * 100) : 0; }
 function renderStockVisual(view, rows, oemF, locF, order){
   var host = document.getElementById("stock-visual");
@@ -1244,6 +1260,7 @@ function renderStockVisual(view, rows, oemF, locF, order){
       var o = byOem[r.oem] || (byOem[r.oem] = { stock:0, neg:0, items:0 });
       o.stock += r.stock; o.items++; if (r.stock < 0) o.neg++;
     });
+    Object.keys(byOem).forEach(function(o){ byOem[o].stock = fgUnits(rows.filter(function(r){ return r.oem === o && (!locF || r.location === locF); }), rows); });
     var olist = Object.keys(byOem).sort(function(a,b){ return byOem[b].stock - byOem[a].stock || order.indexOf(a) - order.indexOf(b); });
     var omax = Math.max.apply(null, olist.map(function(o){ return byOem[o].stock; }).concat([1]));
     if (olist.length > 1) {
@@ -1281,7 +1298,7 @@ function renderStockVisual(view, rows, oemF, locF, order){
     var c = OEM_COLORS[g.oem] || "#8a98a6";
     var all = []; g.models.forEach(function(m){ all = all.concat(m.rows); });
     var scale = Math.max.apply(null, all.map(function(r){ return Math.abs(r.stock); }).concat([1]));
-    var gStock = all.reduce(function(s,r){ return s + r.stock; }, 0);
+    var gStock = fgUnits(all, rows);
     var gNeg = all.filter(function(r){ return r.stock < 0; }).length;
     var loc = all[0].location === "integrated";
     return '<section class="fg-oem" style="--oc:' + c + '">' +
